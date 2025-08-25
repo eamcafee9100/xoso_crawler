@@ -1,0 +1,26 @@
+<!-- templates/results/partials/monthly_frequency_table.html -->
+{% load static %}
+{% load xs_tags %}
+<!-- templates/results/partials/monthly_frequency_table.html -->
+<div class="d-flex justify-content-between mb-3">
+    <h5>Thống kê từ {{ start_date|date:"d/m/Y" }} đến {{ end_date|date:"d/m/Y" }}</h5>
+    <div>
+        <a href="{% url 'number_frequency_api' %}?view_type=month&year={{ year }}&month={{ month }}&day_range={{ day_range }}" 
+           class="btn btn-sm btn-outline-secondary" target="_blank">
+            <i class="fas fa-download"></i> JSON
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i> Vui lòng chọn chế độ xem "Theo ngày trong tháng" hoặc "Theo thứ trong tuần" để xem bảng tần suất chi tiết.
+</div>
+
+<div class="d-flex justify-content-center my-4">
+    <a href="?view_type=day_of_month&year={{ year }}&month={{ month }}" class="btn btn-primary me-2">
+        <i class="fas fa-calendar-day"></i> Xem theo ngày trong tháng
+    </a>
+    <a href="?view_type=day_of_week&year={{ year }}&month={{ month }}" class="btn btn-primary">
+        <i class="fas fa-calendar-week"></i> Xem theo thứ trong tuần
+    </a>
+</div>

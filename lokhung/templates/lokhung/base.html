@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hệ thống dự đoán xổ số{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        .prediction-correct {
+            background: linear-gradient(135deg, #28a745 0%, #34ce57 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .prediction-wrong {
+            background: linear-gradient(135deg, #dc3545 0%, #fd5c70 100%);
+            color: white;
+        }
+        
+        .prediction-pending {
+            background: linear-gradient(135deg, #ffc107 0%, #ffcd39 100%);
+            color: #212529;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+        }
+        
+        .content-wrapper {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .card-custom {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: all 0.3s ease;
+        }
+        
+        .card-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+        
+        .method-card {
+            border-left: 4px solid #007bff;
+        }
+        
+        .method-card.high-success {
+            border-left-color: #28a745;
+        }
+        
+        .method-card.medium-success {
+            border-left-color: #ffc107;
+        }
+        
+        .method-card.low-success {
+            border-left-color: #dc3545;
+        }
+        
+        .number-highlight {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 25px;
+            font-weight: bold;
+            margin: 2px;
+            display: inline-block;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px #ff6b6b; }
+            to { box-shadow: 0 0 20px #ff6b6b, 0 0 30px #ff6b6b; }
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+        
+        .nav-link.active {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'results/includes/_header.html' %}
+    <div class="container-fluid">
+        
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white">
+                            <i class="fas fa-chart-line text-warning"></i>
+                            LoKhung Pro
+                        </h4>
+                        <small class="text-light">Xin chào, {{ user.username }}</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" 
+                               href="{% url 'lokhung:dashboard' %}">
+                                <i class="fas fa-tachometer-alt me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'phuong_phap' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:phuong_phap_list' %}">
+                                <i class="fas fa-cogs me-2"></i>
+                                Phương pháp
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'du_doan' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:du_doan_list' %}">
+                                <i class="fas fa-crystal-ball me-2"></i>
+                                Dự đoán
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'lo_khung' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:lo_khung_list' %}">
+                                <i class="fas fa-th-large me-2"></i>
+                                Lô khung
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'bao_cao' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:bao_cao_list' %}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Báo cáo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'bao_cao' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:monthly_performance_report' %}">
+                                <i class="fas fa-chart-bar me-2"></i>
+                                Báo cáo tháng
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'phan_tich' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:phan_tich_list' %}">
+                                <i class="fas fa-analytics me-2"></i>
+                                Phân tích
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link {% if 'canh_bao' in request.resolver_match.url_name %}active{% endif %}" 
+                               href="{% url 'lokhung:canh_bao_list' %}">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                Cảnh báo
+                                {% if canh_bao_chua_xu_ly > 0 %}
+                                <span class="badge bg-danger ms-2">{{ canh_bao_chua_xu_ly }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        
+                        <hr class="my-3" style="border-color: rgba(255,255,255,0.2);">
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin:index' %}" target="_blank">
+                                <i class="fas fa-tools me-2"></i>
+                                Admin
+                            </a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">
+                                <i class="fas fa-sign-out-alt me-2"></i>
+                                Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">{% block page_title %}Dashboard{% endblock %}</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        {% block page_actions %}{% endblock %}
+                    </div>
+                </div>
+                
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            $('.alert').fadeOut('slow');
+        }, 5000);
+        
+        // Confirmation for delete actions
+        $('.btn-danger').click(function(e) {
+            if ($(this).hasClass('confirm-delete')) {
+                if (!confirm('Bạn có chắc chắn muốn xóa?')) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

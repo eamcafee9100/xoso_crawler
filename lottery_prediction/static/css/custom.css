@@ -1,0 +1,76 @@
+/* BEM-style custom classes */
+.prediction-card {
+  transition: all 0.3s ease;
+}
+
+.prediction-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.table--predictions {
+  font-size: 0.9rem;
+}
+
+.table--predictions th {
+  font-weight: 500;
+}
+
+.chart-container {
+  position: relative;
+  height: 250px;
+  width: 100%;
+}
+
+/* Base styles */
+:root {
+    --primary-color: #4e73df;
+    --secondary-color: #858796;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
+    --light-color: #f8f9fc;
+    --dark-color: #5a5c69;
+}
+
+/* Main content min-height adjustment */
+.min-vh-100 {
+    min-height: 100vh;
+}
+
+/* Navbar customization */
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Toast notification adjustments */
+.toast {
+    max-width: 350px;
+}
+
+/* DataTables customization */
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_filter input {
+    font-size: 0.875rem;
+}
+
+/* Chart container sizing */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Print-specific styles */
+@media print {
+    .navbar, footer {
+        display: none !important;
+    }
+    
+    .container {
+        width: auto;
+        max-width: 100%;
+        padding: 0;
+    }
+}

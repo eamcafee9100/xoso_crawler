@@ -1,0 +1,64 @@
+{% load xs_tags %}
+
+<div class="row">
+    <div class="col-md-6">
+        <h5><i class="fas fa-star"></i> Xiên 2 tốt nhất</h5>
+        <div class="list-group">
+            {% get_best_pairs predictions as best_pairs %}
+            {% if best_pairs %}
+                {% for pair, score in best_pairs|slice:":5" %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        {{ pair.0|stringformat:"02d" }}-{{ pair.1|stringformat:"02d" }}
+                    </span>
+                    <div>
+                        <span class="badge bg-primary">
+                            {{ score|floatformat:2 }} điểm
+                        </span>
+                        {% if pair.0 in actual_numbers and pair.1 in actual_numbers %}
+                        <span class="badge bg-success ml-2">Trúng</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">Không có dữ liệu xiên 2</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h5><i class="fas fa-star"></i> Xiên 3 tốt nhất</h5>
+        <div class="list-group">
+            {% get_best_triples predictions as best_triples %}
+            {% if best_triples %}
+                {% for triple, score in best_triples|slice:":3" %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        {{ triple.0|stringformat:"02d" }}-{{ triple.1|stringformat:"02d" }}-{{ triple.2|stringformat:"02d" }}
+                    </span>
+                    <div>
+                        <span class="badge bg-primary">
+                            {{ score|floatformat:2 }} điểm
+                        </span>
+                        {% if triple.0 in actual_numbers and triple.1 in actual_numbers and triple.2 in actual_numbers %}
+                        <span class="badge bg-success ml-2">Trúng</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning">Không có dữ liệu xiên 3</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 alert alert-info">
+    <h5><i class="fas fa-lightbulb"></i> Gợi ý chọn số</h5>
+    <ul class="mb-1">
+        <li>Ưu tiên các xiên có điểm số cao (> 80 điểm)</li>
+        <li>Kết hợp giữa số nóng và số có độ tin cậy cao</li>
+        <li>Kiểm tra lịch sử xuất hiện của các số trong xiên</li>
+    </ul>
+</div>

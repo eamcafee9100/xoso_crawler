@@ -1,0 +1,306 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-ticket-alt"></i> Kết Quả Xổ Số Miền Bắc - {{ result.thu }} {{ result.ngay|date:"d/m/Y" }}
+            </h4>
+        </div>
+        
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-sm mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width: 50px">Giải</th>
+                            <th colspan="3">Số Trúng</th>
+                            <th style="width: 50px">Đầu</th>
+                            <th>Lô tô</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Giải ĐB -->
+                        <tr>
+                            <td class="font-weight-bold bg-light">ĐB</td>
+                            <td colspan="3" class="font-weight-bold">{{ result.giai_db }}</td>
+                            <td class="font-weight-bold bg-light">Đầu</td>
+                            <td>
+                                <span class="badge bg-info">{{ result.giai_db|slice:"0:1" }}</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải 1 -->
+                        <tr>
+                            <td class="font-weight-bold bg-light">1</td>
+                            <td colspan="3">{{ result.giai_1 }}</td>
+                            <td class="font-weight-bold bg-light">Đuôi</td>
+                            <td>
+                                <span class="badge bg-info">{{ result.giai_db|slice:"-1:" }}</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải 2 -->
+                        {% for row in result.giai_2 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_2|length }}" class="font-weight-bold bg-light align-middle">2</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_2|length }}" class="font-weight-bold bg-light align-middle">0</td>
+                                <td rowspan="{{ result.giai_2|length }}" class="align-middle">
+                                    {% for num in result.lo_to.0 %}
+                                        <span class="badge bg-primary me-1">{{ num }}</span>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        
+                        <!-- Giải 3 -->
+                        {% for row in result.giai_3 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_3|length }}" class="font-weight-bold bg-light align-middle">3</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td class="font-weight-bold bg-light">1</td>
+                                <td>
+                                    {% for num in result.lo_to.1 %}
+                                        <span class="badge bg-primary me-1">{{ num }}</span>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% if forloop.counter == 1 %}
+                        <tr>
+                            <td class="font-weight-bold bg-light">2</td>
+                            <td>
+                                {% for num in result.lo_to.2 %}
+                                    <span class="badge bg-primary me-1">{{ num }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold bg-light">3</td>
+                            <td>
+                                {% for num in result.lo_to.3 %}
+                                    <span class="badge bg-primary me-1">{{ num }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Giải 4 -->
+                        {% for row in result.giai_4 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_4|length }}" class="font-weight-bold bg-light align-middle">4</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td class="font-weight-bold bg-light">4</td>
+                                <td>
+                                    {% for num in result.lo_to.4 %}
+                                        <span class="badge bg-primary me-1">{{ num }}</span>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% if forloop.counter == 1 %}
+                        <tr>
+                            <td class="font-weight-bold bg-light">5</td>
+                            <td>
+                                {% for num in result.lo_to.5 %}
+                                    <span class="badge bg-primary me-1">{{ num }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Giải 5 -->
+                        {% for row in result.giai_5 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_5|length }}" class="font-weight-bold bg-light align-middle">5</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td class="font-weight-bold bg-light">6</td>
+                                <td>
+                                    {% for num in result.lo_to.6 %}
+                                        <span class="badge bg-primary me-1">{{ num }}</span>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% if forloop.counter == 1 %}
+                        <tr>
+                            <td class="font-weight-bold bg-light">7</td>
+                            <td>
+                                {% for num in result.lo_to.7 %}
+                                    <span class="badge bg-primary me-1">{{ num }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="font-weight-bold bg-light">8</td>
+                            <td>
+                                {% for num in result.lo_to.8 %}
+                                    <span class="badge bg-primary me-1">{{ num }}</span>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Giải 6 -->
+                        {% for row in result.giai_6 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_6|length }}" class="font-weight-bold bg-light align-middle">6</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td class="font-weight-bold bg-light">9</td>
+                                <td>
+                                    {% for num in result.lo_to.9 %}
+                                        <span class="badge bg-primary me-1">{{ num }}</span>
+                                    {% endfor %}
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                        
+                        <!-- Giải 7 -->
+                        {% for row in result.giai_7 %}
+                        <tr>
+                            {% if forloop.first %}
+                                <td rowspan="{{ result.giai_7|length }}" class="font-weight-bold bg-light align-middle">7</td>
+                            {% endif %}
+                            
+                            {% for num in row %}
+                                <td>{{ num }}</td>
+                            {% endfor %}
+                            
+                            {% with empty=2|subtract:row|length %}
+                                {% if empty > 0 %}
+                                    {% for _ in ""|center:empty %}
+                                        <td>-</td>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
+                            
+                            {% if forloop.first %}
+                                <td class="font-weight-bold bg-light">ĐB</td>
+                                <td>
+                                    <span class="badge bg-danger">{{ result.giai_db }}</span>
+                                </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Đảm bảo bảng hiển thị đẹp */
+    .table-sm td, .table-sm th {
+        padding: 0.3rem;
+        vertical-align: middle;
+    }
+    
+    /* Căn giữa nội dung các ô */
+    .table td, .table th {
+        text-align: center;
+    }
+    
+    /* Màu nền cho các giải */
+    .bg-light {
+        background-color: #f8f9fa!important;
+    }
+    
+    /* Định dạng badge lô tô */
+    .badge {
+        font-size: 0.85em;
+        font-weight: normal;
+        padding: 0.35em 0.65em;
+        margin: 0.1em;
+    }
+    
+    /* Màu đặc biệt cho giải ĐB */
+    .bg-danger {
+        background-color: #dc3545!important;
+    }
+</style>
+{% endblock %}

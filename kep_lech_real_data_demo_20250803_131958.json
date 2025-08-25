@@ -1,0 +1,2548 @@
+{
+  "timestamp": "2025-08-03T13:19:58.078043",
+  "data_info": {
+    "total_records": 59,
+    "date_range": "2025-06-04 to 2025-08-03",
+    "training_records": 47,
+    "test_records": 12
+  },
+  "analysis": {
+    "total_records": 59,
+    "kep_analysis": {
+      "giai_dac_biet": {
+        "KEP_DUONG": [
+          "62",
+          "92",
+          "42",
+          "90",
+          "88",
+          "02",
+          "44",
+          "56",
+          "24",
+          "82",
+          "88",
+          "06",
+          "34",
+          "36",
+          "62",
+          "94",
+          "68",
+          "18",
+          "44",
+          "12",
+          "56",
+          "40",
+          "62",
+          "56",
+          "80",
+          "00",
+          "00",
+          "06",
+          "22",
+          "76",
+          "70",
+          "68",
+          "54",
+          "02"
+        ],
+        "KEP_AM": [
+          "21",
+          "39",
+          "57",
+          "49",
+          "99",
+          "03",
+          "01",
+          "57",
+          "03",
+          "07",
+          "69",
+          "15",
+          "05",
+          "79",
+          "59",
+          "11",
+          "55",
+          "21",
+          "45",
+          "81",
+          "21",
+          "19",
+          "73",
+          "25",
+          "19"
+        ],
+        "SAT_KEP": [],
+        "OTHER": []
+      },
+      "giai_7": {
+        "KEP_DUONG": [
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92",
+          "96",
+          "54",
+          "40",
+          "26",
+          "40",
+          "88",
+          "54",
+          "34",
+          "52",
+          "64",
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "KEP_AM": [
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57",
+          "19",
+          "95",
+          "17",
+          "65",
+          "63",
+          "99",
+          "33",
+          "95",
+          "75",
+          "89",
+          "27",
+          "81",
+          "59",
+          "57"
+        ],
+        "SAT_KEP": [],
+        "OTHER": []
+      }
+    },
+    "frequency_stats": {
+      "giai_dac_biet": {
+        "KEP_DUONG": 34,
+        "KEP_AM": 25,
+        "SAT_KEP": 0,
+        "OTHER": 0
+      },
+      "giai_7": {
+        "KEP_DUONG": 121,
+        "KEP_AM": 115,
+        "SAT_KEP": 0,
+        "OTHER": 0
+      }
+    },
+    "detailed_records": [
+      {
+        "ngay": "2025-06-04",
+        "thu": "WED",
+        "giai_db": "37921",
+        "giai_db_2so_cuoi": "21",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-05",
+        "thu": "THU",
+        "giai_db": "81062",
+        "giai_db_2so_cuoi": "62",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-06",
+        "thu": "FRI",
+        "giai_db": "44792",
+        "giai_db_2so_cuoi": "92",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-07",
+        "thu": "SAT",
+        "giai_db": "67142",
+        "giai_db_2so_cuoi": "42",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-08",
+        "thu": "SUN",
+        "giai_db": "67490",
+        "giai_db_2so_cuoi": "90",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-09",
+        "thu": "MON",
+        "giai_db": "23488",
+        "giai_db_2so_cuoi": "88",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-10",
+        "thu": "TUE",
+        "giai_db": "11139",
+        "giai_db_2so_cuoi": "39",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-11",
+        "thu": "WED",
+        "giai_db": "57457",
+        "giai_db_2so_cuoi": "57",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-12",
+        "thu": "THU",
+        "giai_db": "37649",
+        "giai_db_2so_cuoi": "49",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-13",
+        "thu": "FRI",
+        "giai_db": "90402",
+        "giai_db_2so_cuoi": "02",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-14",
+        "thu": "SAT",
+        "giai_db": "59044",
+        "giai_db_2so_cuoi": "44",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-15",
+        "thu": "SUN",
+        "giai_db": "32099",
+        "giai_db_2so_cuoi": "99",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-16",
+        "thu": "MON",
+        "giai_db": "12456",
+        "giai_db_2so_cuoi": "56",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-17",
+        "thu": "TUE",
+        "giai_db": "10724",
+        "giai_db_2so_cuoi": "24",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-18",
+        "thu": "WED",
+        "giai_db": "10682",
+        "giai_db_2so_cuoi": "82",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-19",
+        "thu": "THU",
+        "giai_db": "76288",
+        "giai_db_2so_cuoi": "88",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-20",
+        "thu": "FRI",
+        "giai_db": "04906",
+        "giai_db_2so_cuoi": "06",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-21",
+        "thu": "SAT",
+        "giai_db": "04603",
+        "giai_db_2so_cuoi": "03",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-22",
+        "thu": "SUN",
+        "giai_db": "27301",
+        "giai_db_2so_cuoi": "01",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-23",
+        "thu": "MON",
+        "giai_db": "52157",
+        "giai_db_2so_cuoi": "57",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-24",
+        "thu": "TUE",
+        "giai_db": "90034",
+        "giai_db_2so_cuoi": "34",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-25",
+        "thu": "WED",
+        "giai_db": "94736",
+        "giai_db_2so_cuoi": "36",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-26",
+        "thu": "THU",
+        "giai_db": "18703",
+        "giai_db_2so_cuoi": "03",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-27",
+        "thu": "FRI",
+        "giai_db": "69862",
+        "giai_db_2so_cuoi": "62",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-28",
+        "thu": "SAT",
+        "giai_db": "44194",
+        "giai_db_2so_cuoi": "94",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-29",
+        "thu": "SUN",
+        "giai_db": "53368",
+        "giai_db_2so_cuoi": "68",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-06-30",
+        "thu": "MON",
+        "giai_db": "90207",
+        "giai_db_2so_cuoi": "07",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-01",
+        "thu": "TUE",
+        "giai_db": "77818",
+        "giai_db_2so_cuoi": "18",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-02",
+        "thu": "WED",
+        "giai_db": "85644",
+        "giai_db_2so_cuoi": "44",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-03",
+        "thu": "THU",
+        "giai_db": "44369",
+        "giai_db_2so_cuoi": "69",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-04",
+        "thu": "FRI",
+        "giai_db": "63315",
+        "giai_db_2so_cuoi": "15",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-05",
+        "thu": "SAT",
+        "giai_db": "18512",
+        "giai_db_2so_cuoi": "12",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-06",
+        "thu": "SUN",
+        "giai_db": "51105",
+        "giai_db_2so_cuoi": "05",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-07",
+        "thu": "MON",
+        "giai_db": "66256",
+        "giai_db_2so_cuoi": "56",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-08",
+        "thu": "TUE",
+        "giai_db": "34679",
+        "giai_db_2so_cuoi": "79",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-09",
+        "thu": "WED",
+        "giai_db": "62659",
+        "giai_db_2so_cuoi": "59",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-10",
+        "thu": "THU",
+        "giai_db": "38840",
+        "giai_db_2so_cuoi": "40",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-11",
+        "thu": "FRI",
+        "giai_db": "59411",
+        "giai_db_2so_cuoi": "11",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-12",
+        "thu": "SAT",
+        "giai_db": "78662",
+        "giai_db_2so_cuoi": "62",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-13",
+        "thu": "SUN",
+        "giai_db": "85456",
+        "giai_db_2so_cuoi": "56",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-14",
+        "thu": "MON",
+        "giai_db": "57880",
+        "giai_db_2so_cuoi": "80",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-15",
+        "thu": "TUE",
+        "giai_db": "38355",
+        "giai_db_2so_cuoi": "55",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-16",
+        "thu": "WED",
+        "giai_db": "56621",
+        "giai_db_2so_cuoi": "21",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-17",
+        "thu": "THU",
+        "giai_db": "47000",
+        "giai_db_2so_cuoi": "00",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-18",
+        "thu": "FRI",
+        "giai_db": "26000",
+        "giai_db_2so_cuoi": "00",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-19",
+        "thu": "SAT",
+        "giai_db": "15306",
+        "giai_db_2so_cuoi": "06",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-20",
+        "thu": "SUN",
+        "giai_db": "87545",
+        "giai_db_2so_cuoi": "45",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-21",
+        "thu": "MON",
+        "giai_db": "01681",
+        "giai_db_2so_cuoi": "81",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-22",
+        "thu": "TUE",
+        "giai_db": "09022",
+        "giai_db_2so_cuoi": "22",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-23",
+        "thu": "WED",
+        "giai_db": "49821",
+        "giai_db_2so_cuoi": "21",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-24",
+        "thu": "THU",
+        "giai_db": "35919",
+        "giai_db_2so_cuoi": "19",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-25",
+        "thu": "FRI",
+        "giai_db": "85676",
+        "giai_db_2so_cuoi": "76",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-26",
+        "thu": "SAT",
+        "giai_db": "33670",
+        "giai_db_2so_cuoi": "70",
+        "giai_7_numbers": [
+          "19",
+          "95",
+          "96",
+          "17"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "19",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "96",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "17",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-27",
+        "thu": "SUN",
+        "giai_db": "64268",
+        "giai_db_2so_cuoi": "68",
+        "giai_7_numbers": [
+          "65",
+          "63",
+          "54",
+          "99"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "65",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "63",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "99",
+              "type": "KEP_AM"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-28",
+        "thu": "MON",
+        "giai_db": "40273",
+        "giai_db_2so_cuoi": "73",
+        "giai_7_numbers": [
+          "33",
+          "95",
+          "75",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "33",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "95",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "75",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-29",
+        "thu": "TUE",
+        "giai_db": "25525",
+        "giai_db_2so_cuoi": "25",
+        "giai_7_numbers": [
+          "89",
+          "27",
+          "26",
+          "40"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "89",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "27",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "26",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "40",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-30",
+        "thu": "WED",
+        "giai_db": "14819",
+        "giai_db_2so_cuoi": "19",
+        "giai_7_numbers": [
+          "81",
+          "88",
+          "54",
+          "34"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_AM",
+          "giai_7": [
+            {
+              "number": "81",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "88",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "54",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "34",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-07-31",
+        "thu": "THU",
+        "giai_db": "97354",
+        "giai_db_2so_cuoi": "54",
+        "giai_7_numbers": [
+          "59",
+          "52",
+          "57",
+          "64"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "59",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "52",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "57",
+              "type": "KEP_AM"
+            },
+            {
+              "number": "64",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      },
+      {
+        "ngay": "2025-08-01",
+        "thu": "FRI",
+        "giai_db": "76902",
+        "giai_db_2so_cuoi": "02",
+        "giai_7_numbers": [
+          "98",
+          "60",
+          "30",
+          "92"
+        ],
+        "kep_patterns": {
+          "giai_db": "KEP_DUONG",
+          "giai_7": [
+            {
+              "number": "98",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "60",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "30",
+              "type": "KEP_DUONG"
+            },
+            {
+              "number": "92",
+              "type": "KEP_DUONG"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "predictions": {
+    "prediction_date": "2025-07-21",
+    "predictions": [
+      {
+        "number": "12",
+        "source": "SAT_KEP",
+        "confidence": 0.9,
+        "reason": "Sát kép thiếu"
+      },
+      {
+        "number": "21",
+        "source": "SAT_KEP",
+        "confidence": 0.8,
+        "reason": "Sát kép thiếu"
+      },
+      {
+        "number": "23",
+        "source": "SAT_KEP",
+        "confidence": 0.7,
+        "reason": "Sát kép thiếu"
+      },
+      {
+        "number": "07",
+        "source": "KEP_AM",
+        "confidence": 0.6,
+        "reason": "Counter KEP_DUONG"
+      },
+      {
+        "number": "32",
+        "source": "SAT_KEP",
+        "confidence": 0.6,
+        "reason": "Counter KEP_DUONG"
+      },
+      {
+        "number": "08",
+        "source": "G7_INFLUENCE",
+        "confidence": 0.5,
+        "reason": "Giải 7 ảnh hưởng kép dương"
+      }
+    ],
+    "analysis_summary": {
+      "total_records": 47,
+      "db_ratios": {
+        "KEP_DUONG": 0.5957446808510638,
+        "KEP_AM": 0.40425531914893614,
+        "SAT_KEP": 0.0
+      },
+      "g7_ratios": {
+        "KEP_DUONG": 0.5053191489361702,
+        "KEP_AM": 0.4946808510638298,
+        "SAT_KEP": 0.0
+      },
+      "dominant_db_type": "KEP_DUONG",
+      "dominant_g7_type": "KEP_DUONG"
+    },
+    "method_used": [
+      "frequency_based",
+      "counter_trend",
+      "g7_influence"
+    ]
+  },
+  "evaluation": {
+    "total_predictions": 6,
+    "total_actual_results": 12,
+    "hits": [
+      {
+        "date": "2025-07-23",
+        "actual_giai_db": "49821",
+        "actual_2so_cuoi": "21",
+        "predicted": true,
+        "matching_prediction": {
+          "number": "21",
+          "source": "SAT_KEP",
+          "confidence": 0.8,
+          "reason": "Sát kép thiếu"
+        }
+      }
+    ],
+    "misses": [
+      {
+        "date": "2025-07-21",
+        "actual_giai_db": "01681",
+        "actual_2so_cuoi": "81",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-22",
+        "actual_giai_db": "09022",
+        "actual_2so_cuoi": "22",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-24",
+        "actual_giai_db": "35919",
+        "actual_2so_cuoi": "19",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-25",
+        "actual_giai_db": "85676",
+        "actual_2so_cuoi": "76",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-26",
+        "actual_giai_db": "33670",
+        "actual_2so_cuoi": "70",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-27",
+        "actual_giai_db": "64268",
+        "actual_2so_cuoi": "68",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-28",
+        "actual_giai_db": "40273",
+        "actual_2so_cuoi": "73",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-29",
+        "actual_giai_db": "25525",
+        "actual_2so_cuoi": "25",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-30",
+        "actual_giai_db": "14819",
+        "actual_2so_cuoi": "19",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-31",
+        "actual_giai_db": "97354",
+        "actual_2so_cuoi": "54",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-08-01",
+        "actual_giai_db": "76902",
+        "actual_2so_cuoi": "02",
+        "predicted": false,
+        "matching_prediction": null
+      }
+    ],
+    "accuracy_stats": {
+      "hit_count": 1,
+      "miss_count": 11,
+      "hit_rate": 0.08333333333333333,
+      "confidence_weighted_score": 0.19512195121951217
+    },
+    "detailed_comparison": [
+      {
+        "date": "2025-07-21",
+        "actual_giai_db": "01681",
+        "actual_2so_cuoi": "81",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-22",
+        "actual_giai_db": "09022",
+        "actual_2so_cuoi": "22",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-23",
+        "actual_giai_db": "49821",
+        "actual_2so_cuoi": "21",
+        "predicted": true,
+        "matching_prediction": {
+          "number": "21",
+          "source": "SAT_KEP",
+          "confidence": 0.8,
+          "reason": "Sát kép thiếu"
+        }
+      },
+      {
+        "date": "2025-07-24",
+        "actual_giai_db": "35919",
+        "actual_2so_cuoi": "19",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-25",
+        "actual_giai_db": "85676",
+        "actual_2so_cuoi": "76",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-26",
+        "actual_giai_db": "33670",
+        "actual_2so_cuoi": "70",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-27",
+        "actual_giai_db": "64268",
+        "actual_2so_cuoi": "68",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-28",
+        "actual_giai_db": "40273",
+        "actual_2so_cuoi": "73",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-29",
+        "actual_giai_db": "25525",
+        "actual_2so_cuoi": "25",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-30",
+        "actual_giai_db": "14819",
+        "actual_2so_cuoi": "19",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-07-31",
+        "actual_giai_db": "97354",
+        "actual_2so_cuoi": "54",
+        "predicted": false,
+        "matching_prediction": null
+      },
+      {
+        "date": "2025-08-01",
+        "actual_giai_db": "76902",
+        "actual_2so_cuoi": "02",
+        "predicted": false,
+        "matching_prediction": null
+      }
+    ]
+  },
+  "summary": {
+    "hit_rate": 0.08333333333333333,
+    "confidence_score": 0.19512195121951217,
+    "method_effectiveness": "LOW"
+  }
+}

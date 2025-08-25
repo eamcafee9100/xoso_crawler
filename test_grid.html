@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Template Debug</title>
+    <style>
+        .frequency-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 2px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .frequency-cell {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-height: 50px;
+            flex-direction: column;
+        }
+        
+        .frequency-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+            border: 2px solid #007bff;
+        }
+        
+        .frequency-cell.hot { background-color: #ff6b6b; color: white; }
+        .frequency-cell.warm { background-color: #ffa726; color: white; }
+        .frequency-cell.normal { background-color: #66bb6a; color: white; }
+        .frequency-cell.cool { background-color: #42a5f5; color: white; }
+        .frequency-cell.cold { background-color: #78909c; color: white; }
+    </style>
+</head>
+<body>
+    <h1>Test Frequency Grid</h1>
+    
+    <div class="frequency-grid">
+        <!-- Generate 100 cells for numbers 00-99 -->
+        <script>
+            // Generate grid programmatically to test
+            const grid = document.querySelector('.frequency-grid');
+            
+            for (let i = 0; i < 100; i++) {
+                const number = i.toString().padStart(2, '0');
+                const ganDays = Math.floor(Math.random() * 30); // Random gan days for test
+                
+                let className = 'hot';
+                if (ganDays >= 20) className = 'cold';
+                else if (ganDays >= 15) className = 'cool';
+                else if (ganDays >= 10) className = 'normal';
+                else if (ganDays >= 5) className = 'warm';
+                
+                const cell = document.createElement('div');
+                cell.className = `frequency-cell number-analysis-btn ${className}`;
+                cell.setAttribute('data-number', number);
+                cell.title = `Số ${number}: Gan ${ganDays} ngày`;
+                cell.innerHTML = `${number}<small class="d-block">${ganDays}d</small>`;
+                
+                // Add click handler
+                cell.addEventListener('click', function() {
+                    showNumberAnalysis(number);
+                });
+                
+                grid.appendChild(cell);
+            }
+            
+            // Test function
+            function showNumberAnalysis(number) {
+                alert(`Clicked on number: ${number}\nThis should open a modal with detailed analysis.`);
+                
+                // Test API call
+                fetch(`/results/number-analysis/?number=${number}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('API Response:', data);
+                        if (data.success) {
+                            console.log('Analysis data:', data.analysis);
+                        } else {
+                            console.error('API Error:', data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Network Error:', error);
+                    });
+            }
+        </script>
+    </div>
+    
+    <hr>
+    
+    <h2>Test Heatmap API</h2>
+    <button onclick="testHeatmap()">Test Heatmap Generation</button>
+    <div id="heatmap-result"></div>
+    
+    <script>
+        function testHeatmap() {
+            const resultDiv = document.getElementById('heatmap-result');
+            resultDiv.innerHTML = 'Loading...';
+            
+            fetch('/results/frequency-heatmap/?period=30&type=frequency')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Heatmap API Response:', data);
+                    if (data.success) {
+                        resultDiv.innerHTML = `<strong>Success!</strong><br>Data points: ${data.data.length}<br>Value range: ${JSON.stringify(data.value_range)}`;
+                    } else {
+                        resultDiv.innerHTML = `<strong>Error:</strong> ${data.error}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Heatmap Network Error:', error);
+                    resultDiv.innerHTML = `<strong>Network Error:</strong> ${error.message}`;
+                });
+        }
+    </script>
+</body>
+</html>

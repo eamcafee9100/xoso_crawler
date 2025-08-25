@@ -1,0 +1,697 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block title %}So Sánh Phương Pháp Bạch Thủ Lô{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .hit-rate-high {
+        color: #198754;
+        font-weight: bold;
+    }
+    .hit-rate-medium {
+        color: #fd7e14;
+        font-weight: bold;
+    }
+    .hit-rate-low {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .profit-positive {
+        color: #198754;
+        font-weight: bold;
+    }
+    .profit-negative {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .trend-up {
+        color: #198754;
+    }
+    .trend-down {
+        color: #dc3545;
+    }
+    .trend-stable {
+        color: #6c757d;
+    }
+    .method-name {
+        font-weight: 500;
+    }
+    .date-range-form {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+    .stat-card {
+        transition: all 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .method-detail-card {
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+    .method-detail-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    .performance-chart {
+        height: 150px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Tiêu đề và bộ lọc -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-4">So Sánh Phương Pháp Bạch Thủ Lô</h1>
+            
+            <div class="card date-range-form mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label">Từ ngày</label>
+                            <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label">Đến ngày</label>
+                            <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="days" class="form-label">Hoặc số ngày gần đây</label>
+                            <select class="form-select" id="days" name="days">
+                                <option value="7" {% if days == 7 %}selected{% endif %}>7 ngày</option>
+                                <option value="14" {% if days == 14 %}selected{% endif %}>14 ngày</option>
+                                <option value="30" {% if days == 30 %}selected{% endif %}>30 ngày</option>
+                                <option value="60" {% if days == 60 %}selected{% endif %}>60 ngày</option>
+                                <option value="90" {% if days == 90 %}selected{% endif %}>90 ngày</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Áp dụng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Thẻ thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Khoảng Thời Gian</h5>
+                    <p class="stat-value">{{ days }} ngày</p>
+                    <p class="card-text">{{ start_date|date:"d/m/Y" }} - {{ end_date|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tổng Số Phương Pháp</h5>
+                    <p class="stat-value">{{ sorted_methods|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Tỷ Lệ Trúng Trung Bình</h5>
+                    <p class="stat-value">
+                        {% with total_hit_rate=0 %}
+                            {% for method in sorted_methods %}
+                                {% with total_hit_rate=total_hit_rate|add:method.hit_rate %}{% endwith %}
+                            {% endfor %}
+                            {% if sorted_methods %}
+                                {{ avg_hit_rate|floatformat:1 }}%
+                            {% else %}
+                                0.0%
+                            {% endif %}
+                        {% endwith %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Phương Pháp Tốt Nhất</h5>
+                    <p class="stat-value">
+                        {% if sorted_methods %}
+                            {{ sorted_methods.0.hit_rate|floatformat:1 }}%
+                            <small>({{ sorted_methods.0.name }})</small>
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="comparisonTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#table-content" type="button" role="tab" aria-controls="table-content" aria-selected="true">
+                <i class="bi bi-table"></i> Bảng So Sánh
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="charts-tab" data-bs-toggle="tab" data-bs-target="#charts-content" type="button" role="tab" aria-controls="charts-content" aria-selected="false">
+                <i class="bi bi-graph-up"></i> Biểu Đồ
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="details-tab" data-bs-toggle="tab" data-bs-target="#details-content" type="button" role="tab" aria-controls="details-content" aria-selected="false">
+                <i class="bi bi-card-list"></i> Chi Tiết Phương Pháp
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="comparisonTabsContent">
+        <!-- Tab Bảng So Sánh -->
+        <div class="tab-pane fade show active" id="table-content" role="tabpanel" aria-labelledby="table-tab">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">So Sánh Hiệu Suất Phương Pháp</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Phương Pháp</th>
+                                    <th class="text-center">Số Dự Đoán</th>
+                                    <th class="text-center">Số Trúng</th>
+                                    <th class="text-center">Tỷ Lệ Trúng</th>
+                                    <th class="text-center">Số Ngày Dùng</th>
+                                    <th class="text-center">Số Ngày Trúng</th>
+                                    <th class="text-center">Tỷ Lệ Ngày Trúng</th>
+                                    <th class="text-center">Xu Hướng</th>
+                                    <th class="text-end">Lợi Nhuận</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method in sorted_methods %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td class="method-name">{{ method.name }}</td>
+                                    <td class="text-center">{{ method.total_predictions }}</td>
+                                    <td class="text-center">{{ method.total_hits }}</td>
+                                    <td class="text-center {% if method.hit_rate >= 20 %}hit-rate-high{% elif method.hit_rate >= 10 %}hit-rate-medium{% else %}hit-rate-low{% endif %}">
+                                        {{ method.hit_rate|floatformat:1 }}%
+                                    </td>
+                                    <td class="text-center">{{ method.days_used }}</td>
+                                    <td class="text-center">{{ method.days_hit }}</td>
+                                    <td class="text-center {% if method.days_hit_rate >= 50 %}hit-rate-high{% elif method.days_hit_rate >= 30 %}hit-rate-medium{% else %}hit-rate-low{% endif %}">
+                                        {{ method.days_hit_rate|floatformat:1 }}%
+                                    </td>
+                                    <td class="text-center">
+                                        {% if method.trend == 'up' %}
+                                            <span class="trend-up"><i class="bi bi-arrow-up-circle-fill"></i> Tăng</span>
+                                        {% elif method.trend == 'down' %}
+                                            <span class="trend-down"><i class="bi bi-arrow-down-circle-fill"></i> Giảm</span>
+                                        {% else %}
+                                            <span class="trend-stable"><i class="bi bi-dash-circle-fill"></i> Ổn định</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end {% if method.total_profit > 0 %}profit-positive{% elif method.total_profit < 0 %}profit-negative{% endif %}">
+                                        {% if method.total_profit > 0 %}+{% endif %}{{ method.total_profit|floatformat:0 }}₫
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="10" class="text-center">Không có dữ liệu phương pháp nào trong khoảng thời gian này</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Biểu Đồ -->
+        <div class="tab-pane fade" id="charts-content" role="tabpanel" aria-labelledby="charts-tab">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Top 10 Phương Pháp Theo Tỷ Lệ Trúng</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="methodHitRateChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Top 10 Phương Pháp Theo Lợi Nhuận</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="methodProfitChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">So Sánh Tỷ Lệ Trúng và Tỷ Lệ Ngày Trúng</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="rateComparisonChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Phân Bố Xu Hướng Phương Pháp</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trendDistributionChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Chi Tiết Phương Pháp -->
+        <div class="tab-pane fade" id="details-content" role="tabpanel" aria-labelledby="details-tab">
+            <div class="row">
+                {% for method in sorted_methods %}
+                    {% if forloop.counter <= 12 %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card method-detail-card h-100">
+                            <div class="card-header {% if method.hit_rate >= 20 %}bg-success{% elif method.hit_rate >= 10 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                                <h5 class="mb-0">{{ method.name }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="performance-chart mb-3">
+                                    <canvas id="methodChart{{ method.id }}" height="150"></canvas>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <span class="text-muted">Tỷ lệ trúng:</span>
+                                    </div>
+                                    <div class="col-6 text-end {% if method.hit_rate >= 20 %}hit-rate-high{% elif method.hit_rate >= 10 %}hit-rate-medium{% else %}hit-rate-low{% endif %}">
+                                        <strong>{{ method.hit_rate|floatformat:1 }}%</strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <span class="text-muted">Số trúng/Dự đoán:</span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        <strong>{{ method.total_hits }}/{{ method.total_predictions }}</strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <span class="text-muted">Tỷ lệ ngày trúng:</span>
+                                    </div>
+                                    <div class="col-6 text-end {% if method.days_hit_rate >= 50 %}hit-rate-high{% elif method.days_hit_rate >= 30 %}hit-rate-medium{% else %}hit-rate-low{% endif %}">
+                                        <strong>{{ method.days_hit_rate|floatformat:1 }}%</strong>
+                                        <small>({{ method.days_hit }}/{{ method.days_used }})</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mb-2">
+                                    <div class="col-6">
+                                        <span class="text-muted">Xu hướng:</span>
+                                    </div>
+                                    <div class="col-6 text-end">
+                                        {% if method.trend == 'up' %}
+                                            <span class="trend-up"><i class="bi bi-arrow-up-circle-fill"></i> Tăng</span>
+                                        {% elif method.trend == 'down' %}
+                                            <span class="trend-down"><i class="bi bi-arrow-down-circle-fill"></i> Giảm</span>
+                                        {% else %}
+                                            <span class="trend-stable"><i class="bi bi-dash-circle-fill"></i> Ổn định</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-6">
+                                        <span class="text-muted">Lợi nhuận:</span>
+                                    </div>
+                                    <div class="col-6 text-end {% if method.total_profit > 0 %}profit-positive{% elif method.total_profit < 0 %}profit-negative{% endif %}">
+                                        <strong>{% if method.total_profit > 0 %}+{% endif %}{{ method.total_profit|floatformat:0 }}</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            Không có dữ liệu phương pháp nào trong khoảng thời gian này
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                {% if sorted_methods|length > 12 %}
+                    <div class="col-12 text-center mt-3 mb-4">
+                        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#moreMethods" aria-expanded="false" aria-controls="moreMethods">
+                            Xem thêm {{ sorted_methods|length|subtract:12 }} phương pháp <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="collapse" id="moreMethods">
+                        <div class="row">
+                            {% for method in sorted_methods %}
+                                {% if forloop.counter > 12 %}
+                                <div class="col-md-6 col-lg-4 mb-4">
+                                    <div class="card method-detail-card h-100">
+                                        <!-- Nội dung giống như trên -->
+                                        <div class="card-header {% if method.hit_rate >= 20 %}bg-success{% elif method.hit_rate >= 10 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                                            <h5 class="mb-0">{{ method.name }}</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <!-- Nội dung thống kê giống như trên -->
+                                            <div class="performance-chart mb-3">
+                                                <canvas id="methodChart{{ method.id }}" height="150"></canvas>
+                                            </div>
+                                            
+                                            <!-- Các thông tin khác -->
+                                            <div class="row mb-2">
+                                                <div class="col-6">
+                                                    <span class="text-muted">Tỷ lệ trúng:</span>
+                                                </div>
+                                                <div class="col-6 text-end {% if method.hit_rate >= 20 %}hit-rate-high{% elif method.hit_rate >= 10 %}hit-rate-medium{% else %}hit-rate-low{% endif %}">
+                                                    <strong>{{ method.hit_rate|floatformat:1 }}%</strong>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Các hàng khác giống như trên -->
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Khởi tạo date picker
+        flatpickr(".datepicker", {
+            dateFormat: "Y-m-d",
+            maxDate: "today"
+        });
+           
+        // Dữ liệu cho biểu đồ
+        const sortedMethods = {{ sorted_methods|safe }};
+        
+        // Màu cho biểu đồ
+        const chartColors = [
+            'rgba(54, 162, 235, 0.7)', 'rgba(255, 99, 132, 0.7)', 
+            'rgba(75, 192, 192, 0.7)', 'rgba(255, 159, 64, 0.7)',
+            'rgba(153, 102, 255, 0.7)', 'rgba(255, 205, 86, 0.7)',
+            'rgba(201, 203, 207, 0.7)', 'rgba(255, 99, 71, 0.7)',
+            'rgba(46, 139, 87, 0.7)', 'rgba(139, 69, 19, 0.7)'
+        ];
+        
+        // Biểu đồ Top 10 Phương Pháp Theo Tỷ Lệ Trúng
+        const top10Methods = sortedMethods.slice(0, 10);
+        if (top10Methods.length > 0) {
+            const hitRateChart = new Chart(
+                document.getElementById('methodHitRateChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: top10Methods.map(m => m.name),
+                        datasets: [{
+                            label: 'Tỷ lệ trúng (%)',
+                            data: top10Methods.map(m => m.hit_rate),
+                            backgroundColor: chartColors,
+                            borderColor: chartColors.map(c => c.replace('0.7', '1')),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Tỷ lệ trúng: ${context.raw.toFixed(1)}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tỷ lệ trúng (%)'
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Biểu đồ Top 10 Phương Pháp Theo Lợi Nhuận
+            const profitSorted = [...sortedMethods].sort((a, b) => b.total_profit - a.total_profit);
+            const top10Profit = profitSorted.slice(0, 10);
+            const profitChart = new Chart(
+                document.getElementById('methodProfitChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: top10Profit.map(m => m.name),
+                        datasets: [{
+                            label: 'Lợi nhuận',
+                            data: top10Profit.map(m => m.total_profit),
+                            backgroundColor: top10Profit.map(m => m.total_profit >= 0 ? 'rgba(40, 167, 69, 0.7)' : 'rgba(220, 53, 69, 0.7)'),
+                            borderColor: top10Profit.map(m => m.total_profit >= 0 ? 'rgba(40, 167, 69, 1)' : 'rgba(220, 53, 69, 1)'),
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `Lợi nhuận: ${context.raw.toLocaleString()} VNĐ`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Lợi nhuận (VNĐ)'
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Biểu đồ So Sánh Tỷ Lệ Trúng và Tỷ Lệ Ngày Trúng
+            const top5Methods = sortedMethods.slice(0, 5);
+            const rateComparisonChart = new Chart(
+                document.getElementById('rateComparisonChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: top5Methods.map(m => m.name),
+                        datasets: [
+                            {
+                                label: 'Tỷ lệ trúng (%)',
+                                data: top5Methods.map(m => m.hit_rate),
+                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Tỷ lệ ngày trúng (%)',
+                                data: top5Methods.map(m => m.days_hit_rate),
+                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Tỷ lệ (%)'
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Biểu đồ Phân Bố Xu Hướng Phương Pháp
+            const trendCounts = {
+                'up': 0,
+                'down': 0,
+                'stable': 0
+            };
+            
+            sortedMethods.forEach(method => {
+                if (method.trend) {
+                    trendCounts[method.trend]++;
+                } else {
+                    trendCounts['stable']++;
+                }
+            });
+            
+            const trendDistributionChart = new Chart(
+                document.getElementById('trendDistributionChart'),
+                {
+                    type: 'pie',
+                    data: {
+                        labels: ['Tăng', 'Giảm', 'Ổn định'],
+                        datasets: [{
+                            data: [trendCounts.up, trendCounts.down, trendCounts.stable],
+                            backgroundColor: [
+                                'rgba(40, 167, 69, 0.7)',
+                                'rgba(220, 53, 69, 0.7)',
+                                'rgba(108, 117, 125, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(40, 167, 69, 1)',
+                                'rgba(220, 53, 69, 1)',
+                                'rgba(108, 117, 125, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            );
+            
+            // Biểu đồ chi tiết cho từng phương pháp
+            sortedMethods.forEach(method => {
+                const chartElement = document.getElementById(`methodChart${method.id}`);
+                if (chartElement) {
+                    // Tạo dữ liệu hiệu suất theo ngày (nếu có)
+                    let dailyData = [];
+                    let labels = [];
+                    
+                    if (method.daily_performance && method.daily_performance.length > 0) {
+                        // Sắp xếp theo ngày
+                        const sortedPerf = [...method.daily_performance].sort((a, b) => new Date(a.date) - new Date(b.date));
+                        
+                        // Lấy tối đa 10 ngày gần nhất
+                        const recentPerf = sortedPerf.slice(-10);
+                        
+                        dailyData = recentPerf.map(p => p.hit_rate);
+                        labels = recentPerf.map(p => {
+                            const date = new Date(p.date);
+                            return `${date.getDate()}/${date.getMonth()+1}`;
+                        });
+                    }
+                    
+                    new Chart(chartElement, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Tỷ lệ trúng',
+                                data: dailyData,
+                                borderColor: method.trend === 'up' ? 'rgba(40, 167, 69, 1)' : 
+                                           method.trend === 'down' ? 'rgba(220, 53, 69, 1)' : 
+                                           'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    enabled: true
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        display: false
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        display: false
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

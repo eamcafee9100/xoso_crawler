@@ -1,0 +1,30 @@
+{
+  "timestamp": "2025-06-28T12:08:47.770713+00:00",
+  "date": "2025-06-28",
+  "models_trained": [
+    "random_forest",
+    "gradient_boosting",
+    "extra_trees",
+    "ridge"
+  ],
+  "best_model": "ridge",
+  "performance_summary": {
+    "random_forest": {
+      "r2_score": -0.06622525824925485,
+      "mse": 0.19405362789839414
+    },
+    "gradient_boosting": {
+      "r2_score": -0.12787075601040132,
+      "mse": 0.20527314496723129
+    },
+    "extra_trees": {
+      "r2_score": -0.07040640038647972,
+      "mse": 0.19481459824139613
+    },
+    "ridge": {
+      "r2_score": -0.00023539815198470038,
+      "mse": 0.18204343431377623
+    }
+  },
+  "training_data_count": 369
+}

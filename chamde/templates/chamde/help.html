@@ -1,0 +1,288 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block title %}Hướng dẫn Phân tích Chạm - Soi Cầu Bạc Nhỏ{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Hướng dẫn</li>
+{% endblock %}
+
+{% block cham_content %}
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0">Giới thiệu về Phân tích Chạm</h5>
+    </div>
+    <div class="card-body">
+      <p>Phân tích Chạm là một phương pháp soi cầu lô đề dựa trên các mẫu chạm đầu và chạm đuôi trong kết quả xổ số.</p>
+      
+      <h5 class="text-primary mt-4">Khái niệm về chạm trong lô đề</h5>
+      <p>Đề chạm là tên gọi được người chơi dùng để chỉ các dãy số đề (2 số cuối giải đặc biệt) có chứa ít nhất 1 chữ số giống nhau.</p>
+      <ul>
+        <li><strong>Dàn đề chạm đầu:</strong> Các dãy đề chứa chữ số hàng chục giống nhau.</li>
+        <li><strong>Dàn đề chạm đuôi:</strong> Các dãy đề chứa chữ số hàng đơn vị giống nhau.</li>
+      </ul>
+      
+      <h5 class="text-primary mt-4">Ví dụ:</h5>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Chạm đầu 3</h6>
+            </div>
+            <div class="card-body">
+              <p>Bao gồm các số: 30 – 31 – 32 – 34 – 35 – 36 – 37 – 38 – 39</p>
+              <p class="mb-0">Đây là tất cả các số có chữ số đầu là 3, trừ số 33 (vì là số kép).</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Chạm đuôi 7</h6>
+            </div>
+            <div class="card-body">
+              <p>Bao gồm các số: 07 – 17 – 27 – 37 – 47 – 57 – 67 – 87 – 97</p>
+              <p class="mb-0">Đây là tất cả các số có chữ số cuối là 7, trừ số 77 (vì là số kép).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="card-title mb-0">Các phương pháp soi cầu chạm</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Cầu chạm kiểu 1</h6>
+            </div>
+            <div class="card-body">
+              <p>Cách bắt đề chạm kiểu 1:</p>
+              <ol>
+                <li>Kiểm tra giải Nhất của XSMB ngày chủ nhật</li>
+                <li>Lấy số giữa "A" của giải Nhất này làm chạm</li>
+                <li>Đánh dàn đề theo chạm A để nuôi đánh đến thứ 7 tuần tiếp theo</li>
+              </ol>
+              <p><strong>Ví dụ:</strong> Giải Nhất XSMB CN ngày 15/12/2019 về 49281, có 2 là số ở giữa. Trong tuần tiếp theo, thứ 3 ngày 17/12/2019 đề nổ 22, chủ nhật ngày 22/12/2019 đề nổ 42</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Cầu chạm kiểu 2</h6>
+            </div>
+            <div class="card-body">
+              <p>Cách bắt đề chạm kiểu 2:</p>
+              <ol>
+                <li>Kiểm tra kết quả xổ số MB ngày chủ nhật và xem lại số đề đã nổ ngày thứ 6</li>
+                <li>Lấy tổng số đề của XS miền Bắc chủ nhật ghép với đuôi số đề của thứ 6 để được cặp AB</li>
+                <li>Nuôi đánh cặp này trong vòng 1 tuần</li>
+              </ol>
+              <p><strong>Ví dụ:</strong> GĐB miền Bắc chủ nhật ngày 24/11/2019 về 31742, tổng đề là 6. Số đề của thứ 6 ngày 22/11/2019 về 78, đuôi là 8. XSMB thứ 2 gày 25/11/2019 nổ ngay đề 68 (GĐB 30468)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Bắt cầu bạch thủ đề hình quả trám</h6>
+            </div>
+            <div class="card-body">
+              <p>Theo dõi trong bảng kết quả mở thưởng hàng ngày và sắp xếp các giải theo thứ tự hàng dọc.</p>
+              <p>Nếu tại 3 giải liền kề có xuất hiện 2 chữ số A và B tạo với nhau thành hình quả trám như sau:</p>
+              <div class="text-center mb-3">
+                <div>A</div>
+                <div>BAB</div>
+                <div>A</div>
+              </div>
+              <p>Thì đánh ngay bạch thủ AB vào hôm sau, hoặc nuôi liên tục trong vòng 5 ngày.</p>
+              <p><strong>Lưu ý:</strong> Cách chơi này chỉ nên áp dụng cho các giải: giải Ba – giải Tư – giải Năm.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Các phương pháp kết hợp</h6>
+            </div>
+            <div class="card-body">
+              <p>Trong quá trình soi cầu chạm số đề đặc biệt, người chơi có thể cân nhắc các yếu tố phối hợp để chọn được cặp số ổn nhất:</p>
+              <ul>
+                <li>Kiểm tra thống kê lô gan để xem tình trạng xuất hiện các cầu lô</li>
+                <li>Soi cầu bạch thủ hình quả trám</li>
+                <li>Sử dụng thống kê cầu bạch thủ để truy xuất các vị trí cho bạch thủ lô / đề liên tục trong nhiều ngày</li>
+                <li>Dùng thuyết bóng số lô đề kết hợp vòng lặp ngũ hành âm dương</li>
+                <li>Kết hợp các bộ số khác trong lô đề như tổng đề - đề đầu – đề đuôi</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="card-title mb-0">Hướng dẫn sử dụng công cụ</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Tổng quan</h6>
+            </div>
+            <div class="card-body">
+              <p>Trang <a href="{% url 'soicaubacnho:cham_dashboard' %}">Tổng quan</a> cung cấp một cái nhìn nhanh về:</p>
+              <ul>
+                <li>Tỷ lệ trúng của các chạm đầu và chạm đuôi</li>
+                <li>Dự đoán cho ngày tiếp theo</li>
+                <li>Top số nóng và số lạnh</li>
+                <li>Các mẫu quả trám gần đây</li>
+              </ul>
+              <p>Sử dụng bộ lọc ngày để xem số liệu trong các khoảng thời gian khác nhau.</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Phân tích</h6>
+            </div>
+            <div class="card-body">
+              <p>Trang <a href="{% url 'soicaubacnho:cham_analysis' %}">Phân tích</a> cho phép bạn đi sâu vào phân tích chi tiết:</p>
+              <ul>
+                <li>Phân tích chi tiết từng giá trị chạm</li>
+                <li>Phân tích theo ngày trong tuần</li>
+                <li>Phân tích theo tháng</li>
+                <li>Phân tích xu hướng</li>
+              </ul>
+              <p>Chọn loại chạm (đầu hoặc đuôi) để xem phân tích tương ứng.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Dự đoán</h6>
+            </div>
+            <div class="card-body">
+              <p>Trang <a href="{% url 'soicaubacnho:cham_prediction' %}">Dự đoán</a> cung cấp các dự đoán dựa trên phân tích chạm:</p>
+              <ul>
+                <li>Dự đoán từ tất cả các phương pháp hoặc một phương pháp cụ thể</li>
+                <li>Điểm số tổng hợp của các số</li>
+                <li>Các số có khả năng về cao nhất</li>
+                <li>Lưu dự đoán để theo dõi sau này</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Gợi ý</h6>
+            </div>
+            <div class="card-body">
+              <p>Trang <a href="{% url 'soicaubacnho:cham_suggestion' %}">Gợi ý</a> cung cấp các gợi ý cá nhân hóa:</p>
+              <ul>
+                <li>Dựa trên hiệu suất các phương pháp gần đây</li>
+                <li>Gợi ý cho ngày cụ thể</li>
+                <li>Các số có điểm cao nhất</li>
+                <li>Lưu gợi ý để sử dụng sau</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Báo cáo</h6>
+            </div>
+            <div class="card-body">
+              <p>Trang <a href="{% url 'soicaubacnho:cham_report' %}">Báo cáo</a> cung cấp báo cáo tổng hợp:</p>
+              <ul>
+                <li>Hiệu suất tổng thể của các phương pháp</li>
+                <li>Phân tích theo ngày trong tuần và tháng</li>
+                <li>Hiệu suất từng giá trị chạm</li>
+                <li>Top số xuất hiện nhiều nhất</li>
+                <li>Tải xuống báo cáo chi tiết</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card mb-3">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Danh sách chạm</h6>
+            </div>
+            <div class="card-body">
+              <p>Các trang <a href="{% url 'soicaubacnho:cham_dau_list' %}">Chạm đầu</a> và <a href="{% url 'soicaubacnho:cham_duoi_list' %}">Chạm đuôi</a> liệt kê chi tiết:</p>
+              <ul>
+                <li>Tất cả các giá trị chạm</li>
+                <li>Tỷ lệ trúng của từng giá trị</li>
+                <li>Kết quả gần đây</li>
+                <li>Bộ lọc để tìm kiếm theo giá trị chạm</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="card-title mb-0">Mẹo sử dụng hiệu quả</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="text-warning mb-3">Chiến lược chọn số</h5>
+          <ol>
+            <li><strong>Sử dụng kết hợp nhiều phương pháp:</strong> Không nên chỉ dựa vào một phương pháp duy nhất. Kết hợp các phương pháp để có cái nhìn tổng quan.</li>
+            <li><strong>Ưu tiên các giá trị chạm có tỷ lệ trúng cao:</strong> Xem xét lịch sử tỷ lệ trúng của từng giá trị chạm và ưu tiên những giá trị có tỷ lệ cao.</li>
+            <li><strong>Chú ý đến ngày trong tuần:</strong> Một số giá trị chạm có thể hoạt động tốt hơn vào các ngày nhất định trong tuần.</li>
+            <li><strong>Theo dõi xu hướng:</strong> Chú ý đến xu hướng tăng/giảm của tỷ lệ trúng để đưa ra quyết định kịp thời.</li>
+          </ol>
+        </div>
+        
+        <div class="col-md-6">
+          <h5 class="text-warning mb-3">Quản lý vốn</h5>
+          <ol>
+            <li><strong>Đặt giới hạn:</strong> Luôn đặt giới hạn cho số tiền bạn sẵn sàng đặt cược và không vượt quá giới hạn đó.</li>
+            <li><strong>Phân bổ vốn:</strong> Phân bổ vốn của bạn thông minh giữa các dự đoán khác nhau dựa trên độ tin cậy.</li>
+            <li><strong>Không đuổi theo thua lỗ:</strong> Nếu bạn thua, đừng cố gắng lấy lại bằng cách đặt cược nhiều hơn trong lần tiếp theo.</li>
+            <li><strong>Kiên nhẫn:</strong> Phương pháp chạm đòi hỏi sự kiên nhẫn và theo dõi lâu dài để đạt hiệu quả tốt nhất.</li>
+          </ol>
+        </div>
+      </div>
+      
+      <div class="alert alert-warning mt-3">
+        <h5 class="text-warning"><i class="fas fa-exclamation-triangle"></i> Lưu ý quan trọng</h5>
+        <p class="mb-0">Các phương pháp soi cầu chỉ mang tính chất tham khảo và không đảm bảo kết quả. Xổ số là một hình thức giải trí và mang tính may rủi. Hãy chơi có trách nhiệm và biết dừng lại khi cần thiết.</p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

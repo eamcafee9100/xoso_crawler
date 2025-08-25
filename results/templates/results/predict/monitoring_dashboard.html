@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+{% load xs_tags %}
+{% load static %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced System Monitoring Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .status-excellent { color: #28a745; }
+        .status-good { color: #17a2b8; }
+        .status-fair { color: #ffc107; }
+        .status-poor { color: #dc3545; }
+        .status-error { color: #dc3545; }
+        .metric-card { min-height: 120px; }
+        .chart-container { height: 300px; }
+        .health-badge {
+            font-size: 0.9em;
+            padding: 0.4em 0.8em;
+        }
+        .monitoring-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .refresh-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-6">Enhanced Prediction System - Monitoring Dashboard</h1>
+                <p class="text-muted">Real-time monitoring for production lottery prediction system</p>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" onclick="refreshDashboard()">
+                    <span id="refresh-text">Refresh Data</span>
+                    <span id="refresh-spinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- System Status Alert -->
+        {% if dashboard_data.error %}
+        <div class="alert alert-danger" role="alert">
+            <h5>System Error</h5>
+            <p>{{ dashboard_data.error }}</p>
+            <small>Server Time: {{ dashboard_data.server_time|default:"Unknown" }}</small>
+        </div>
+        {% elif not dashboard_data.system_health %}
+        <div class="alert alert-warning" role="alert">
+            <h5>System Information Unavailable</h5>
+            <p>Unable to retrieve system health data. Please check system initialization.</p>
+        </div>
+        {% endif %}
+
+        {% if dashboard_data.system_health %}
+        <!-- System Health Overview -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">System Health Overview</h5>
+                        <span class="badge health-badge status-{{ dashboard_data.system_health.status }}">
+                            {{ dashboard_data.system_health.status|title }} ({{ dashboard_data.system_health.score }}/100)
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar 
+                                        {% if dashboard_data.system_health.score >= 80 %}bg-success
+                                        {% elif dashboard_data.system_health.score >= 60 %}bg-info  
+                                        {% elif dashboard_data.system_health.score >= 40 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: {{ dashboard_data.system_health.score }}%">
+                                        {{ dashboard_data.system_health.score }}%
+                                    </div>
+                                </div>
+                                
+                                {% if dashboard_data.system_health.issues %}
+                                <div class="alert alert-warning">
+                                    <h6>Issues:</h6>
+                                    <ul class="mb-0">
+                                        {% for issue in dashboard_data.system_health.issues %}
+                                        <li>{{ issue }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <h6>Key Metrics</h6>
+                                    <p><strong>Total Records:</strong> {{ dashboard_data.system_health.total_records|floatformat:0 }}</p>
+                                    <p><strong>Recent Accuracy:</strong> {{ dashboard_data.system_health.recent_accuracy|floatformat:3 }}</p>
+                                    <p><strong>Monitoring:</strong> 
+                                        {% if dashboard_data.system_health.monitoring_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Inactive</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- Model Information -->
+        {% if dashboard_data.model_info %}
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Active Model</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Model ID:</strong> {{ dashboard_data.model_info.model_id }}</p>
+                        <p><strong>Version:</strong> {{ dashboard_data.model_info.version }}</p>
+                        <p><strong>Training Date:</strong> {{ dashboard_data.model_info.training_date }}</p>
+                        <p><strong>Total Predictions:</strong> {{ dashboard_data.model_info.total_predictions }}</p>
+                        <p><strong>Success Rate:</strong> 
+                            <span class="badge {% if dashboard_data.model_info.success_rate > 0.7 %}bg-success{% elif dashboard_data.model_info.success_rate > 0.5 %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ dashboard_data.model_info.success_rate|floatformat:3 }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card metric-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Current Method Weights</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if dashboard_data.current_weights %}
+                            {% for method, weight in dashboard_data.current_weights.items %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>{{ method|title }}:</span>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress me-2" style="width: 100px; height: 15px;">
+                                        <div class="progress-bar bg-info" 
+                                             style="width: {{ weight|floatformat:0|mul:100 }}%"></div>
+                                    </div>
+                                    <span class="badge bg-secondary">{{ weight|floatformat:3 }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">No weight data available</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Performance Metrics -->
+        {% if dashboard_data.recent_performance %}
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Average Accuracy</h5>
+                        <h2 class="text-primary">{{ dashboard_data.recent_performance.avg_accuracy|floatformat:3 }}</h2>
+                        <p class="text-muted">Last {{ dashboard_data.recent_performance.total_predictions }} predictions</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Hit Rate</h5>
+                        <h2 class="text-success">{{ dashboard_data.recent_performance.avg_hit_rate|floatformat:3 }}</h2>
+                        <p class="text-muted">Predictions with ≥1 hit</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card metric-card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Predictions</h5>
+                        <h2 class="text-info">{{ dashboard_data.recent_performance.total_predictions }}</h2>
+                        <p class="text-muted">Recent prediction count</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accuracy Trend Chart -->
+        {% if dashboard_data.recent_performance.accuracy_trend %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Accuracy Trend (Last 5 Predictions)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="accuracyChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <!-- Performance Monitoring Data -->
+        {% if dashboard_data.monitoring_data %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Performance Monitoring</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="monitoring-grid">
+                            {% for metric, value in dashboard_data.monitoring_data.items %}
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">{{ metric|title }}</h6>
+                                    <p class="card-text">{{ value }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- System Configuration -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">System Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Performance Thresholds</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Accuracy Threshold:</strong> 18%</li>
+                                    <li><strong>Hit Rate Threshold:</strong> 45%</li>
+                                    <li><strong>Confidence Threshold:</strong> 60%</li>
+                                    <li><strong>Response Time Limit:</strong> 3.0s</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Data Requirements</h6>
+                                <ul class="list-unstyled">
+                                    <li><strong>Min Historical Days:</strong> 90</li>
+                                    <li><strong>Training Data Size:</strong> 200 records</li>
+                                    <li><strong>Backtesting Period:</strong> 45 days</li>
+                                    <li><strong>Validation Frequency:</strong> Every 3 days</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-center text-muted">
+                    <p>Last Updated: <span id="last-update">{{ dashboard_data.server_time|default:"Unknown" }}</span></p>
+                    <p>Enhanced Prediction System v2.0 - Production Monitoring Dashboard</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refresh Indicator -->
+    <div id="refresh-indicator" class="refresh-indicator d-none">
+        <div class="alert alert-info">
+            <strong>Refreshing...</strong> Updating dashboard data.
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh functionality
+        let refreshInterval;
+        
+        function startAutoRefresh() {
+            refreshInterval = setInterval(refreshDashboard, 300000); // Refresh every 5 minutes
+        }
+        
+        function stopAutoRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+        
+        function refreshDashboard() {
+            const refreshText = document.getElementById('refresh-text');
+            const refreshSpinner = document.getElementById('refresh-spinner');
+            const refreshIndicator = document.getElementById('refresh-indicator');
+            
+            // Show loading state
+            refreshText.textContent = 'Refreshing...';
+            refreshSpinner.classList.remove('d-none');
+            refreshIndicator.classList.remove('d-none');
+            
+            // Reload page with cache busting
+            const url = new URL(window.location);
+            url.searchParams.set('_t', Date.now());
+            window.location.href = url.toString();
+        }
+        
+        // Initialize accuracy trend chart
+        {% if dashboard_data.recent_performance.accuracy_trend %}
+        const ctx = document.getElementById('accuracyChart').getContext('2d');
+        const accuracyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [1, 2, 3, 4, 5].slice(0, {{ dashboard_data.recent_performance.accuracy_trend|length }}),
+                datasets: [{
+                    label: 'Accuracy',
+                    data: {{ dashboard_data.recent_performance.accuracy_trend|safe }},
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        ticks: {
+                            callback: function(value) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Recent Predictions (Newest → Oldest)'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'Accuracy: ' + (context.parsed.y * 100).toFixed(3) + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        {% endif %}
+        
+        // Start auto-refresh
+        document.addEventListener('DOMContentLoaded', function() {
+            startAutoRefresh();
+            
+            // Update last update time
+            document.getElementById('last-update').textContent = new Date().toLocaleString();
+        });
+        
+        // Stop auto-refresh when page is hidden
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopAutoRefresh();
+            } else {
+                startAutoRefresh();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Kết quả dự đoán Bạch Thủ Lô{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'btl_method' %}">Phương pháp</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'prediction_btl' %}">Dự đoán Bạch Thủ Lô</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Kết quả</li>
+        </ol>
+    </nav>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Kết quả dự đoán Bạch Thủ Lô</h1>
+        <div>
+            <form method="post" action="">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-save"></i> Lưu kết quả dự đoán
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Thông tin dự đoán</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Thông tin cơ bản</h5>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Ngày dự đoán:</strong> {{ date }}</p>
+                            <p><strong>Khu vực:</strong> 
+                                {% if prediction_data.region_code == 'mb' %}
+                                    Miền Bắc
+                                {% elif prediction_data.region_code == 'mn' %}
+                                    Miền Nam
+                                {% elif prediction_data.region_code == 'mt' %}
+                                    Miền Trung
+                                {% else %}
+                                    {{ prediction_data.region_code }}
+                                {% endif %}
+                            </p>
+                            <p><strong>Số phương pháp:</strong> {{ total_methods }}</p>
+                            <p><strong>Tổng số dự đoán:</strong> {{ total_numbers }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">Top số dự đoán nổi bật</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if top_numbers %}
+                            <div class="row">
+                                {% for number, frequency in top_numbers %}
+                                <div class="col-md-2 col-4 text-center mb-3">
+                                    <div class="p-3 rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; margin: 0 auto;">
+                                        <div>
+                                            <h3 class="mb-0">{{ number }}</h3>
+                                            <small>{{ frequency }} lần</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="text-center mt-2">
+                                <p class="text-muted">Các số xuất hiện trong nhiều phương pháp nhất</p>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-3">
+                                <p class="text-muted">Không có số dự đoán nào</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Kết quả theo từng phương pháp</h3>
+        </div>
+        <div class="card-body">
+            <div class="accordion" id="methodAccordion">
+                {% for method_code, method_data in prediction_methods.items %}
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ forloop.counter }}">
+                            <strong>{{ method_data.name }}</strong> 
+                            <span class="badge bg-primary ms-2">{{ method_data.numbers|length }} số</span>
+                            {% if method_data.error %}
+                            <span class="badge bg-danger ms-2">Lỗi</span>
+                            {% endif %}
+                        </button>
+                    </h2>
+                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ forloop.counter }}" data-bs-parent="#methodAccordion">
+                        <div class="accordion-body">
+                            {% if method_data.error %}
+                            <div class="alert alert-danger">
+                                <strong>Lỗi:</strong> {{ method_data.error }}
+                            </div>
+                            {% endif %}
+                            
+                            <p>{{ method_data.description }}</p>
+                            
+                            {% if method_data.numbers %}
+                            <h5>Các số dự đoán:</h5>
+                            <div class="row">
+                                {% for number in method_data.numbers %}
+                                <div class="col-md-1 col-3 text-center mb-2">
+                                    <div class="p-2 border rounded bg-light">
+                                        <h5 class="mb-0">{{ number }}</h5>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">Không có số dự đoán nào</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-3">
+                    <p class="text-muted">Không có kết quả dự đoán nào</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="mb-4 text-center">
+        <a href="{% url 'prediction_btl' %}" class="btn btn-outline-primary me-2">
+            <i class="bi bi-arrow-left"></i> Quay lại trang dự đoán
+        </a>
+        <a href="{% url 'btl_method' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-list"></i> Xem danh sách phương pháp
+        </a>
+    </div>
+</div>
+{% endblock %}

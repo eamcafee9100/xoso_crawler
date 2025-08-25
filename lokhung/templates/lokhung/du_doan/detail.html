@@ -1,0 +1,404 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Chi tiết dự đoán - {{ du_doan.so_du_doan }}{% endblock %}
+
+{% block page_title %}Chi tiết dự đoán{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'lokhung:du_doan_edit' du_doan.pk %}" class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Chỉnh sửa
+    </a>
+    {% if du_doan.trang_thai == 'cho_ket_qua' %}
+    <button class="btn btn-success" onclick="checkResult()">
+        <i class="fas fa-sync me-2"></i>Kiểm tra kết quả
+    </button>
+    {% endif %}
+    <a href="{% url 'lokhung:du_doan_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Info -->
+    <div class="col-lg-8">
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    Thông tin dự đoán
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Số dự đoán</label>
+                            <div>
+                                <span class="badge fs-2 px-4 py-3
+                                    {% if du_doan.trang_thai == 'trung' %}prediction-correct number-highlight
+                                    {% elif du_doan.trang_thai == 'truot' %}prediction-wrong
+                                    {% else %}prediction-pending{% endif %}">
+                                    {{ du_doan.so_du_doan }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Loại số</label>
+                            <div>
+                                <span class="badge bg-secondary fs-6">{{ du_doan.get_loai_so_display }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngày dự đoán</label>
+                            <div>
+                                <strong>{{ du_doan.ngay_du_doan|date:"l, d/m/Y" }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngày phân tích</label>
+                            <div>{{ du_doan.ngay_phan_tich|date:"d/m/Y" }}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Phương pháp</label>
+                            <div>
+                                <a href="{% url 'lokhung:phuong_phap_detail' du_doan.phuong_phap.pk %}" 
+                                   class="text-decoration-none">
+                                    <strong>{{ du_doan.phuong_phap.ten_phuong_phap }}</strong>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Điểm tin cậy</label>
+                            <div>
+                                <div class="progress mb-2" style="height: 25px;">
+                                    <div class="progress-bar 
+                                        {% if du_doan.diem_tin_cay >= 70 %}bg-success
+                                        {% elif du_doan.diem_tin_cay >= 40 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        style="width: {{ du_doan.diem_tin_cay }}%">
+                                        <strong>{{ du_doan.diem_tin_cay }}%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Xác suất</label>
+                            <div>{{ du_doan.xac_suat|floatformat:3 }}</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Trạng thái</label>
+                            <div>
+                                {% if du_doan.trang_thai == 'trung' %}
+                                    <span class="badge bg-success fs-6">
+                                        <i class="fas fa-check me-1"></i>Trúng
+                                    </span>
+                                {% elif du_doan.trang_thai == 'truot' %}
+                                    <span class="badge bg-danger fs-6">
+                                        <i class="fas fa-times me-1"></i>Trượt
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning fs-6">
+                                        <i class="fas fa-clock me-1"></i>Chờ kết quả
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if du_doan.ghi_chu %}
+                <div class="mt-4">
+                    <label class="form-label text-muted">Ghi chú</label>
+                    <div class="border rounded p-3 bg-light">
+                        {{ du_doan.ghi_chu|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Analysis Details -->
+        {% if du_doan.chi_tiet_phan_tich %}
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-microscope text-info me-2"></i>
+                    Chi tiết phân tích
+                </h5>
+            </div>
+            <div class="card-body">
+                <pre class="bg-light p-3 rounded"><code>{{ du_doan.chi_tiet_phan_tich|pprint }}</code></pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Result Check -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-search text-success me-2"></i>
+                    Kiểm tra kết quả
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="result-check-area">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang kiểm tra kết quả...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 3-Day Prediction Range -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-calendar-alt text-warning me-2"></i>
+                    Khung dự đoán 3 ngày
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="three-day-range">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Predictions -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-link text-info me-2"></i>
+                    Dự đoán liên quan
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="related-predictions">
+                    <div class="text-center">
+                        <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
+                        <p class="mt-2 text-muted small">Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    loadResultCheck();
+    loadThreeDayRange();
+    loadRelatedPredictions();
+});
+
+function loadResultCheck() {
+    const predictionDate = '{{ du_doan.ngay_du_doan|date:"Y-m-d" }}';
+    const predictionNumber = '{{ du_doan.so_du_doan }}';
+    const digitType = '{{ du_doan.loai_so }}';
+    
+    // Check for 3 days from prediction date
+    const dates = [];
+    const baseDate = new Date(predictionDate);
+    for (let i = 0; i < 3; i++) {
+        const checkDate = new Date(baseDate);
+        checkDate.setDate(baseDate.getDate() + i);
+        dates.push(checkDate.toISOString().split('T')[0]);
+    }
+    
+    let resultHtml = '<div class="result-timeline">';
+    let foundResult = false;
+    let completedChecks = 0;
+    
+    dates.forEach((date, index) => {
+        $.get('/results/api/ketqua/' + date + '/')
+            .done(function(data) {
+                const dayLabel = index === 0 ? 'Hôm nay' : 
+                               index === 1 ? 'Ngày mai' : 'Ngày kia';
+                
+                if (data.success && data.numbers_2d && data.numbers_2d.length > 0) {
+                    const isWinning = data.numbers_2d.includes(predictionNumber);
+                    
+                    resultHtml += `
+                        <div class="result-day ${isWinning ? 'border-success bg-success bg-opacity-10' : 'border-light'} border rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>${dayLabel}</strong>
+                                <small class="text-muted">${new Date(date).toLocaleDateString('vi-VN')}</small>
+                            </div>
+                            <div class="winning-numbers">
+                                ${data.numbers_2d.map(num => 
+                                    `<span class="badge ${num === predictionNumber ? 'prediction-correct number-highlight' : 'bg-primary'} me-1 mb-1">${num}</span>`
+                                ).join('')}
+                            </div>
+                            ${isWinning ? '<div class="text-success mt-2"><i class="fas fa-check-circle me-1"></i><strong>TRÚNG!</strong></div>' : ''}
+                        </div>
+                    `;
+                    
+                    if (isWinning) foundResult = true;
+                } else {
+                    resultHtml += `
+                        <div class="result-day border-light border rounded p-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <strong>${dayLabel}</strong>
+                                <small class="text-muted">${new Date(date).toLocaleDateString('vi-VN')}</small>
+                            </div>
+                            <div class="text-muted">
+                                <i class="fas fa-clock me-1"></i>Chưa có kết quả
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                completedChecks++;
+                if (completedChecks === dates.length) {
+                    resultHtml += '</div>';
+                    
+                    if (foundResult) {
+                        resultHtml += `
+                            <div class="alert alert-success mt-3">
+                                <i class="fas fa-trophy me-2"></i>
+                                <strong>Chúc mừng!</strong> Dự đoán của bạn đã trúng!
+                            </div>
+                        `;
+                    }
+                    
+                    $('#result-check-area').html(resultHtml);
+                }
+            })
+            .fail(function() {
+                completedChecks++;
+                resultHtml += `
+                    <div class="result-day border-light border rounded p-3 mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>${dayLabel}</strong>
+                            <small class="text-muted">${new Date(date).toLocaleDateString('vi-VN')}</small>
+                        </div>
+                        <div class="text-muted">
+                            <i class="fas fa-exclamation-triangle me-1"></i>Không thể tải kết quả
+                        </div>
+                    </div>
+                `;
+                
+                if (completedChecks === dates.length) {
+                    resultHtml += '</div>';
+                    $('#result-check-area').html(resultHtml);
+                }
+            });
+    });
+}
+
+function loadThreeDayRange() {
+    const predictionDate = '{{ du_doan.ngay_du_doan|date:"Y-m-d" }}';
+    const baseDate = new Date(predictionDate);
+    
+    let rangeHtml = '<div class="timeline">';
+    
+    for (let i = 0; i < 3; i++) {
+        const checkDate = new Date(baseDate);
+        checkDate.setDate(baseDate.getDate() + i);
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const dayLabel = i === 0 ? 'Ngày 1' : i === 1 ? 'Ngày 2' : 'Ngày 3';
+        
+        rangeHtml += `
+            <div class="timeline-item d-flex align-items-center mb-3 ${i === 0 ? 'text-primary fw-bold' : ''}">
+                <div class="timeline-marker me-3">
+                    <div class="rounded-circle ${i === 0 ? 'bg-primary' : 'bg-secondary'}" style="width: 12px; height: 12px;"></div>
+                </div>
+                <div>
+                    <div>${dayLabel}</div>
+                    <small class="text-muted">${checkDate.toLocaleDateString('vi-VN')}</small>
+                </div>
+            </div>
+        `;
+    }
+    
+    rangeHtml += '</div>';
+    rangeHtml += `
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle me-2"></i>
+            <small>Dự đoán có hiệu lực trong 3 ngày kể từ ngày dự đoán.</small>
+        </div>
+    `;
+    
+    $('#three-day-range').html(rangeHtml);
+}
+
+function loadRelatedPredictions() {
+    $.get('{% url "lokhung:du_doan_list" %}?phuong_phap={{ du_doan.phuong_phap.pk }}&limit=5')
+        .done(function(data) {
+            // This would need to be implemented as an API endpoint
+            // For now, show a simple message
+            $('#related-predictions').html(`
+                <div class="text-center">
+                    <a href="{% url 'lokhung:du_doan_list' %}?phuong_phap={{ du_doan.phuong_phap.pk }}" 
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-eye me-1"></i>
+                        Xem tất cả dự đoán của phương pháp này
+                    </a>
+                </div>
+            `);
+        })
+        .fail(function() {
+            $('#related-predictions').html('<div class="text-muted small">Không thể tải dự đoán liên quan.</div>');
+        });
+}
+
+function checkResult() {
+    if (confirm('Kiểm tra kết quả cho dự đoán này?')) {
+        $.post('{% url "lokhung:du_doan_check_result" du_doan.pk %}', {
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        })
+        .done(function() {
+            location.reload();
+        })
+        .fail(function() {
+            alert('Có lỗi xảy ra khi kiểm tra kết quả.');
+        });
+    }
+}
+</script>
+
+<style>
+.result-timeline .result-day {
+    transition: all 0.3s ease;
+}
+
+.result-timeline .result-day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.timeline-item .timeline-marker {
+    position: relative;
+}
+
+.timeline-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 25px;
+    width: 2px;
+    height: 20px;
+    background-color: #dee2e6;
+}
+</style>
+{% endblock %}

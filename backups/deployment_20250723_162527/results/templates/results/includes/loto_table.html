@@ -1,0 +1,27 @@
+ <!-- loto table -->
+            <div class="card">
+                <div class="card-header bg-light text-dark">
+                    <h4><i class="fas fa-list"></i> Kết quả ngày: {{ results.ngay|date:"d/m/Y" }}</h4>
+                <table class="table table-bordered table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th>Đầu</th>
+                            <th>Lô tô</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dau in "0123456789" %}
+                        <tr>
+                            <td>{{ dau }}</td>
+                            <td>
+                                {% for num in actual_numbers %}
+                                    {% if num|length >= 2 and num|slice:":1" == dau %}
+                                        <span>{{ num }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>

@@ -1,0 +1,32 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load static %}
+
+{% block title %}Danh sách lô khung - BTL System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-th-large text-success me-2"></i>
+                    Danh sách lô khung BTL
+                </h1>
+                <div class="btn-group">
+                    <a href="{% url 'lokhung:btl_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Về Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-th-large fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Chức năng lô khung đang được phát triển</h5>
+                    <p class="text-muted">Sẽ có sẵn trong phiên bản tiếp theo</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "results/base.html" %}
+{% load static %}
+{% load xs_tags %}
+
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Dự đoán bạch thủ lô</h3>
+        </div>
+        
+        <div class="card-body">
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <input type="date" name="date" class="form-control" 
+                               value="{{ selected_date|default:'' }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <button type="submit" class="btn btn-primary">
+                            Phân tích
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            {% if predictions %}
+            <div class="row">
+                <div class="col-md-8">
+                    {% include "xoso/includes/prediction_results.html" %}
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Hiệu suất phương pháp</h4>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="performanceChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    {% include "xoso/includes/shap_analysis.html" %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if predictions %}
+<script>
+// Biểu đồ hiệu suất
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: [{% for m in method_performance %}'{{ m.method_name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Tỷ lệ thành công (%)',
+            data: [{% for m in method_performance %}{{ m.success_rate|floatformat:1 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(54, 162, 235, 0.7)'
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,570 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Chi tiết cảnh báo - {{ canh_bao.tieu_de }}{% endblock %}
+
+{% block page_title %}Chi tiết cảnh báo{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    {% if not canh_bao.da_xu_ly %}
+    <button class="btn btn-success" onclick="markAsResolved()">
+        <i class="fas fa-check me-2"></i>Đánh dấu đã xử lý
+    </button>
+    {% endif %}
+    <button class="btn btn-info" onclick="createReport()">
+        <i class="fas fa-chart-bar me-2"></i>Tạo báo cáo
+    </button>
+    <button class="btn btn-warning" onclick="createSimilarAlert()">
+        <i class="fas fa-clone me-2"></i>Tạo cảnh báo tương tự
+    </button>
+    <a href="{% url 'lokhung:canh_bao_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Alert Header -->
+        <div class="card card-custom mb-4 border-{{ canh_bao.muc_do }}">
+            <div class="card-header bg-{{ canh_bao.muc_do }} bg-opacity-10">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-{{ canh_bao.muc_do }}">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        {{ canh_bao.tieu_de }}
+                    </div>
+                    <div>
+                        <span class="badge bg-{{ canh_bao.muc_do }} fs-6 me-2">
+                            {{ canh_bao.get_muc_do_display }}
+                        </span>
+                        {% if canh_bao.da_xu_ly %}
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-check me-1"></i>Đã xử lý
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning fs-6">
+                            <i class="fas fa-clock me-1"></i>Chờ xử lý
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Phương pháp liên quan</label>
+                            <div>
+                                <a href="{% url 'lokhung:phuong_phap_detail' canh_bao.phuong_phap.pk %}" 
+                                   class="text-decoration-none">
+                                    <i class="fas fa-cog text-primary me-2"></i>
+                                    <strong>{{ canh_bao.phuong_phap.ten_phuong_phap }}</strong>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Loại cảnh báo</label>
+                            <div>
+                                <span class="badge bg-info fs-6">{{ canh_bao.get_loai_canh_bao_display }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Thời gian cảnh báo</label>
+                            <div>
+                                <strong>{{ canh_bao.ngay_canh_bao|date:"d/m/Y H:i" }}</strong>
+                                <br>
+                                <small class="text-muted">{{ canh_bao.ngay_canh_bao|timesince }} trước</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Giá trị hiện tại</label>
+                            <div>
+                                <span class="h4 text-{{ canh_bao.muc_do }}">{{ canh_bao.gia_tri_hien_tai }}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngưỡng cảnh báo</label>
+                            <div>
+                                <span class="h5">{{ canh_bao.nguong_canh_bao }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if canh_bao.da_xu_ly %}
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Thời gian xử lý</label>
+                            <div>
+                                {{ canh_bao.ngay_xu_ly|date:"d/m/Y H:i" }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Alert Content -->
+                <div class="mt-4">
+                    <label class="form-label text-muted">Nội dung cảnh báo</label>
+                    <div class="alert alert-{{ canh_bao.muc_do }} alert-dismissible">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {{ canh_bao.noi_dung|linebreaks }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alert Analysis -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-line text-primary me-2"></i>
+                    Phân tích chi tiết
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="alertTrendChart" height="200"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Thống kê liên quan</h6>
+                        <div class="alert alert-light">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="border-end">
+                                        <h5 class="mb-0 text-primary" id="method-usage">{{ canh_bao.phuong_phap.so_lan_su_dung }}</h5>
+                                        <small class="text-muted">Lần sử dụng</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="border-end">
+                                        <h5 class="mb-0 text-success" id="method-success">{{ canh_bao.phuong_phap.so_lan_dung }}</h5>
+                                        <small class="text-muted">Thành công</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <h5 class="mb-0 text-warning" id="method-rate">{{ canh_bao.phuong_phap.ty_le_thanh_cong }}%</h5>
+                                    <small class="text-muted">Tỷ lệ</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <h6>Xu hướng gần đây</h6>
+                            <div class="progress mb-2" style="height: 25px;">
+                                <div class="progress-bar 
+                                    {% if canh_bao.gia_tri_hien_tai >= canh_bao.nguong_canh_bao %}bg-danger
+                                    {% else %}bg-success{% endif %}" 
+                                    style="width: {% if canh_bao.nguong_canh_bao > 0 %}{{ canh_bao.gia_tri_hien_tai|mul:100|div:canh_bao.nguong_canh_bao }}{% else %}0{% endif %}%">
+                                    {{ canh_bao.gia_tri_hien_tai }} / {{ canh_bao.nguong_canh_bao }}
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                Hiện tại so với ngưỡng cảnh báo
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resolution Section -->
+        {% if canh_bao.da_xu_ly %}
+        <div class="card card-custom border-success">
+            <div class="card-header bg-success bg-opacity-10">
+                <h6 class="mb-0 text-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Thông tin xử lý
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Thời gian xử lý</label>
+                            <div>{{ canh_bao.ngay_xu_ly|date:"d/m/Y H:i" }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Thời gian phản hồi</label>
+                            <div>
+                                {% if canh_bao.ngay_xu_ly %}
+                                    {{ canh_bao.ngay_canh_bao|timesince:canh_bao.ngay_xu_ly }}
+                                {% else %}
+                                    Chưa xử lý
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if canh_bao.ghi_chu_xu_ly %}
+                <div class="mt-3">
+                    <label class="form-label text-muted">Ghi chú xử lý</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ canh_bao.ghi_chu_xu_ly|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% else %}
+        <!-- Resolution Form -->
+        <div class="card card-custom border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+                <h6 class="mb-0 text-warning">
+                    <i class="fas fa-tools me-2"></i>
+                    Xử lý cảnh báo
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'lokhung:canh_bao_mark_resolved' canh_bao.pk %}" id="resolution-form">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="ghi_chu" class="form-label">
+                            Ghi chú xử lý <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="ghi_chu" name="ghi_chu" rows="4" 
+                                  placeholder="Mô tả cách bạn đã xử lý cảnh báo này..." required></textarea>
+                        <div class="form-text">
+                            Hãy mô tả chi tiết các hành động đã thực hiện để xử lý cảnh báo.
+                        </div>
+                    </div>
+                    
+                    <!-- Action Suggestions -->
+                    <div class="mb-3">
+                        <label class="form-label">Gợi ý hành động:</label>
+                        <div class="btn-group flex-wrap" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="addSuggestion('Đã điều chỉnh tham số phương pháp')">
+                                Điều chỉnh tham số
+                            </button>
+                            <button type="button" class="btn btn-outline-success btn-sm" onclick="addSuggestion('Đã tạm dừng phương pháp để kiểm tra')">
+                                Tạm dừng phương pháp
+                            </button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="addSuggestion('Đã tạo báo cáo chi tiết')">
+                                Tạo báo cáo
+                            </button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="addSuggestion('Đã cập nhật công thức tính toán')">
+                                Cập nhật công thức
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-outline-secondary me-md-2" onclick="showActionHistory()">
+                            <i class="fas fa-history me-2"></i>Lịch sử tương tự
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-check me-2"></i>Đánh dấu đã xử lý
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt text-warning me-2"></i>
+                    Thao tác nhanh
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'lokhung:phuong_phap_detail' canh_bao.phuong_phap.pk %}" 
+                       class="btn btn-outline-primary">
+                        <i class="fas fa-cog me-2"></i>Xem phương pháp
+                    </a>
+                    <button class="btn btn-outline-info" onclick="analyzeMethod()">
+                        <i class="fas fa-chart-line me-2"></i>Phân tích hiệu suất
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="adjustParameters()">
+                        <i class="fas fa-sliders-h me-2"></i>Điều chỉnh tham số
+                    </button>
+                    <button class="btn btn-outline-danger" onclick="pauseMethod()">
+                        <i class="fas fa-pause me-2"></i>Tạm dừng phương pháp
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Alerts -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-link text-info me-2"></i>
+                    Cảnh báo liên quan
+                </h6>
+            </div>
+            <div class="card-body" id="related-alerts">
+                <div class="text-center">
+                    <div class="spinner-border spinner-border-sm text-secondary"></div>
+                    <p class="mt-2 text-muted small">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Method Health -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-heartbeat text-danger me-2"></i>
+                    Tình trạng phương pháp
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Tình trạng tổng thể:</span>
+                        <span class="badge bg-{{ canh_bao.muc_do }}" id="overall-health">
+                            {% if canh_bao.muc_do == 'critical' %}Nghiêm trọng
+                            {% elif canh_bao.muc_do == 'warning' %}Cảnh báo
+                            {% else %}Bình thường{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Hiệu suất 7 ngày qua:</small>
+                    <div class="progress mt-1" style="height: 20px;">
+                        <div class="progress-bar bg-info" style="width: 65%">65%</div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Độ ổn định:</small>
+                    <div class="progress mt-1" style="height: 20px;">
+                        <div class="progress-bar bg-warning" style="width: 40%">40%</div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-3">
+                    <button class="btn btn-sm btn-outline-primary" onclick="showHealthDetails()">
+                        <i class="fas fa-chart-pie me-1"></i>Chi tiết
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Action History Modal -->
+<div class="modal fade" id="actionHistoryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Lịch sử xử lý cảnh báo tương tự</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="action-history-content">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    initAlertTrendChart();
+    loadRelatedAlerts();
+});
+
+function initAlertTrendChart() {
+    const ctx = document.getElementById('alertTrendChart');
+    
+    // Mock data for trend
+    const trendData = [
+        {{ canh_bao.gia_tri_hien_tai|add:"-10" }},
+        {{ canh_bao.gia_tri_hien_tai|add:"-5" }},
+        {{ canh_bao.gia_tri_hien_tai|add:"-2" }},
+        {{ canh_bao.gia_tri_hien_tai }}
+    ];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['3 ngày trước', '2 ngày trước', 'Hôm qua', 'Hôm nay'],
+            datasets: [{
+                label: 'Giá trị theo thời gian',
+                data: trendData,
+                borderColor: '#{{ canh_bao.muc_do == "critical" and "dc3545" or canh_bao.muc_do == "warning" and "ffc107" or "17a2b8" }}',
+                backgroundColor: 'rgba({{ canh_bao.muc_do == "critical" and "220, 53, 69" or canh_bao.muc_do == "warning" and "255, 193, 7" or "23, 162, 184" }}, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'Ngưỡng cảnh báo',
+                data: [{{ canh_bao.nguong_canh_bao }}, {{ canh_bao.nguong_canh_bao }}, {{ canh_bao.nguong_canh_bao }}, {{ canh_bao.nguong_canh_bao }}],
+                borderColor: '#dc3545',
+                borderDash: [5, 5],
+                borderWidth: 2,
+                pointRadius: 0,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function loadRelatedAlerts() {
+    // Simulate loading related alerts
+    setTimeout(() => {
+        const relatedHtml = `
+            <div class="list-group list-group-flush">
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Hiệu quả thấp - Phương pháp A</h6>
+                            <small class="text-muted">2 ngày trước</small>
+                        </div>
+                        <span class="badge bg-warning">Đã xử lý</span>
+                    </div>
+                </div>
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Không ổn định - Phương pháp B</h6>
+                            <small class="text-muted">1 tuần trước</small>
+                        </div>
+                        <span class="badge bg-success">Đã xử lý</span>
+                    </div>
+                </div>
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">Mệt mỏi - Phương pháp C</h6>
+                            <small class="text-muted">2 tuần trước</small>
+                        </div>
+                        <span class="badge bg-success">Đã xử lý</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#related-alerts').html(relatedHtml);
+    }, 1500);
+}
+
+function markAsResolved() {
+    $('#resolution-form').submit();
+}
+
+function addSuggestion(text) {
+    const currentText = $('#ghi_chu').val();
+    const newText = currentText ? currentText + '\n- ' + text : '- ' + text;
+    $('#ghi_chu').val(newText);
+}
+
+function showActionHistory() {
+    $('#actionHistoryModal').modal('show');
+    
+    // Load action history
+    const historyHtml = `
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Ngày</th>
+                        <th>Loại cảnh báo</th>
+                        <th>Hành động</th>
+                        <th>Kết quả</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>15/06/2025</td>
+                        <td>Hiệu quả thấp</td>
+                        <td>Điều chỉnh tham số chu kỳ từ 15 xuống 10</td>
+                        <td><span class="badge bg-success">Cải thiện 15%</span></td>
+                    </tr>
+                    <tr>
+                        <td>10/06/2025</td>
+                        <td>Không ổn định</td>
+                        <td>Tạm dừng phương pháp 3 ngày</td>
+                        <td><span class="badge bg-info">Ổn định trở lại</span></td>
+                    </tr>
+                    <tr>
+                        <td>05/06/2025</td>
+                        <td>Mệt mỏi</td>
+                        <td>Thay đổi công thức tính toán</td>
+                        <td><span class="badge bg-warning">Cải thiện nhẹ</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    $('#action-history-content').html(historyHtml);
+}
+
+function createReport() {
+    window.location.href = '{% url "lokhung:bao_cao_create" %}?phuong_phap={{ canh_bao.phuong_phap.pk }}';
+}
+
+function createSimilarAlert() {
+    alert('Tính năng tạo cảnh báo tương tự đang được phát triển.');
+}
+
+function analyzeMethod() {
+    window.location.href = '{% url "lokhung:phuong_phap_detail" canh_bao.phuong_phap.pk %}';
+}
+
+function adjustParameters() {
+    window.location.href = '{% url "lokhung:phuong_phap_edit" canh_bao.phuong_phap.pk %}';
+}
+
+function pauseMethod() {
+    if (confirm('Tạm dừng phương pháp này?')) {
+        // This would be an API call
+        alert('Tính năng tạm dừng phương pháp đang được phát triển.');
+    }
+}
+
+function showHealthDetails() {
+    alert('Tính năng chi tiết tình trạng đang được phát triển.');
+}
+
+// Form validation
+$('#resolution-form').on('submit', function(e) {
+    const note = $('#ghi_chu').val().trim();
+    if (!note) {
+        e.preventDefault();
+        alert('Vui lòng nhập ghi chú xử lý.');
+        return false;
+    }
+    
+    if (!confirm('Đánh dấu cảnh báo này đã được xử lý?')) {
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,527 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'lokhung:phuong_phap_list' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Quay lại
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog text-primary me-2"></i>
+                    {{ title }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.ten_phuong_phap.id_for_label }}" class="form-label">
+                                    Tên phương pháp <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ten_phuong_phap }}
+                                {% if form.ten_phuong_phap.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ten_phuong_phap.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.loai_phuong_phap.id_for_label }}" class="form-label">
+                                    Loại phương pháp <span class="text-danger">*</span>
+                                </label>
+                                {{ form.loai_phuong_phap }}
+                                {% if form.loai_phuong_phap.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.loai_phuong_phap.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.mo_ta.id_for_label }}" class="form-label">
+                            Mô tả
+                        </label>
+                        {{ form.mo_ta }}
+                        {% if form.mo_ta.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.mo_ta.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.trong_so.id_for_label }}" class="form-label">
+                                    Trọng số <span class="text-danger">*</span>
+                                </label>
+                                {{ form.trong_so }}
+                                {% if form.trong_so.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.trong_so.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Từ 0.1 đến 10.0</div>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar bg-info" id="weight-bar" style="width: 10%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.do_tin_cay.id_for_label }}" class="form-label">
+                                    Độ tin cậy <span class="text-danger">*</span>
+                                </label>
+                                {{ form.do_tin_cay }}
+                                {% if form.do_tin_cay.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.do_tin_cay.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Từ 0.0 đến 1.0</div>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar bg-warning" id="confidence-bar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.trang_thai.id_for_label }}" class="form-label">
+                            Trạng thái <span class="text-danger">*</span>
+                        </label>
+                        {{ form.trang_thai }}
+                        {% if form.trang_thai.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.trang_thai.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Parameters Configuration -->
+                    <div class="mb-4">
+                        <label for="{{ form.tham_so_config.id_for_label }}" class="form-label">
+                            Cấu hình tham số (JSON)
+                        </label>
+                        
+                        <!-- Parameter Builder -->
+                        <div class="card border-light mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-tools text-secondary me-2"></i>
+                                    Trình tạo tham số
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control mb-2" id="param-key" placeholder="Tên tham số">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="text" class="form-control mb-2" id="param-value" placeholder="Giá trị">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" class="btn btn-outline-primary mb-2" onclick="addParameter()">
+                                            <i class="fas fa-plus me-1"></i>Thêm
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Common Parameters -->
+                                <div class="mt-3">
+                                    <small class="text-muted">Tham số thông dụng:</small>
+                                    <div class="btn-group flex-wrap mt-2" role="group">
+                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="addCommonParam('chu_ky', 15)">
+                                            Chu kỳ (15)
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="addCommonParam('tan_suat', 0.8)">
+                                            Tần suất (0.8)
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="addCommonParam('nguong', 0.5)">
+                                            Ngưỡng (0.5)
+                                        </button>
+                                        <button type="button" class="btn btn-outline-info btn-sm" onclick="addCommonParam('so_ngay', 30)">
+                                            Số ngày (30)
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{ form.tham_so_config }}
+                        {% if form.tham_so_config.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.tham_so_config.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Định dạng JSON. VD: {"chu_ky": 15, "nguong": 0.5}
+                        </div>
+                    </div>
+                    
+                    <!-- Formula Section -->
+                    <div class="mb-4">
+                        <label for="{{ form.cong_thuc.id_for_label }}" class="form-label">
+                            Công thức tính toán <span class="text-danger">*</span>
+                        </label>
+                        
+                        <!-- Formula Templates -->
+                        <div class="card border-light mb-3">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-code text-secondary me-2"></i>
+                                    Mẫu công thức
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Công thức cơ bản</h6>
+                                        <div class="list-group list-group-flush">
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('frequency')">
+                                                <strong>Tần suất xuất hiện</strong><br>
+                                                <small class="text-muted">Phân tích dựa trên tần suất số về</small>
+                                            </button>
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('cycle')">
+                                                <strong>Chu kỳ xuất hiện</strong><br>
+                                                <small class="text-muted">Dự đoán dựa trên chu kỳ lặp lại</small>
+                                            </button>
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('pattern')">
+                                                <strong>Mẫu số đặc biệt</strong><br>
+                                                <small class="text-muted">Tìm mẫu trong chuỗi số</small>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6>Công thức nâng cao</h6>
+                                        <div class="list-group list-group-flush">
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('statistical')">
+                                                <strong>Thống kê nâng cao</strong><br>
+                                                <small class="text-muted">Sử dụng phân tích thống kê</small>
+                                            </button>
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('machine_learning')">
+                                                <strong>Học máy cơ bản</strong><br>
+                                                <small class="text-muted">Thuật toán học máy đơn giản</small>
+                                            </button>
+                                            <button type="button" class="list-group-item list-group-item-action" onclick="useTemplate('combined')">
+                                                <strong>Kết hợp nhiều phương pháp</strong><br>
+                                                <small class="text-muted">Tổng hợp nhiều cách phân tích</small>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{ form.cong_thuc }}
+                        {% if form.cong_thuc.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.cong_thuc.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Mô tả thuật toán hoặc công thức tính toán
+                        </div>
+                    </div>
+                    
+                    <!-- Preview Section -->
+                    <div class="mb-4">
+                        <div class="card border-info">
+                            <div class="card-header bg-info bg-opacity-10">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-eye text-info me-2"></i>
+                                    Xem trước phương pháp
+                                </h6>
+                            </div>
+                            <div class="card-body" id="method-preview">
+                                <div class="text-muted text-center py-3">
+                                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                    <p>Điền thông tin để xem trước phương pháp</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'lokhung:phuong_phap_list' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                        <button type="button" class="btn btn-outline-info me-md-2" onclick="testMethod()">
+                            <i class="fas fa-play me-2"></i>Thử nghiệm
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu phương pháp
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize progress bars
+    updateWeightBar();
+    updateConfidenceBar();
+    
+    // Form change events
+    $('input, select, textarea').on('input change', updatePreview);
+    
+    // Progress bar updates
+    $('#{{ form.trong_so.id_for_label }}').on('input', updateWeightBar);
+    $('#{{ form.do_tin_cay.id_for_label }}').on('input', updateConfidenceBar);
+    
+    // JSON validation
+    $('#{{ form.tham_so_config.id_for_label }}').on('blur', validateJSON);
+    
+    // Initialize preview
+    updatePreview();
+});
+
+function updateWeightBar() {
+    const value = parseFloat($('#{{ form.trong_so.id_for_label }}').val()) || 0;
+    const percentage = (value / 10) * 100;
+    $('#weight-bar').css('width', percentage + '%');
+}
+
+function updateConfidenceBar() {
+    const value = parseFloat($('#{{ form.do_tin_cay.id_for_label }}').val()) || 0;
+    const percentage = value * 100;
+    $('#confidence-bar').css('width', percentage + '%');
+}
+
+function validateJSON() {
+    const value = $('#{{ form.tham_so_config.id_for_label }}').val().trim();
+    const field = $('#{{ form.tham_so_config.id_for_label }}');
+    
+    if (value && value !== '') {
+        try {
+            JSON.parse(value);
+            field.removeClass('is-invalid').addClass('is-valid');
+        } catch (e) {
+            field.removeClass('is-valid').addClass('is-invalid');
+        }
+    } else {
+        field.removeClass('is-invalid is-valid');
+    }
+}
+
+function addParameter() {
+    const key = $('#param-key').val().trim();
+    const value = $('#param-value').val().trim();
+    
+    if (!key || !value) {
+        alert('Vui lòng nhập tên tham số và giá trị.');
+        return;
+    }
+    
+    try {
+        const currentConfig = $('#{{ form.tham_so_config.id_for_label }}').val().trim();
+        let config = {};
+        
+        if (currentConfig) {
+            config = JSON.parse(currentConfig);
+        }
+        
+        // Try to parse value as number or keep as string
+        let parsedValue = value;
+        if (!isNaN(value) && !isNaN(parseFloat(value))) {
+            parsedValue = parseFloat(value);
+        } else if (value.toLowerCase() === 'true') {
+            parsedValue = true;
+        } else if (value.toLowerCase() === 'false') {
+            parsedValue = false;
+        }
+        
+        config[key] = parsedValue;
+        
+        $('#{{ form.tham_so_config.id_for_label }}').val(JSON.stringify(config, null, 2));
+        $('#param-key, #param-value').val('');
+        
+        validateJSON();
+        updatePreview();
+        
+    } catch (e) {
+        alert('Lỗi định dạng JSON. Vui lòng kiểm tra lại.');
+    }
+}
+
+function addCommonParam(key, value) {
+    $('#param-key').val(key);
+    $('#param-value').val(value);
+    addParameter();
+}
+
+function useTemplate(templateType) {
+    const templates = {
+        frequency: {
+            formula: `# Phân tích tần suất xuất hiện
+1. Lấy dữ liệu {so_ngay} ngày gần nhất
+2. Đếm tần suất xuất hiện của từng số
+3. Tính tỷ lệ xuất hiện / tổng số lần
+4. Chọn số có tần suất >= {nguong}
+5. Sắp xếp theo độ ưu tiên`,
+            params: { "so_ngay": 30, "nguong": 0.1 }
+        },
+        cycle: {
+            formula: `# Phân tích chu kỳ xuất hiện
+1. Tìm lịch sử xuất hiện của từng số
+2. Tính chu kỳ trung bình giữa các lần xuất hiện
+3. So sánh với khoảng cách hiện tại
+4. Dự đoán số có chu kỳ phù hợp
+5. Ưu tiên số gần đạt chu kỳ`,
+            params: { "chu_ky_min": 7, "chu_ky_max": 30, "sai_so": 3 }
+        },
+        pattern: {
+            formula: `# Tìm mẫu số đặc biệt
+1. Phân tích đầu số, đuôi số
+2. Tìm mẫu liên tiếp, số kép
+3. Phân tích tổng các chữ số
+4. Tìm quy luật lặp lại
+5. Dự đoán theo mẫu tìm được`,
+            params: { "do_dai_mau": 3, "tan_suat_mau": 0.3 }
+        },
+        statistical: {
+            formula: `# Phân tích thống kê nâng cao
+1. Tính độ lệch chuẩn
+2. Phân tích phân phối xác suất
+3. Sử dụng Z-score
+4. Kiểm định độ tin cậy
+5. Dự đoán dựa trên mô hình thống kê`,
+            params: { "alpha": 0.05, "z_score": 1.96 }
+        },
+        machine_learning: {
+            formula: `# Học máy cơ bản
+1. Thu thập features: đầu, đuôi, tổng, chu kỳ
+2. Chuẩn bị dữ liệu training
+3. Sử dụng Linear Regression hoặc Decision Tree
+4. Training model với dữ liệu lịch sử
+5. Predict số tiếp theo`,
+            params: { "training_size": 100, "features": ["head", "tail", "sum"] }
+        },
+        combined: {
+            formula: `# Kết hợp nhiều phương pháp
+1. Chạy phân tích tần suất (trọng số 30%)
+2. Chạy phân tích chu kỳ (trọng số 40%)
+3. Chạy phân tích mẫu (trọng số 30%)
+4. Tính điểm tổng hợp
+5. Chọn số có điểm cao nhất`,
+            params: { "w_frequency": 0.3, "w_cycle": 0.4, "w_pattern": 0.3 }
+        }
+    };
+    
+    const template = templates[templateType];
+    if (template) {
+        $('#{{ form.cong_thuc.id_for_label }}').val(template.formula);
+        $('#{{ form.tham_so_config.id_for_label }}').val(JSON.stringify(template.params, null, 2));
+        validateJSON();
+        updatePreview();
+    }
+}
+
+function updatePreview() {
+    const name = $('#{{ form.ten_phuong_phap.id_for_label }}').val();
+    const type = $('#{{ form.loai_phuong_phap.id_for_label }} option:selected').text();
+    const status = $('#{{ form.trang_thai.id_for_label }} option:selected').text();
+    const weight = $('#{{ form.trong_so.id_for_label }}').val();
+    const confidence = $('#{{ form.do_tin_cay.id_for_label }}').val();
+    const description = $('#{{ form.mo_ta.id_for_label }}').val();
+    
+    if (!name) {
+        $('#method-preview').html(`
+            <div class="text-muted text-center py-3">
+                <i class="fas fa-info-circle fa-2x mb-2"></i>
+                <p>Điền thông tin để xem trước phương pháp</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let statusClass = 'bg-secondary';
+    if (status.includes('Hoạt động')) statusClass = 'bg-success';
+    else if (status.includes('Thử nghiệm')) statusClass = 'bg-warning';
+    
+    const previewHtml = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="text-primary">${name}</h6>
+                <div class="mb-2">
+                    <span class="badge ${statusClass} me-2">${status}</span>
+                    <span class="badge bg-info">${type}</span>
+                </div>
+                ${description ? `<p class="text-muted small">${description}</p>` : ''}
+            </div>
+            <div class="col-md-6">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="border-end">
+                            <h6 class="mb-0 text-info">${weight || '1.0'}</h6>
+                            <small class="text-muted">Trọng số</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <h6 class="mb-0 text-warning">${Math.round((confidence || 0.5) * 100)}%</h6>
+                        <small class="text-muted">Tin cậy</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#method-preview').html(previewHtml);
+}
+
+function testMethod() {
+    const name = $('#{{ form.ten_phuong_phap.id_for_label }}').val();
+    if (!name) {
+        alert('Vui lòng nhập tên phương pháp trước khi thử nghiệm.');
+        return;
+    }
+    
+    // Simulate testing
+    if (confirm('Chạy thử nghiệm phương pháp này với dữ liệu mẫu?')) {
+        const testResults = {
+            total_tests: 10,
+            success: Math.floor(Math.random() * 7) + 2,
+            avg_confidence: Math.random() * 30 + 50
+        };
+        
+        alert(`Kết quả thử nghiệm:
+- Tổng số test: ${testResults.total_tests}
+- Thành công: ${testResults.success}
+- Tỷ lệ: ${Math.round(testResults.success/testResults.total_tests*100)}%
+- Tin cậy TB: ${testResults.avg_confidence.toFixed(1)}%`);
+    }
+}
+
+// Form validation
+$('.needs-validation').on('submit', function(e) {
+    if (!this.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    $(this).addClass('was-validated');
+});
+</script>
+{% endblock %}

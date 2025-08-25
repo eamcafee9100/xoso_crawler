@@ -1,0 +1,117 @@
+{% load xs_tags %}
+{% if comparison_results %}
+<div class="card mt-4">
+    <div class="card-header bg-success text-white">
+        <h4 class="mb-0">
+            <i class="fas fa-chart-pie"></i> BẢNG SO SÁNH THEO ĐẦU SỐ
+        </h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Đầu số</th>
+                        <th>Kết quả thực tế</th>
+                        <th>Dự đoán 7 ngày</th>
+                        <th>Dự đoán 10 ngày</th>
+                        <th>Dự đoán 20 ngày</th>
+                        <th>Số trùng 3 kỳ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for digit in '0123456789' %}
+                    <tr>
+                        <td class="font-weight-bold bg-light">{{ digit }}</td>
+                        
+                        <!-- Cột kết quả thực tế -->
+                        <td>
+                            {% for num in loto_stats|get_item:digit %}
+                                <span class="badge bg-primary mb-1">{{ num }}</span>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                        
+                        <!-- Cột dự đoán 7 ngày -->
+                        <td>
+                            {% for num, score in predictions.7_ngay.top_numbers|filter_by_first_digit:digit %}
+                                <span class="badge 
+                                    {% if num in predictions.7_ngay.hits %}bg-success{% else %}bg-info{% endif %} mb-1">
+                                    {{ num }}
+                                </span>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                        
+                        <!-- Cột dự đoán 10 ngày -->
+                        <td>
+                            {% for num, score in predictions.10_ngay.top_numbers|filter_by_first_digit:digit %}
+                                <span class="badge 
+                                    {% if num in predictions.10_ngay.hits %}bg-success{% else %}bg-warning{% endif %} mb-1">
+                                    {{ num }}
+                                </span>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                        
+                        <!-- Cột dự đoán 20 ngày -->
+                        <td>
+                            {% for num, score in predictions.20_ngay.top_numbers|filter_by_first_digit:digit %}
+                                <span class="badge 
+                                    {% if num in predictions.20_ngay.hits %}bg-success{% else %}bg-danger{% endif %} mb-1">
+                                    {{ num }}
+                                </span>
+                            {% empty %}
+                                <span class="text-muted">-</span>
+                            {% endfor %}
+                        </td>
+                        
+                        <!-- Cột số trùng 3 kỳ -->
+                         <td class="bg-light">
+                            {% with digit_str=digit|stringformat:"s" %}
+                                {% for num in common_predictions.all_three %}
+                                    {% if num|stringformat:"s"|slice:":1" == digit_str %}
+                                        <span class="badge bg-success mb-1">{{ num }}</span>
+                                    {% endif %}
+                                {% empty %}
+                                    <span class="text-muted">-</span>
+                                {% endfor %}
+                            {% endwith %}
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-check-circle"></i> Chú thích màu sắc</h5>
+                    <ul class="mb-0">
+                        <li><span class="badge bg-primary">Xanh dương</span>: Kết quả thực tế</li>
+                        <li><span class="badge bg-success">Xanh lá</span>: Số trúng thực tế</li>
+                        <li><span class="badge bg-info">Xanh nhạt</span>: Dự đoán 7 ngày</li>
+                        <li><span class="badge bg-warning">Vàng</span>: Dự đoán 10 ngày</li>
+                        <li><span class="badge bg-danger">Đỏ</span>: Dự đoán 20 ngày</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-warning">
+                    <h5><i class="fas fa-lightbulb"></i> Đánh giá hiệu quả</h5>
+                    <ul class="mb-0">
+                        <li>Tổng số trúng: <strong>{{ total_hits }}</strong></li>
+                        <li>Số trúng cả 3 kỳ: <strong>{{ common_predictions.all_three|length }}</strong></li>
+                        <li>Đầu số nổi bật: <strong>{{ hot_digits|join:", " }}</strong></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

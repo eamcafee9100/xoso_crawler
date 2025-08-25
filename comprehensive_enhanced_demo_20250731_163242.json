@@ -1,0 +1,78 @@
+{
+  "demo_timestamp": "2025-07-31T16:32:39.359183",
+  "scenarios": {
+    "30 Days Recent": {
+      "metadata": {
+        "start_date": "2025-07-01",
+        "end_date": "2025-07-31",
+        "total_records": 576,
+        "significance_level": 0.1,
+        "analysis_timestamp": "2025-07-31T16:32:39.359183"
+      },
+      "hot_count": 0,
+      "cold_count": 0,
+      "top_hot": [],
+      "top_cold": [],
+      "seasonal_summary": {
+        "active_months": 1,
+        "prize_rates": {
+          "special_prize_rate": 0.073,
+          "first_prize_rate": 0.073,
+          "other_prize_rate": 0.858
+        }
+      }
+    },
+    "90 Days Analysis": {
+      "metadata": {
+        "start_date": "2025-05-02",
+        "end_date": "2025-07-31",
+        "total_records": 2007,
+        "significance_level": 0.1,
+        "analysis_timestamp": "2025-07-31T16:32:40.351968"
+      },
+      "hot_count": 0,
+      "cold_count": 0,
+      "top_hot": [],
+      "top_cold": [],
+      "seasonal_summary": {
+        "active_months": 3,
+        "prize_rates": {
+          "special_prize_rate": 0.074,
+          "first_prize_rate": 0.066,
+          "other_prize_rate": 0.863
+        }
+      }
+    },
+    "180 Days Deep": {
+      "metadata": {
+        "start_date": "2025-02-01",
+        "end_date": "2025-07-31",
+        "total_records": 4141,
+        "significance_level": 0.1,
+        "analysis_timestamp": "2025-07-31T16:32:41.337078"
+      },
+      "hot_count": 0,
+      "cold_count": 0,
+      "top_hot": [],
+      "top_cold": [],
+      "seasonal_summary": {
+        "active_months": 6,
+        "prize_rates": {
+          "special_prize_rate": 0.074,
+          "first_prize_rate": 0.068,
+          "other_prize_rate": 0.862
+        }
+      }
+    }
+  },
+  "enhanced_predictions": {
+    "consensus_hot_numbers": [],
+    "high_confidence": [],
+    "emerging_hot": [],
+    "prediction_metadata": {
+      "total_scenarios": 3,
+      "consensus_threshold": 2,
+      "generated_at": "2025-07-31T16:32:42.507564"
+    }
+  }
+}

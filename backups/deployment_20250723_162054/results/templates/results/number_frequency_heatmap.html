@@ -1,0 +1,101 @@
+<!-- templates/results/number_frequency_heatmap.html -->
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+
+{% block title %}Heatmap Tần Suất Lô Tô{% endblock %}
+
+{% block extra_css %}
+<style>
+    .heatmap-cell {
+        width: 60px;
+        height: 60px;
+        text-align: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    .heatmap-cell:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        z-index: 10;
+    }
+    .heatmap-number {
+        font-size: 18px;
+    }
+    .heatmap-count {
+        font-size: 14px;
+        opacity: 0.8;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Heatmap Tần Suất Lô Tô</h3>
+            <div>
+                <a href="{% url 'number_frequency' %}" class="btn btn-outline-light">
+                    <i class="fas fa-table"></i> Xem bảng
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-3">
+                    <label for="year" class="form-label">Năm</label>
+                    <select name="year" id="year" class="form-select">
+                        <option value="">Tất cả</option>
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="month" class="form-label">Tháng</label>
+                    <select name="month" id="month" class="form-select">
+                        <option value="">Tất cả</option>
+                        {% for m in months %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3 align-self-end">
+                    <button type="submit" class="btn btn-primary w-100">Xem heatmap</button>
+                </div>
+            </form>
+            
+            <div class="heatmap-container">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-primary">
+                            <tr>
+                                <th></th>
+                                {% for i in "0123456789" %}
+                                <th class="text-center">{{ i }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in heatmap_data %}
+                            <tr>
+                                <th class="table-primary text-center">{{ forloop.counter0 }}</th>
+                                {% for cell in row %}
+                                <td class="heatmap-cell" 
+                                    style="background-color: rgba(0, 128, 0, {{ cell.count|div:max_count|default:0 }});">
+                                    <div class="heatmap-number">{{ cell.number }}</div>
+                                    <div class="heatmap-count">{{ cell.count }}</div>
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

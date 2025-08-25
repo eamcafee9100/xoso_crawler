@@ -1,0 +1,275 @@
+{% extends "predictions_tracker/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border-left: 4px solid #007bff;
+    }
+    
+    .report-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .report-type-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .report-single { background: #d4edda; color: #155724; }
+    .report-comprehensive { background: #cff4fc; color: #055160; }
+    
+    .file-size {
+        color: #6c757d;
+        font-size: 12px;
+    }
+    
+    .btn-view-report {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-view-report:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h1 class="mb-3">
+                        <i class="fas fa-chart-bar text-primary"></i>
+                        Kép Lệch 3-Day Reports
+                    </h1>
+                    <p class="lead text-muted">
+                        Danh sách các báo cáo phân tích Kép Lệch đã được tạo
+                    </p>
+                    <div class="row text-center mt-4">
+                        <div class="col-md-4">
+                            <h4 class="text-info">{{ total_reports }}</h4>
+                            <small class="text-muted">Total Reports</small>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{% url 'predictions_tracker:kep_lech_3day_dashboard' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i>
+                                Create New Analysis
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-secondary" onclick="location.reload()">
+                                <i class="fas fa-sync"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Display -->
+    {% if error %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-circle"></i> Error</h5>
+                <p>{{ error }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Reports List -->
+    {% if report_files %}
+    <div class="row">
+        {% for report in report_files %}
+        <div class="col-lg-6 col-xl-4 mb-4">
+            <div class="report-card card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="report-type-badge {% if report.type == 'single_session' %}report-single{% else %}report-comprehensive{% endif %}">
+                                {% if report.type == 'single_session' %}
+                                    <i class="fas fa-file"></i> Single Session
+                                {% else %}
+                                    <i class="fas fa-files"></i> Comprehensive
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <small class="file-size">
+                                <i class="fas fa-file-alt"></i>
+                                {{ report.size|filesizeformat }}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <h6 class="card-title text-truncate" title="{{ report.filename }}">
+                        {{ report.filename }}
+                    </h6>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            Modified: {{ report.modified|date:"d/m/Y H:i" }}
+                        </small>
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'predictions_tracker:view_kep_lech_report' report.filename %}" 
+                           class="btn btn-view-report flex-grow-1">
+                            <i class="fas fa-eye"></i>
+                            View Report
+                        </a>
+                        <button class="btn btn-outline-secondary btn-sm" 
+                                onclick="downloadReport('{{ report.filename }}')"
+                                title="Download Report">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Pagination (if needed in future) -->
+    
+    {% else %}
+    <!-- Empty State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="empty-state">
+                <i class="fas fa-chart-bar"></i>
+                <h3>No Reports Found</h3>
+                <p class="text-muted">
+                    No analysis reports have been generated yet. 
+                    <br>Start by creating a new analysis session.
+                </p>
+                <a href="{% url 'predictions_tracker:kep_lech_3day_dashboard' %}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus"></i>
+                    Create First Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats (if reports exist) -->
+    {% if report_files %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Report Statistics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        {% with single_count=report_files|length %}
+                        {% with comprehensive_count=0 %}
+                        {% for report in report_files %}
+                            {% if report.type == 'comprehensive' %}
+                                {% with comprehensive_count=comprehensive_count|add:1 %}{% endwith %}
+                            {% endif %}
+                        {% endfor %}
+                        <div class="col-md-3">
+                            <h4 class="text-primary">{{ total_reports }}</h4>
+                            <small class="text-muted">Total Reports</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">
+                                {% for report in report_files %}
+                                    {% if report.type == 'single_session' %}{% if forloop.first %}{% endif %}{% endif %}
+                                {% endfor %}
+                                {{ report_files|length }}
+                            </h4>
+                            <small class="text-muted">Single Sessions</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-info">
+                                {% for report in report_files %}
+                                    {% if report.type == 'comprehensive' %}{% if forloop.first %}1{% endif %}{% endif %}
+                                {% empty %}0{% endfor %}
+                            </h4>
+                            <small class="text-muted">Comprehensive</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">
+                                {% if report_files %}
+                                    {{ report_files.0.modified|date:"d/m" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </h4>
+                            <small class="text-muted">Latest Report</small>
+                        </div>
+                        {% endwith %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReport(filename) {
+    // Create a temporary link to download the file
+    const link = document.createElement('a');
+    link.href = `/static/reports/${filename}`;  // Adjust path as needed
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Auto-refresh every 30 seconds if on reports page
+setInterval(function() {
+    if (document.hasFocus()) {
+        // Only refresh if page is active
+        const lastModified = document.querySelector('.report-card');
+        if (lastModified) {
+            // Check if new reports are available (simplified)
+            console.log('Checking for new reports...');
+        }
+    }
+}, 30000);
+</script>
+{% endblock %}

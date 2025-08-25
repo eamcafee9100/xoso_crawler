@@ -1,0 +1,44 @@
+<!-- templates/results/number_frequency_stats_confirm_delete.html -->
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Xác nhận xóa dữ liệu tần suất số{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Xác nhận xóa dữ liệu tần suất số</h3>
+            <div>
+                <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <h4 class="alert-heading">Cảnh báo!</h4>
+                <p>Bạn có chắc chắn muốn xóa dữ liệu tần suất sau?</p>
+                <hr>
+                <p class="mb-0">
+                    <strong>Số:</strong> {{ object.number }}<br>
+                    <strong>Ngày:</strong> {{ object.date|date:"d/m/Y" }}<br>
+                    <strong>Giải đặc biệt:</strong> {% if object.appeared_in_special %}Có{% else %}Không{% endif %}<br>
+                    <strong>Giải nhất:</strong> {% if object.appeared_in_first %}Có{% else %}Không{% endif %}<br>
+                    <strong>Giải khác:</strong> {% if object.appeared_in_other %}Có{% else %}Không{% endif %}
+                </p>
+                <p class="mt-2 text-danger">Thao tác này không thể hoàn tác!</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Xác nhận xóa
+                </button>
+                <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-secondary">Hủy</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

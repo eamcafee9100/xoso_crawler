@@ -1,0 +1,194 @@
+<!-- templates/results/number_frequency_stats_bulk_import.html -->
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Nhập dữ liệu tần suất số hàng loạt{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Nhập dữ liệu tần suất số hàng loạt</h3>
+            <div>
+                <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data" class="row g-3">
+                {% csrf_token %}
+                
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Chọn loại nhập dữ liệu</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                {% for radio in form.import_type %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                        {{ radio.choice_label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 csv-import-section" style="display: none;">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Nhập từ file CSV</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="{{ form.csv_file.id_for_label }}" class="form-label">File CSV</label>
+                                <input type="file" 
+                                       class="form-control {% if form.csv_file.errors %}is-invalid{% endif %}"
+                                       id="{{ form.csv_file.id_for_label }}"
+                                       name="{{ form.csv_file.name }}"
+                                       accept=".csv">
+                                {% if form.csv_file.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.csv_file.errors }}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    {{ form.csv_file.help_text }}
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-info">
+                                <h6>Định dạng CSV</h6>
+                                <p class="mb-0">Cột cần thiết: number, date, appeared_in_special, appeared_in_first, appeared_in_other</p>
+                                <p class="mb-0">Ví dụ:</p>
+                                <code>number,date,appeared_in_special,appeared_in_first,appeared_in_other<br>
+                                27,2023-06-01,True,False,False<br>
+                                35,2023-06-01,False,True,False</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 ketquaxoso-import-section">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Nhập từ dữ liệu KetQuaXoSo</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" 
+                                           type="checkbox" 
+                                           id="{{ form.import_from_ketquaxoso.id_for_label }}"
+                                           name="{{ form.import_from_ketquaxoso.name }}"
+                                           {% if form.import_from_ketquaxoso.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="{{ form.import_from_ketquaxoso.id_for_label }}">
+                                        {{ form.import_from_ketquaxoso.label }}
+                                    </label>
+                                    <div class="form-text">
+                                        {{ form.import_from_ketquaxoso.help_text }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="{{ form.start_date.id_for_label }}" class="form-label">Ngày bắt đầu</label>
+                                    <input type="date" 
+                                           class="form-control {% if form.start_date.errors %}is-invalid{% endif %}"
+                                           id="{{ form.start_date.id_for_label }}"
+                                           name="{{ form.start_date.name }}"
+                                           value="{{ form.start_date.value|date:'Y-m-d'|default:'' }}">
+                                    {% if form.start_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.start_date.errors }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Để trống để lấy từ ngày đầu tiên
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <label for="{{ form.end_date.id_for_label }}" class="form-label">Ngày kết thúc</label>
+                                    <input type="date" 
+                                           class="form-control {% if form.end_date.errors %}is-invalid{% endif %}"
+                                           id="{{ form.end_date.id_for_label }}"
+                                           name="{{ form.end_date.name }}"
+                                           value="{{ form.end_date.value|date:'Y-m-d'|default:'' }}">
+                                    {% if form.end_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.end_date.errors }}
+                                    </div>
+                                    {% endif %}
+                                    <div class="form-text">
+                                        Để trống để lấy đến ngày mới nhất
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="alert alert-warning mt-3">
+                                <strong>Lưu ý:</strong> Dữ liệu hiện có trong khoảng thời gian này sẽ bị xóa và tạo lại!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-file-import"></i> Nhập dữ liệu
+                    </button>
+                    <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hiển thị/ẩn các section tùy theo loại nhập
+        const importTypeRadios = document.querySelectorAll('input[name="import_type"]');
+        const csvSection = document.querySelector('.csv-import-section');
+        const ketquaxosoSection = document.querySelector('.ketquaxoso-import-section');
+        
+        // Thiết lập trạng thái ban đầu
+        const updateSections = function() {
+            const selectedValue = document.querySelector('input[name="import_type"]:checked').value;
+            
+            if (selectedValue === 'csv') {
+                csvSection.style.display = 'block';
+                ketquaxosoSection.style.display = 'none';
+            } else {
+                csvSection.style.display = 'none';
+                ketquaxosoSection.style.display = 'block';
+            }
+        };
+        
+        // Cập nhật khi thay đổi lựa chọn
+        importTypeRadios.forEach(radio => {
+            radio.addEventListener('change', updateSections);
+        });
+        
+        // Gọi lần đầu
+        updateSections();
+    });
+</script>
+{% endblock %}

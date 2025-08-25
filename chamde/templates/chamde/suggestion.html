@@ -1,0 +1,441 @@
+<!-- chamde/suggestion.html -->
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block page_title %}Gợi ý Chạm{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Gợi ý</li>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Suggestion Cards -->
+  <div class="row mb-4">
+    {% for suggestion in suggestions %}
+    <div class="col-md-6 col-lg-4 mb-3">
+      <div class="card prediction-card h-100 {% if suggestion.confidence >= 80 %}border-success{% elif suggestion.confidence >= 60 %}border-warning{% else %}border-info{% endif %}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h6 class="card-title mb-0">{{ suggestion.title }}</h6>
+          <span class="badge bg-{% if suggestion.confidence >= 80 %}success{% elif suggestion.confidence >= 60 %}warning{% else %}info{% endif %}">
+            {{ suggestion.confidence }}%
+          </span>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <small class="text-muted">Loại chạm:</small>
+            <span class="badge bg-{{ suggestion.cham_type|lower }} ms-1">
+              {{ suggestion.get_cham_type_display }}
+            </span>
+          </div>
+          
+          <div class="mb-3">
+            <small class="text-muted d-block">Số gợi ý:</small>
+            <div class="mt-2">
+              {% for num in suggestion.suggested_numbers %}
+                <span class="number-badge cham-{{ suggestion.cham_type|lower }}">{{ num }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <small class="text-muted d-block">Lý do:</small>
+            <p class="small mb-0">{{ suggestion.reason }}</p>
+          </div>
+          
+          <div class="mb-3">
+            <small class="text-muted">Dựa trên:</small>
+            <ul class="small mb-0">
+              {% for factor in suggestion.analysis_factors %}
+                <li>{{ factor }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted">
+              <i class="fas fa-clock"></i> {{ suggestion.created_at|date:"H:i d/m" }}
+            </small>
+            <div class="btn-group btn-group-sm">
+              <button type="button" class="btn btn-outline-primary" onclick="useSuggestion({{ suggestion.id }})">
+                <i class="fas fa-check"></i> Dùng
+              </button>
+              <button type="button" class="btn btn-outline-info" onclick="showDetails({{ suggestion.id }})">
+                <i class="fas fa-info"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        <i class="fas fa-lightbulb fa-2x mb-3"></i>
+        <h5>Chưa có gợi ý nào</h5>
+        <p class="mb-0">Hệ thống sẽ tự động tạo gợi ý dựa trên phân tích dữ liệu lịch sử.</p>
+        <button type="button" class="btn btn-primary mt-3" onclick="generateSuggestions()">
+          <i class="fas fa-magic"></i> Tạo gợi ý
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- AI Analysis Section -->
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Phân tích AI</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-4">
+            <h6 class="text-primary">Xu hướng gần đây</h6>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="border rounded p-3 mb-3">
+                  <h6 class="text-success">Chạm đầu</h6>
+                  <div class="mb-2">
+                    <small class="text-muted">Tần suất 7 ngày:</small>
+                    <div class="progress">
+                      <div class="progress-bar bg-success" style="width: {{ trends.cham_dau_frequency }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ trends.cham_dau_frequency }}%</small>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">Xu hướng:</small>
+                    <span class="badge bg-{{ trends.cham_dau_trend_color }}">
+                      <i class="fas fa-arrow-{{ trends.cham_dau_trend_icon }}"></i>
+                      {{ trends.cham_dau_trend }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="border rounded p-3 mb-3">
+                  <h6 class="text-primary">Chạm đuôi</h6>
+                  <div class="mb-2">
+                    <small class="text-muted">Tần suất 7 ngày:</small>
+                    <div class="progress">
+                      <div class="progress-bar bg-primary" style="width: {{ trends.cham_duoi_frequency }}%"></div>
+                    </div>
+                    <small class="text-muted">{{ trends.cham_duoi_frequency }}%</small>
+                  </div>
+                  <div class="mb-2">
+                    <small class="text-muted">Xu hướng:</small>
+                    <span class="badge bg-{{ trends.cham_duoi_trend_color }}">
+                      <i class="fas fa-arrow-{{ trends.cham_duoi_trend_icon }}"></i>
+                      {{ trends.cham_duoi_trend }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <h6 class="text-primary">Mẫu hình đặc biệt</h6>
+            <div class="row">
+              {% for pattern in special_patterns %}
+              <div class="col-md-4 mb-3">
+                <div class="card border-info">
+                  <div class="card-body p-3">
+                    <h6 class="card-title">{{ pattern.name }}</h6>
+                    <p class="card-text small">{{ pattern.description }}</p>
+                    <div class="mb-2">
+                      {% for num in pattern.numbers %}
+                        <span class="number-badge bg-info text-white">{{ num }}</span>
+                      {% endfor %}
+                    </div>
+                    <small class="text-muted">
+                      <i class="fas fa-chart-line"></i> {{ pattern.probability }}% khả năng
+                    </small>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Thống kê hôm nay</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Tổng gợi ý:</span>
+              <span class="fw-bold">{{ today_stats.total_suggestions }}</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Độ tin cậy cao:</span>
+              <span class="fw-bold text-success">{{ today_stats.high_confidence }}</span>
+            </div>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Đã sử dụng:</span>
+              <span class="fw-bold text-primary">{{ today_stats.used_count }}</span>
+            </div>
+          </div>
+          <hr>
+          <div class="mb-2">
+            <small class="text-muted">Cập nhật lần cuối:</small>
+            <br>
+            <small class="fw-bold">{{ last_update|date:"H:i d/m/Y" }}</small>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Số HOT & LẠNH</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <h6 class="text-danger">Số HOT (7 ngày)</h6>
+            <div class="mb-2">
+              {% for num in hot_numbers %}
+                <span class="number-badge bg-danger text-white">{{ num }}</span>
+              {% endfor %}
+            </div>
+            <small class="text-muted">Xuất hiện nhiều nhất</small>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-info">Số LẠNH (7 ngày)</h6>
+            <div class="mb-2">
+              {% for num in cold_numbers %}
+                <span class="number-badge bg-info text-white">{{ num }}</span>
+              {% endfor %}
+            </div>
+            <small class="text-muted">Ít xuất hiện nhất</small>
+          </div>
+          
+          <div class="mb-3">
+            <h6 class="text-warning">Số DUE</h6>
+            <div class="mb-2">
+              {% for num in due_numbers %}
+                <span class="number-badge bg-warning text-dark">{{ num }}</span>
+              {% endfor %}
+            </div>
+            <small class="text-muted">Lâu không xuất hiện</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historical Performance -->
+  <div class="card">
+    <div class="card-header">
+      <h5 class="card-title">Hiệu suất gợi ý</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>Ngày</th>
+              <th>Loại</th>
+              <th>Gợi ý</th>
+              <th>Độ tin cậy</th>
+              <th>Kết quả</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for performance in suggestion_performance %}
+            <tr class="{% if performance.is_hit %}table-success{% elif performance.is_miss %}table-light{% endif %}">
+              <td>{{ performance.date|date:"d/m/Y" }}</td>
+              <td>
+                <span class="badge bg-{{ performance.cham_type|lower }}">
+                  {{ performance.get_cham_type_display }}
+                </span>
+              </td>
+              <td>
+                {% for num in performance.suggested_numbers %}
+                  <span class="number-badge cham-{{ performance.cham_type|lower }} {% if num in performance.winning_numbers %}hit{% endif %}">
+                    {{ num }}
+                  </span>
+                {% endfor %}
+              </td>
+              <td>
+                <span class="badge bg-{% if performance.confidence >= 80 %}success{% elif performance.confidence >= 60 %}warning{% else %}info{% endif %}">
+                  {{ performance.confidence }}%
+                </span>
+              </td>
+              <td>
+                {% if performance.actual_result %}
+                  {% for num in performance.actual_result %}
+                    <span class="number-badge bg-secondary text-white">{{ num }}</span>
+                  {% endfor %}
+                {% else %}
+                  <span class="text-muted">Chờ KQ</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if performance.is_hit %}
+                  <span class="badge bg-success">
+                    <i class="fas fa-check"></i> Trúng
+                  </span>
+                {% elif performance.is_miss %}
+                  <span class="badge bg-danger">
+                    <i class="fas fa-times"></i> Trượt
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning">
+                    <i class="fas fa-clock"></i> Chờ
+                  </span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="6" class="text-center text-muted">Chưa có dữ liệu hiệu suất</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggestion Details Modal -->
+  <div class="modal fade" id="suggestionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Chi tiết gợi ý</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="suggestionDetails">
+          <!-- Content will be loaded here -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+          <button type="button" class="btn btn-primary" onclick="useSuggestionFromModal()">
+            <i class="fas fa-check"></i> Sử dụng gợi ý
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block cham_scripts %}
+<script>
+let currentSuggestionId = null;
+
+function useSuggestion(suggestionId) {
+    if (confirm('Bạn có muốn sử dụng gợi ý này để tạo dự đoán?')) {
+        // Redirect to prediction page with pre-filled data
+        window.location.href = `{% url 'chamde:cham_prediction' %}?suggestion_id=${suggestionId}`;
+    }
+}
+
+function showDetails(suggestionId) {
+    currentSuggestionId = suggestionId;
+    
+    // Show loading
+    document.getElementById('suggestionDetails').innerHTML = `
+        <div class="text-center">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2">Đang tải chi tiết...</p>
+        </div>
+    `;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('suggestionModal'));
+    modal.show();
+    
+    // Simulate loading details
+    setTimeout(() => {
+        document.getElementById('suggestionDetails').innerHTML = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Thông tin cơ bản</h6>
+                    <table class="table table-sm">
+                        <tr><td>Loại chạm:</td><td><span class="badge bg-primary">Chạm đầu</span></td></tr>
+                        <tr><td>Độ tin cậy:</td><td><span class="badge bg-success">85%</span></td></tr>
+                        <tr><td>Phương pháp:</td><td>AI Analysis</td></tr>
+                        <tr><td>Thời gian tạo:</td><td>14:30 22/06/2025</td></tr>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h6>Phân tích chi tiết</h6>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Xu hướng tăng 70%</li>
+                        <li><i class="fas fa-check text-success"></i> Mẫu hình lặp lại</li>
+                        <li><i class="fas fa-check text-success"></i> Thống kê hỗ trợ</li>
+                        <li><i class="fas fa-exclamation-triangle text-warning"></i> Biến động cao</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12">
+                    <h6>Biểu đồ xác suất</h6>
+                    <canvas id="probabilityChart" height="200"></canvas>
+                </div>
+            </div>
+        `;
+        
+        // Initialize chart
+        const ctx = document.getElementById('probabilityChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+                datasets: [{
+                    label: 'Xác suất (%)',
+                    data: [12, 19, 3, 5, 2, 15, 8, 25, 22, 10],
+                    backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                    borderColor: '#007bff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 30
+                    }
+                }
+            }
+        });
+    }, 1000);
+}
+
+function useSuggestionFromModal() {
+    if (currentSuggestionId) {
+        useSuggestion(currentSuggestionId);
+    }
+}
+
+function generateSuggestions() {
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tạo...';
+    btn.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        
+        // Reload page to show new suggestions
+        window.location.reload();
+    }, 3000);
+}
+</script>
+{% endblock %}

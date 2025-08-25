@@ -1,0 +1,52 @@
+{% load static %}
+<footer class="mt-5 py-4 bg-light text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3 mb-md-0">
+                <h5 class="text-primary">Hỗ trợ</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/huong-dan" class="text-decoration-none">Hướng dẫn sử dụng</a></li>
+                    <li><a href="/faq" class="text-decoration-none">Câu hỏi thường gặp</a></li>
+                    <li><a href="/lien-he" class="text-decoration-none">Liên hệ</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-md-4 mb-3 mb-md-0">
+                <h5 class="text-primary">Thông tin</h5>
+                <p class="mb-2"><i class="fas fa-info-circle"></i> Phiên bản: 1.0.0</p>
+                <p class="mb-2"><i class="fas fa-calendar-alt"></i> Cập nhật: {% now "d/m/Y" %}</p>
+                <p><i class="fas fa-exclamation-triangle"></i> Dành cho 18+</p>
+            </div>
+            
+            <div class="col-md-4">
+                <h5 class="text-primary">Kết nối</h5>
+                <div class="social-icons">
+                    <a href="#" class="text-decoration-none mx-2"><i class="fab fa-facebook-f fa-lg"></i></a>
+                    <a href="#" class="text-decoration-none mx-2"><i class="fab fa-twitter fa-lg"></i></a>
+                    <a href="#" class="text-decoration-none mx-2"><i class="fab fa-telegram fa-lg"></i></a>
+                    <a href="#" class="text-decoration-none mx-2"><i class="fab fa-youtube fa-lg"></i></a>
+                </div>
+                <div class="mt-3">
+                    <img src="#" alt="Logo" style="height: 40px;">
+                </div>
+            </div>
+        </div>
+        
+        <hr class="my-4">
+        
+        <div class="row">
+            <div class="col-12">
+                <p class="mb-0 text-muted small">
+                    <i class="fas fa-exclamation-circle"></i> 
+                    Thông tin chỉ mang tính chất tham khảo, chúng tôi không chịu trách nhiệm cho bất kỳ quyết định nào từ người dùng.
+                </p>
+                <p class="mb-0 text-muted small">
+                    &copy; {% now "Y" %} Dự đoán XSMB. Bảo lưu mọi quyền.
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+   

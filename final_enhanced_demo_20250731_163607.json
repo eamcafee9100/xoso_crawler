@@ -1,0 +1,976 @@
+{
+  "demo_info": {
+    "timestamp": "2025-07-31T16:36:06.983637",
+    "total_database_records": 8854,
+    "data_range": {
+      "start": "2024-07-14",
+      "end": "2025-07-24"
+    }
+  },
+  "scenario_results": {
+    "Last 30 Days": {
+      "basic_stats": {
+        "total_records": 576,
+        "unique_dates": 24,
+        "avg_records_per_day": 24.0
+      },
+      "frequency_analysis": {
+        "avg_frequency": 5.76,
+        "hot_threshold": 6.91,
+        "cold_threshold": 4.61,
+        "hot_numbers": [
+          {
+            "number": "56",
+            "count": 12
+          },
+          {
+            "number": "16",
+            "count": 12
+          },
+          {
+            "number": "48",
+            "count": 11
+          },
+          {
+            "number": "85",
+            "count": 9
+          },
+          {
+            "number": "21",
+            "count": 9
+          },
+          {
+            "number": "00",
+            "count": 9
+          },
+          {
+            "number": "80",
+            "count": 9
+          },
+          {
+            "number": "92",
+            "count": 9
+          },
+          {
+            "number": "86",
+            "count": 9
+          },
+          {
+            "number": "06",
+            "count": 9
+          },
+          {
+            "number": "11",
+            "count": 9
+          },
+          {
+            "number": "53",
+            "count": 9
+          },
+          {
+            "number": "71",
+            "count": 8
+          },
+          {
+            "number": "79",
+            "count": 8
+          },
+          {
+            "number": "97",
+            "count": 8
+          },
+          {
+            "number": "94",
+            "count": 8
+          },
+          {
+            "number": "19",
+            "count": 8
+          },
+          {
+            "number": "20",
+            "count": 8
+          },
+          {
+            "number": "47",
+            "count": 7
+          },
+          {
+            "number": "60",
+            "count": 7
+          }
+        ],
+        "cold_numbers": [
+          {
+            "number": "99",
+            "count": 4
+          },
+          {
+            "number": "84",
+            "count": 4
+          },
+          {
+            "number": "65",
+            "count": 4
+          },
+          {
+            "number": "35",
+            "count": 4
+          },
+          {
+            "number": "61",
+            "count": 4
+          },
+          {
+            "number": "58",
+            "count": 4
+          },
+          {
+            "number": "76",
+            "count": 4
+          },
+          {
+            "number": "22",
+            "count": 4
+          },
+          {
+            "number": "32",
+            "count": 4
+          },
+          {
+            "number": "10",
+            "count": 4
+          },
+          {
+            "number": "69",
+            "count": 4
+          },
+          {
+            "number": "03",
+            "count": 4
+          },
+          {
+            "number": "43",
+            "count": 4
+          },
+          {
+            "number": "55",
+            "count": 3
+          },
+          {
+            "number": "73",
+            "count": 3
+          },
+          {
+            "number": "39",
+            "count": 3
+          },
+          {
+            "number": "93",
+            "count": 3
+          },
+          {
+            "number": "17",
+            "count": 3
+          },
+          {
+            "number": "70",
+            "count": 3
+          },
+          {
+            "number": "46",
+            "count": 3
+          }
+        ]
+      },
+      "recent_activity": {
+        "period": "Last 15 days",
+        "total_recent_records": 221,
+        "top_recent_numbers": [
+          {
+            "number": "06",
+            "count": 5
+          },
+          {
+            "number": "16",
+            "count": 5
+          },
+          {
+            "number": "19",
+            "count": 5
+          },
+          {
+            "number": "66",
+            "count": 5
+          },
+          {
+            "number": "36",
+            "count": 4
+          },
+          {
+            "number": "92",
+            "count": 4
+          },
+          {
+            "number": "86",
+            "count": 4
+          },
+          {
+            "number": "11",
+            "count": 4
+          },
+          {
+            "number": "80",
+            "count": 4
+          },
+          {
+            "number": "94",
+            "count": 4
+          },
+          {
+            "number": "14",
+            "count": 4
+          },
+          {
+            "number": "20",
+            "count": 4
+          },
+          {
+            "number": "53",
+            "count": 4
+          },
+          {
+            "number": "27",
+            "count": 4
+          },
+          {
+            "number": "97",
+            "count": 4
+          }
+        ]
+      },
+      "prize_position_analysis": {
+        "special_prize_leaders": [
+          {
+            "number": "59",
+            "count": 3
+          },
+          {
+            "number": "62",
+            "count": 3
+          },
+          {
+            "number": "21",
+            "count": 2
+          },
+          {
+            "number": "56",
+            "count": 2
+          },
+          {
+            "number": "00",
+            "count": 2
+          },
+          {
+            "number": "12",
+            "count": 1
+          },
+          {
+            "number": "69",
+            "count": 1
+          },
+          {
+            "number": "49",
+            "count": 1
+          },
+          {
+            "number": "15",
+            "count": 1
+          },
+          {
+            "number": "67",
+            "count": 1
+          }
+        ],
+        "first_prize_leaders": [
+          {
+            "number": "42",
+            "count": 2
+          },
+          {
+            "number": "77",
+            "count": 2
+          },
+          {
+            "number": "00",
+            "count": 2
+          },
+          {
+            "number": "16",
+            "count": 2
+          },
+          {
+            "number": "24",
+            "count": 2
+          },
+          {
+            "number": "85",
+            "count": 2
+          },
+          {
+            "number": "86",
+            "count": 2
+          },
+          {
+            "number": "28",
+            "count": 1
+          },
+          {
+            "number": "03",
+            "count": 1
+          },
+          {
+            "number": "19",
+            "count": 1
+          }
+        ],
+        "total_special": 42,
+        "total_first": 42
+      },
+      "temporal_patterns": {
+        "day_of_week_distribution": {
+          "0": 72,
+          "1": 97,
+          "2": 98,
+          "3": 98,
+          "4": 66,
+          "5": 71,
+          "6": 74
+        }
+      }
+    },
+    "Last 90 Days": {
+      "basic_stats": {
+        "total_records": 2007,
+        "unique_dates": 84,
+        "avg_records_per_day": 23.892857142857142
+      },
+      "frequency_analysis": {
+        "avg_frequency": 20.07,
+        "hot_threshold": 24.08,
+        "cold_threshold": 16.06,
+        "hot_numbers": [
+          {
+            "number": "21",
+            "count": 28
+          },
+          {
+            "number": "68",
+            "count": 28
+          },
+          {
+            "number": "06",
+            "count": 28
+          },
+          {
+            "number": "30",
+            "count": 27
+          },
+          {
+            "number": "56",
+            "count": 27
+          },
+          {
+            "number": "58",
+            "count": 26
+          },
+          {
+            "number": "19",
+            "count": 26
+          },
+          {
+            "number": "72",
+            "count": 26
+          },
+          {
+            "number": "78",
+            "count": 25
+          },
+          {
+            "number": "94",
+            "count": 25
+          },
+          {
+            "number": "08",
+            "count": 25
+          }
+        ],
+        "cold_numbers": [
+          {
+            "number": "43",
+            "count": 16
+          },
+          {
+            "number": "96",
+            "count": 16
+          },
+          {
+            "number": "12",
+            "count": 16
+          },
+          {
+            "number": "82",
+            "count": 16
+          },
+          {
+            "number": "65",
+            "count": 15
+          },
+          {
+            "number": "87",
+            "count": 15
+          },
+          {
+            "number": "59",
+            "count": 15
+          },
+          {
+            "number": "42",
+            "count": 15
+          },
+          {
+            "number": "28",
+            "count": 14
+          },
+          {
+            "number": "93",
+            "count": 14
+          },
+          {
+            "number": "84",
+            "count": 14
+          },
+          {
+            "number": "27",
+            "count": 14
+          },
+          {
+            "number": "38",
+            "count": 14
+          },
+          {
+            "number": "83",
+            "count": 14
+          },
+          {
+            "number": "46",
+            "count": 14
+          },
+          {
+            "number": "35",
+            "count": 13
+          },
+          {
+            "number": "73",
+            "count": 13
+          },
+          {
+            "number": "23",
+            "count": 12
+          },
+          {
+            "number": "17",
+            "count": 11
+          }
+        ]
+      },
+      "recent_activity": {
+        "period": "Last 15 days",
+        "total_recent_records": 221,
+        "top_recent_numbers": [
+          {
+            "number": "06",
+            "count": 5
+          },
+          {
+            "number": "16",
+            "count": 5
+          },
+          {
+            "number": "19",
+            "count": 5
+          },
+          {
+            "number": "66",
+            "count": 5
+          },
+          {
+            "number": "36",
+            "count": 4
+          },
+          {
+            "number": "92",
+            "count": 4
+          },
+          {
+            "number": "86",
+            "count": 4
+          },
+          {
+            "number": "11",
+            "count": 4
+          },
+          {
+            "number": "80",
+            "count": 4
+          },
+          {
+            "number": "94",
+            "count": 4
+          },
+          {
+            "number": "14",
+            "count": 4
+          },
+          {
+            "number": "20",
+            "count": 4
+          },
+          {
+            "number": "53",
+            "count": 4
+          },
+          {
+            "number": "27",
+            "count": 4
+          },
+          {
+            "number": "97",
+            "count": 4
+          }
+        ]
+      },
+      "prize_position_analysis": {
+        "special_prize_leaders": [
+          {
+            "number": "62",
+            "count": 6
+          },
+          {
+            "number": "68",
+            "count": 6
+          },
+          {
+            "number": "94",
+            "count": 5
+          },
+          {
+            "number": "01",
+            "count": 4
+          },
+          {
+            "number": "06",
+            "count": 4
+          },
+          {
+            "number": "02",
+            "count": 4
+          },
+          {
+            "number": "21",
+            "count": 4
+          },
+          {
+            "number": "64",
+            "count": 3
+          },
+          {
+            "number": "79",
+            "count": 3
+          },
+          {
+            "number": "74",
+            "count": 3
+          }
+        ],
+        "first_prize_leaders": [
+          {
+            "number": "24",
+            "count": 4
+          },
+          {
+            "number": "10",
+            "count": 4
+          },
+          {
+            "number": "85",
+            "count": 4
+          },
+          {
+            "number": "90",
+            "count": 4
+          },
+          {
+            "number": "53",
+            "count": 4
+          },
+          {
+            "number": "86",
+            "count": 4
+          },
+          {
+            "number": "36",
+            "count": 3
+          },
+          {
+            "number": "93",
+            "count": 3
+          },
+          {
+            "number": "45",
+            "count": 3
+          },
+          {
+            "number": "61",
+            "count": 3
+          }
+        ],
+        "total_special": 149,
+        "total_first": 133
+      },
+      "temporal_patterns": {
+        "day_of_week_distribution": {
+          "0": 286,
+          "1": 285,
+          "2": 290,
+          "3": 290,
+          "4": 281,
+          "5": 284,
+          "6": 291
+        }
+      }
+    },
+    "Last 180 Days": {
+      "basic_stats": {
+        "total_records": 4141,
+        "unique_dates": 174,
+        "avg_records_per_day": 23.798850574712645
+      },
+      "frequency_analysis": {
+        "avg_frequency": 41.41,
+        "hot_threshold": 49.69,
+        "cold_threshold": 33.13,
+        "hot_numbers": [
+          {
+            "number": "68",
+            "count": 53
+          },
+          {
+            "number": "57",
+            "count": 52
+          },
+          {
+            "number": "58",
+            "count": 52
+          },
+          {
+            "number": "91",
+            "count": 52
+          },
+          {
+            "number": "24",
+            "count": 51
+          },
+          {
+            "number": "54",
+            "count": 50
+          },
+          {
+            "number": "53",
+            "count": 50
+          },
+          {
+            "number": "21",
+            "count": 50
+          },
+          {
+            "number": "19",
+            "count": 50
+          },
+          {
+            "number": "09",
+            "count": 50
+          }
+        ],
+        "cold_numbers": [
+          {
+            "number": "73",
+            "count": 33
+          },
+          {
+            "number": "55",
+            "count": 33
+          },
+          {
+            "number": "00",
+            "count": 33
+          },
+          {
+            "number": "51",
+            "count": 33
+          },
+          {
+            "number": "46",
+            "count": 32
+          },
+          {
+            "number": "26",
+            "count": 32
+          },
+          {
+            "number": "12",
+            "count": 32
+          },
+          {
+            "number": "84",
+            "count": 32
+          },
+          {
+            "number": "83",
+            "count": 31
+          },
+          {
+            "number": "27",
+            "count": 31
+          },
+          {
+            "number": "93",
+            "count": 29
+          },
+          {
+            "number": "87",
+            "count": 28
+          }
+        ]
+      },
+      "recent_activity": {
+        "period": "Last 15 days",
+        "total_recent_records": 221,
+        "top_recent_numbers": [
+          {
+            "number": "06",
+            "count": 5
+          },
+          {
+            "number": "16",
+            "count": 5
+          },
+          {
+            "number": "19",
+            "count": 5
+          },
+          {
+            "number": "66",
+            "count": 5
+          },
+          {
+            "number": "36",
+            "count": 4
+          },
+          {
+            "number": "92",
+            "count": 4
+          },
+          {
+            "number": "86",
+            "count": 4
+          },
+          {
+            "number": "11",
+            "count": 4
+          },
+          {
+            "number": "80",
+            "count": 4
+          },
+          {
+            "number": "94",
+            "count": 4
+          },
+          {
+            "number": "14",
+            "count": 4
+          },
+          {
+            "number": "20",
+            "count": 4
+          },
+          {
+            "number": "53",
+            "count": 4
+          },
+          {
+            "number": "27",
+            "count": 4
+          },
+          {
+            "number": "97",
+            "count": 4
+          }
+        ]
+      },
+      "prize_position_analysis": {
+        "special_prize_leaders": [
+          {
+            "number": "68",
+            "count": 9
+          },
+          {
+            "number": "59",
+            "count": 7
+          },
+          {
+            "number": "09",
+            "count": 7
+          },
+          {
+            "number": "18",
+            "count": 6
+          },
+          {
+            "number": "62",
+            "count": 6
+          },
+          {
+            "number": "21",
+            "count": 6
+          },
+          {
+            "number": "94",
+            "count": 6
+          },
+          {
+            "number": "64",
+            "count": 5
+          },
+          {
+            "number": "13",
+            "count": 5
+          },
+          {
+            "number": "74",
+            "count": 5
+          }
+        ],
+        "first_prize_leaders": [
+          {
+            "number": "90",
+            "count": 8
+          },
+          {
+            "number": "53",
+            "count": 7
+          },
+          {
+            "number": "39",
+            "count": 6
+          },
+          {
+            "number": "86",
+            "count": 5
+          },
+          {
+            "number": "66",
+            "count": 5
+          },
+          {
+            "number": "10",
+            "count": 5
+          },
+          {
+            "number": "36",
+            "count": 5
+          },
+          {
+            "number": "64",
+            "count": 5
+          },
+          {
+            "number": "69",
+            "count": 5
+          },
+          {
+            "number": "54",
+            "count": 5
+          }
+        ],
+        "total_special": 305,
+        "total_first": 280
+      },
+      "temporal_patterns": {
+        "day_of_week_distribution": {
+          "0": 593,
+          "1": 591,
+          "2": 605,
+          "3": 597,
+          "4": 565,
+          "5": 595,
+          "6": 595
+        }
+      }
+    }
+  },
+  "final_predictions": {
+    "consensus_hot": [
+      "21",
+      "19",
+      "56",
+      "06",
+      "53",
+      "94",
+      "68",
+      "58",
+      "16",
+      "48",
+      "85",
+      "00",
+      "80",
+      "92",
+      "86"
+    ],
+    "recent_momentum": [
+      "06",
+      "16",
+      "19",
+      "66",
+      "36",
+      "92",
+      "86",
+      "11",
+      "80",
+      "94"
+    ],
+    "special_prize_candidates": [
+      "62",
+      "21",
+      "59",
+      "68",
+      "94",
+      "64",
+      "74",
+      "56"
+    ],
+    "high_confidence": [
+      "94",
+      "16",
+      "86",
+      "92",
+      "19",
+      "80",
+      "06",
+      "21",
+      "68",
+      "56"
+    ]
+  }
+}

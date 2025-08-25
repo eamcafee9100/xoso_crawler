@@ -1,0 +1,290 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Xóa Dữ Liệu Tần Suất Số{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-trash-alt"></i>
+                        Xóa Dữ Liệu Tần Suất Số
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Cảnh báo -->
+                    <div class="alert alert-danger" role="alert">
+                        <h5><i class="fas fa-exclamation-triangle"></i> CẢNH BÁO!</h5>
+                        <p class="mb-2">Thao tác này sẽ <strong>XÓA VĨNH VIỄN</strong> dữ liệu và <strong>KHÔNG THỂ HOÀN TÁC</strong>!</p>
+                        <p class="mb-0">Vui lòng sao lưu dữ liệu trước khi thực hiện.</p>
+                    </div>
+
+                    <!-- Thống kê dữ liệu hiện tại -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3>{{ total_records|default:0 }}</h3>
+                                    <p class="mb-0">Tổng số bản ghi</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h5>{{ min_date|date:"d/m/Y"|default:"N/A" }}</h5>
+                                    <p class="mb-0">Ngày sớm nhất</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h5>{{ max_date|date:"d/m/Y"|default:"N/A" }}</h5>
+                                    <p class="mb-0">Ngày muộn nhất</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if total_records > 0 %}
+                        <!-- Tab Navigation -->
+                        <ul class="nav nav-tabs mb-3" id="deleteTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="delete-all-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#delete-all" type="button" role="tab">
+                                    <i class="fas fa-trash"></i> Xóa Toàn Bộ
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="delete-range-tab" data-bs-toggle="tab" 
+                                        data-bs-target="#delete-range" type="button" role="tab">
+                                    <i class="fas fa-calendar-alt"></i> Xóa Theo Khoảng Thời Gian
+                                </button>
+                            </li>
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="deleteTabContent">
+                            <!-- Xóa toàn bộ -->
+                            <div class="tab-pane fade show active" id="delete-all" role="tabpanel">
+                                <div class="card border-danger">
+                                    <div class="card-header bg-light">
+                                        <h5 class="text-danger mb-0">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            Xóa Toàn Bộ Dữ Liệu
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-danger">
+                                            <strong>Thao tác này sẽ xóa tất cả {{ total_records }} bản ghi dữ liệu tần suất số!</strong>
+                                        </p>
+                                        <p>Để xác nhận, vui lòng nhập: <code>DELETE ALL</code></p>
+                                        
+                                        <form method="post" id="deleteAllForm">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_all">
+                                            
+                                            <div class="mb-3">
+                                                <input type="text" class="form-control" id="confirmDeleteAll" 
+                                                       placeholder="Nhập 'DELETE ALL' để xác nhận" required>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-danger btn-lg" id="btnDeleteAll">
+                                                <i class="fas fa-trash-alt"></i>
+                                                Xóa Toàn Bộ Dữ Liệu
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Xóa theo khoảng thời gian -->
+                            <div class="tab-pane fade" id="delete-range" role="tabpanel">
+                                <div class="card border-warning">
+                                    <div class="card-header bg-light">
+                                        <h5 class="text-warning mb-0">
+                                            <i class="fas fa-calendar-times"></i>
+                                            Xóa Theo Khoảng Thời Gian
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="post" id="deleteRangeForm">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="action" value="delete_range">
+                                            
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="start_date" class="form-label">Từ ngày:</label>
+                                                        <input type="date" class="form-control" name="start_date" 
+                                                               id="start_date" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label for="end_date" class="form-label">Đến ngày:</label>
+                                                        <input type="date" class="form-control" name="end_date" 
+                                                               id="end_date" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           id="confirmDeleteRange" required>
+                                                    <label class="form-check-label text-danger" for="confirmDeleteRange">
+                                                        Tôi xác nhận xóa dữ liệu trong khoảng thời gian đã chọn
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            
+                                            <button type="submit" class="btn btn-warning btn-lg">
+                                                <i class="fas fa-calendar-times"></i>
+                                                Xóa Dữ Liệu Theo Khoảng Thời Gian
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <!-- Không có dữ liệu -->
+                        <div class="alert alert-info text-center">
+                            <h5><i class="fas fa-info-circle"></i> Không có dữ liệu</h5>
+                            <p class="mb-0">Hiện tại không có dữ liệu tần suất số nào trong hệ thống.</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- Nút điều hướng -->
+                    <div class="mt-4 pt-3 border-top">
+                        <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                        
+                        <a href="{% url 'number_frequency_stats_export' %}" class="btn btn-primary ms-2">
+                            <i class="fas fa-download"></i> Sao lưu dữ liệu (CSV)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Xác nhận xóa dữ liệu
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Bạn có chắc chắn muốn thực hiện thao tác này?</strong></p>
+                <p class="text-danger mb-0">Dữ liệu đã xóa sẽ không thể khôi phục!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Xác nhận xóa</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý xác nhận xóa toàn bộ
+    const confirmDeleteAllInput = document.getElementById('confirmDeleteAll');
+    const btnDeleteAll = document.getElementById('btnDeleteAll');
+    
+    if (confirmDeleteAllInput && btnDeleteAll) {
+        confirmDeleteAllInput.addEventListener('input', function() {
+            btnDeleteAll.disabled = this.value !== 'DELETE ALL';
+        });
+    }
+    
+    // Xử lý submit form với modal xác nhận
+    const deleteAllForm = document.getElementById('deleteAllForm');
+    const deleteRangeForm = document.getElementById('deleteRangeForm');
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    
+    let currentForm = null;
+    
+    // Function để hiển thị modal xác nhận
+    function showConfirmModal(form) {
+        currentForm = form;
+        confirmModal.show();
+    }
+    
+    // Xử lý submit form xóa toàn bộ
+    if (deleteAllForm) {
+        deleteAllForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showConfirmModal(this);
+        });
+    }
+    
+    // Xử lý submit form xóa theo khoảng thời gian
+    if (deleteRangeForm) {
+        deleteRangeForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            
+            if (startDate && endDate && startDate > endDate) {
+                alert('Ngày bắt đầu không thể lớn hơn ngày kết thúc!');
+                return;
+            }
+            
+            showConfirmModal(this);
+        });
+    }
+    
+    // Xử lý xác nhận trong modal
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (currentForm) {
+                confirmModal.hide();
+                
+                // Hiển thị loading
+                const submitBtn = currentForm.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xóa...';
+                submitBtn.disabled = true;
+                
+                // Submit form
+                currentForm.submit();
+            }
+        });
+    }
+    
+    // Set default dates cho delete range
+    const today = new Date().toISOString().split('T')[0];
+    const lastMonth = new Date();
+    lastMonth.setMonth(lastMonth.getMonth() - 1);
+    const lastMonthStr = lastMonth.toISOString().split('T')[0];
+    
+    const startDateInput = document.getElementById('start_date');
+    const endDateInput = document.getElementById('end_date');
+    
+    if (startDateInput && endDateInput) {
+        startDateInput.value = lastMonthStr;
+        endDateInput.value = today;
+    }
+});
+</script>
+{% endblock %}

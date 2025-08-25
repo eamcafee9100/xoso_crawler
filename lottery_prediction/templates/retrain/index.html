@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Model Retraining - {{ block.super }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .retrain-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .retrain-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .model-selection-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+    
+    .config-section {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .progress-container {
+        display: none;
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .training-log {
+        background: #2d3748;
+        color: #e2e8f0;
+        border-radius: 10px;
+        padding: 20px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        line-height: 1.4;
+    }
+    
+    .metric-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 5px;
+    }
+    
+    .metric-label {
+        color: #666;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+    
+    .status-idle {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+    
+    .status-training {
+        background: #fef3c7;
+        color: #f59e0b;
+    }
+    
+    .status-completed {
+        background: #d1fae5;
+        color: #10b981;
+    }
+    
+    .status-error {
+        background: #fee2e2;
+        color: #ef4444;
+    }
+    
+    .training-phase {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        margin-bottom: 10px;
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid #e2e8f0;
+    }
+    
+    .training-phase.active {
+        border-left-color: #667eea;
+        background: #f0f4ff;
+    }
+    
+    .training-phase.completed {
+        border-left-color: #10b981;
+        background: #f0fdf4;
+    }
+    
+    .phase-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        background: #e2e8f0;
+        color: #64748b;
+    }
+    
+    .phase-icon.active {
+        background: #667eea;
+        color: white;
+    }
+    
+    .phase-icon.completed {
+        background: #10b981;
+        color: white;
+    }
+    
+    .alert-box {
+        border-radius: 10px;
+        border: none;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+    
+    .btn-retrain {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-retrain:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .btn-retrain:disabled {
+        background: #cbd5e0;
+        transform: none;
+        box-shadow: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="retrain-container">
+    <!-- Header -->
+    <div class="retrain-header">
+        <h1><i class="fas fa-robot"></i> Model Retraining Center</h1>
+        <p class="mb-0">Improve model performance through automated retraining with optimized parameters</p>
+    </div>
+    
+    <!-- Alerts -->
+    <div id="alertContainer" style="display: none;">
+        <div id="retrainAlerts"></div>
+    </div>
+    
+    <!-- Model Selection and Configuration -->
+    <div class="model-selection-card">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-cogs"></i> Training Configuration</h5>
+        </div>
+        <div class="card-body">
+            <form id="retrainForm">
+                {% csrf_token %}
+                
+                <!-- Model Selection -->
+                <div class="config-section">
+                    <h6><i class="fas fa-brain"></i> Model Selection</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="modelSelect" class="form-label">Select Model to Retrain:</label>
+                            <select class="form-select" id="modelSelect" name="model_name" required>
+                                <option value="">Choose a model...</option>
+                                <option value="ChamSoi">ChamSoi Model</option>
+                                <option value="BachThuLo">Bach Thu Lo Model</option>
+                                <option value="LoKhung">Lo Khung Model</option>
+                                <option value="Ensemble">Ensemble Model</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="retrainType" class="form-label">Retrain Type:</label>
+                            <select class="form-select" id="retrainType" name="retrain_type">
+                                <option value="incremental">Incremental (Update with new data)</option>
+                                <option value="full">Full Retrain (Complete rebuild)</option>
+                                <option value="hyperparameter">Hyperparameter Optimization</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Configuration -->
+                <div class="config-section">
+                    <h6><i class="fas fa-database"></i> Data Configuration</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="dataRange" class="form-label">Training Data Range (days):</label>
+                            <input type="number" class="form-control" id="dataRange" name="data_range" 
+                                   value="180" min="30" max="365">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="validationSplit" class="form-label">Validation Split (%):</label>
+                            <input type="number" class="form-control" id="validationSplit" name="validation_split" 
+                                   value="20" min="10" max="30">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="testSplit" class="form-label">Test Split (%):</label>
+                            <input type="number" class="form-control" id="testSplit" name="test_split" 
+                                   value="15" min="10" max="25">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Advanced Options -->
+                <div class="config-section">
+                    <h6><i class="fas fa-sliders-h"></i> Advanced Options</h6>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoOptimize" name="auto_optimize" checked>
+                                <label class="form-check-label" for="autoOptimize">
+                                    Auto-optimize hyperparameters
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="saveBackup" name="save_backup" checked>
+                                <label class="form-check-label" for="saveBackup">
+                                    Save model backup before retraining
+                                </label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="validateResults" name="validate_results" checked>
+                                <label class="form-check-label" for="validateResults">
+                                    Validate results before deployment
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <button type="submit" class="btn btn-retrain btn-lg" id="startRetrainBtn">
+                        <i class="fas fa-play"></i> Start Retraining
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-lg ms-3" id="cancelBtn" style="display: none;">
+                        <i class="fas fa-stop"></i> Cancel Training
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Progress Container -->
+    <div class="progress-container" id="progressContainer">
+        <div class="row">
+            <!-- Training Progress -->
+            <div class="col-md-8">
+                <h5><i class="fas fa-chart-line"></i> Training Progress</h5>
+                
+                <!-- Status -->
+                <div class="mb-3">
+                    <span class="status-badge status-idle" id="trainingStatus">Ready to Start</span>
+                    <span class="float-end" id="trainingTime">--:--:--</span>
+                </div>
+                
+                <!-- Overall Progress -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span>Overall Progress</span>
+                        <span id="overallProgress">0%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated" 
+                             id="overallProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <!-- Training Phases -->
+                <div id="trainingPhases">
+                    <div class="training-phase" data-phase="preparation">
+                        <div class="phase-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Data Preparation</div>
+                            <div class="text-muted small">Loading and preprocessing training data</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-phase" data-phase="training">
+                        <div class="phase-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Model Training</div>
+                            <div class="text-muted small">Training model with optimized parameters</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-phase" data-phase="validation">
+                        <div class="phase-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Validation</div>
+                            <div class="text-muted small">Validating model performance</div>
+                        </div>
+                    </div>
+                    
+                    <div class="training-phase" data-phase="deployment">
+                        <div class="phase-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-bold">Deployment</div>
+                            <div class="text-muted small">Deploying retrained model</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Training Log -->
+                <div class="mt-4">
+                    <h6>Training Log</h6>
+                    <div class="training-log" id="trainingLog">
+                        <div class="text-muted">Waiting for training to start...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Metrics -->
+            <div class="col-md-4">
+                <h5><i class="fas fa-chart-bar"></i> Current Metrics</h5>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="currentAccuracy">--</div>
+                    <div class="metric-label">Accuracy</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="trainingLoss">--</div>
+                    <div class="metric-label">Training Loss</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="validationLoss">--</div>
+                    <div class="metric-label">Validation Loss</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="epochCount">0</div>
+                    <div class="metric-label">Epochs Completed</div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="mt-4">
+                    <h6>Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-sm" id="viewPerformanceBtn">
+                            <i class="fas fa-chart-line"></i> View Performance
+                        </button>
+                        <button class="btn btn-outline-info btn-sm" id="downloadLogsBtn">
+                            <i class="fas fa-download"></i> Download Logs
+                        </button>
+                        <button class="btn btn-outline-warning btn-sm" id="pauseTrainingBtn" style="display: none;">
+                            <i class="fas fa-pause"></i> Pause Training
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Container -->
+    <div class="results-container" id="resultsContainer" style="display: none;">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Training Completed</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Performance Improvement</h6>
+                        <div id="performanceComparison"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Model Details</h6>
+                        <div id="modelDetails"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg" id="deployModelBtn">
+                        <i class="fas fa-rocket"></i> Deploy New Model
+                    </button>
+                    <button class="btn btn-outline-secondary btn-lg ms-3" id="backupOldBtn">
+                        <i class="fas fa-archive"></i> Backup Old Model
+                    </button>
+                    <button class="btn btn-outline-primary btn-lg ms-3" id="startNewBtn">
+                        <i class="fas fa-plus"></i> Start New Training
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/retrain.js' %}"></script>
+<script>
+    // Handle URL parameters
+    $(document).ready(function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const modelName = urlParams.get('model');
+        
+        if (modelName) {
+            $('#modelSelect').val(modelName);
+        }
+    });
+</script>
+{% endblock %}

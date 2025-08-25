@@ -1,0 +1,93 @@
+{
+  "timestamp": "2025-08-03T13:06:37.708611",
+  "analyzer_version": "3.1.0",
+  "test_results": {
+    "database_connection": "database",
+    "total_records": 7,
+    "combined_analysis": {
+      "method": "giai_dac_biet_va_giai_7",
+      "predictions": [
+        "62",
+        "39",
+        "42",
+        "71",
+        "92"
+      ],
+      "confidence": 0.9,
+      "analysis": {
+        "giai_dac_biet": {
+          "frequencies": {
+            "92": 1,
+            "62": 2,
+            "39": 2,
+            "42": 2
+          },
+          "kep_candidates": [
+            "92",
+            "62",
+            "39",
+            "42"
+          ],
+          "total_analyzed": 7
+        },
+        "giai_7": {
+          "frequencies": {
+            "41": 2,
+            "19": 1,
+            "20": 1,
+            "86": 1,
+            "95": 2,
+            "71": 4,
+            "51": 2,
+            "92": 1,
+            "31": 1,
+            "62": 2,
+            "80": 1,
+            "17": 2,
+            "82": 2,
+            "79": 1,
+            "61": 1
+          },
+          "kep_candidates": [
+            "41",
+            "19",
+            "20",
+            "86",
+            "95",
+            "71",
+            "51",
+            "92",
+            "31",
+            "62",
+            "80",
+            "17",
+            "82",
+            "79",
+            "61"
+          ],
+          "total_analyzed": 7
+        },
+        "combined_candidates": 17,
+        "priority_scores": {
+          "62": 2.0,
+          "39": 1.4,
+          "42": 1.4,
+          "71": 1.2,
+          "92": 1.0
+        }
+      },
+      "data_quality": "database",
+      "total_records": 7
+    },
+    "data_quality_assessment": {
+      "giai_db_records": 7,
+      "giai_7_records": 7,
+      "data_completeness": "low"
+    }
+  },
+  "performance_metrics": {
+    "method_execution_time": "< 1s",
+    "data_extraction_success": true,
+    "fallback_used": false
+  }
+}

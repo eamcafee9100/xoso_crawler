@@ -1,0 +1,633 @@
+{% extends "predictions_tracker/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kep-lech-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .kep-lech-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .prediction-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 12px;
+        margin: 2px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 14px;
+        min-width: 35px;
+        text-align: center;
+    }
+    
+    .confidence-meter {
+        height: 20px;
+        background: #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
+        transition: width 0.3s ease;
+    }
+    
+    .analysis-section {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 20px;
+        margin: 15px 0;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .btn-analyze {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-analyze:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+    
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .status-success { background: #d4edda; color: #155724; }
+    .status-warning { background: #fff3cd; color: #856404; }
+    .status-danger { background: #f8d7da; color: #721c24; }
+    
+    .spinner-border-sm {
+        width: 1rem;
+        height: 1rem;
+    }
+    
+    .result-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 15px 0;
+        background: white;
+    }
+    
+    .winning-number {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        padding: 8px 12px;
+        margin: 2px;
+        border-radius: 8px;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="kep-lech-card card">
+                <div class="card-body text-center">
+                    <h1 class="mb-3">
+                        <i class="fas fa-dice-d6 text-primary"></i>
+                        Kép Lệch 3-Day Prediction System
+                    </h1>
+                    <p class="lead text-muted">
+                        Hệ thống dự đoán số lô tô dựa trên phân tích Kép Lệch với chiến lược "nuôi trong 3 ngày"
+                    </p>
+                    <div class="row text-center mt-4">
+                        <div class="col-md-3">
+                            <h4 class="text-info">{{ total_records }}</h4>
+                            <small class="text-muted">Records Available</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-success">10</h4>
+                            <small class="text-muted">Numbers per Session</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-warning">3</h4>
+                            <small class="text-muted">Days Strategy</small>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 class="text-danger">{{ current_date }}</h4>
+                            <small class="text-muted">Current Date</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <div class="kep-lech-card card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cogs"></i>
+                        Analysis Control Panel
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form id="analysisForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="analysisDate" class="form-label">Analysis Date</label>
+                                <input type="date" class="form-control" id="analysisDate" 
+                                       value="{{ current_date|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="analysisType" class="form-label">Analysis Type</label>
+                                <select class="form-control" id="analysisType">
+                                    <option value="single">Single Session</option>
+                                    <option value="multi">Multi-Session (5 sessions)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-analyze me-3">
+                                    <i class="fas fa-play"></i>
+                                    Run Analysis
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="clearResults()">
+                                    <i class="fas fa-eraser"></i>
+                                    Clear Results
+                                </button>
+                                <a href="{% url 'predictions_tracker:kep_lech_3day_reports' %}" class="btn btn-info">
+                                    <i class="fas fa-chart-bar"></i>
+                                    View Reports
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="kep-lech-card card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle"></i>
+                        Method Info
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if method_info %}
+                    <ul class="list-unstyled">
+                        <li><strong>Version:</strong> {{ method_info.version }}</li>
+                        <li><strong>Method:</strong> {{ method_info.method_name }}</li>
+                        <li><strong>Data Requirements:</strong></li>
+                        <ul>
+                            {% for req in method_info.data_requirements %}
+                            <li><small>{{ req }}</small></li>
+                            {% endfor %}
+                        </ul>
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Status -->
+    <div class="row mb-4" id="statusRow" style="display: none;">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <div class="spinner-border spinner-border-sm me-3" role="status"></div>
+                    <span id="statusMessage">Running analysis...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultsSection" style="display: none;">
+        <!-- Single Session Results -->
+        <div id="singleResults" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="result-card">
+                        <h4 class="mb-3">
+                            <i class="fas fa-chart-line"></i>
+                            Analysis Results
+                        </h4>
+                        <div id="singleResultContent">
+                            <!-- Content will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-Session Results -->
+        <div id="multiResults" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="result-card">
+                        <h4 class="mb-3">
+                            <i class="fas fa-chart-area"></i>
+                            Multi-Session Analysis Results
+                        </h4>
+                        <div id="multiResultContent">
+                            <!-- Content will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Risk Warnings -->
+    {% if method_info and method_info.risk_warnings %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <h5><i class="fas fa-exclamation-triangle"></i> Risk Warnings</h5>
+                <ul class="mb-0">
+                    {% for warning in method_info.risk_warnings %}
+                    <li>{{ warning }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Handle form submission
+    $('#analysisForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const analysisDate = $('#analysisDate').val();
+        const analysisType = $('#analysisType').val();
+        
+        if (analysisType === 'single') {
+            runSingleAnalysis(analysisDate);
+        } else {
+            runMultiAnalysis(analysisDate);
+        }
+    });
+});
+
+function showStatus(message) {
+    $('#statusMessage').text(message);
+    $('#statusRow').show();
+    $('#resultsSection').hide();
+}
+
+function hideStatus() {
+    $('#statusRow').hide();
+}
+
+function runSingleAnalysis(analysisDate) {
+    showStatus('Running single session analysis...');
+    
+    $.ajax({
+        url: '{% url "predictions_tracker:run_kep_lech_3day_analysis" %}',
+        method: 'POST',
+        data: JSON.stringify({
+            analysis_date: analysisDate
+        }),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            hideStatus();
+            if (response.success) {
+                displaySingleResults(response);
+            } else {
+                showError('Analysis failed: ' + response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            hideStatus();
+            showError('Request failed: ' + error);
+        }
+    });
+}
+
+function runMultiAnalysis(startDate) {
+    showStatus('Running multi-session analysis...');
+    
+    $.ajax({
+        url: '{% url "predictions_tracker:run_kep_lech_multi_session" %}',
+        method: 'POST',
+        data: JSON.stringify({
+            start_date: startDate,
+            session_count: 5
+        }),
+        contentType: 'application/json',
+        headers: {
+            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            hideStatus();
+            if (response.success) {
+                displayMultiResults(response);
+            } else {
+                showError('Multi-analysis failed: ' + response.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            hideStatus();
+            showError('Request failed: ' + error);
+        }
+    });
+}
+
+function displaySingleResults(data) {
+    let html = `
+        <div class="row">
+            <div class="col-lg-6">
+                <h5><i class="fas fa-calendar"></i> Session Info</h5>
+                <ul class="list-unstyled">
+                    <li><strong>Session ID:</strong> ${data.session_id}</li>
+                    <li><strong>Analysis Date:</strong> ${data.analysis_date}</li>
+                    <li><strong>Start Date:</strong> ${data.start_date}</li>
+                    <li><strong>Confidence:</strong> 
+                        <div class="confidence-meter mt-2">
+                            <div class="confidence-fill" style="width: ${data.confidence_score * 100}%"></div>
+                        </div>
+                        <small class="text-muted">${Math.round(data.confidence_score * 100)}%</small>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <h5><i class="fas fa-dice"></i> Predicted Numbers</h5>
+                <div class="mb-3">
+    `;
+    
+    data.predicted_numbers.forEach(number => {
+        html += `<span class="prediction-number">${number}</span>`;
+    });
+    
+    html += `
+                </div>
+                <small class="text-muted">Strategy: ${data.strategy_analysis.method}</small>
+            </div>
+        </div>
+    `;
+    
+    // Add evaluation results if available
+    if (data.evaluation_results) {
+        const eval = data.evaluation_results;
+        html += `
+            <hr class="my-4">
+            <div class="row">
+                <div class="col-12">
+                    <h5><i class="fas fa-chart-bar"></i> Evaluation Results</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <span class="status-badge ${eval.session_success ? 'status-success' : 'status-danger'}">
+                                    ${eval.session_success ? 'SUCCESS' : 'FAILED'}
+                                </span>
+                                <br><small class="text-muted">Session Result</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-info">${eval.winning_day || 'None'}</h4>
+                                <small class="text-muted">Winning Day</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="text-warning">${Math.round(eval.win_rate * 100)}%</h4>
+                                <small class="text-muted">Win Rate</small>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-center">
+                                <h4 class="${eval.roi_percentage > 0 ? 'text-success' : 'text-danger'}">${eval.roi_percentage}%</h4>
+                                <small class="text-muted">ROI</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Day Results -->
+                    <div class="mt-4">
+                        <h6>Daily Results:</h6>
+        `;
+        
+        eval.day_results.forEach((day, index) => {
+            html += `
+                <div class="card mt-2">
+                    <div class="card-body py-2">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <strong>Day ${index + 1}</strong><br>
+                                <small class="text-muted">${day.date}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <small>Giải ĐB: ${day.actual_giai_db}</small><br>
+                                <small>Giải 7: ${day.actual_giai_7.join(', ')}</small>
+                            </div>
+                            <div class="col-md-3">
+                                <div>
+            `;
+            
+            if (day.winning_numbers && day.winning_numbers.length > 0) {
+                day.winning_numbers.forEach(num => {
+                    html += `<span class="winning-number">${num}</span>`;
+                });
+            } else {
+                html += `<span class="text-muted">No hits</span>`;
+            }
+            
+            html += `
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <strong>${day.hit_count} hits</strong><br>
+                                <small class="text-muted">${Math.round(day.hit_rate * 100)}%</small>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="status-badge ${day.is_winning_day ? 'status-success' : 'status-danger'}">
+                                    ${day.is_winning_day ? 'WIN' : 'LOSE'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        html += `
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    $('#singleResultContent').html(html);
+    $('#singleResults').show();
+    $('#multiResults').hide();
+    $('#resultsSection').show();
+}
+
+function displayMultiResults(data) {
+    let html = `
+        <div class="row mb-4">
+            <div class="col-12">
+                <h5><i class="fas fa-chart-area"></i> Overall Performance</h5>
+    `;
+    
+    if (data.comprehensive_report && data.comprehensive_report.summary) {
+        const summary = data.comprehensive_report.summary;
+        html += `
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <h4 class="text-primary">${summary.total_sessions}</h4>
+                        <small class="text-muted">Total Sessions</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-success">${summary.successful_sessions}</h4>
+                        <small class="text-muted">Successful</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="text-info">${Math.round(summary.overall_success_rate * 100)}%</h4>
+                        <small class="text-muted">Success Rate</small>
+                    </div>
+                    <div class="col-md-3">
+                        <h4 class="${summary.average_roi_percentage > 0 ? 'text-success' : 'text-danger'}">${Math.round(summary.average_roi_percentage)}%</h4>
+                        <small class="text-muted">Avg ROI</small>
+                    </div>
+                </div>
+        `;
+    }
+    
+    html += `
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <h5><i class="fas fa-list"></i> Session Details</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Analysis Date</th>
+                                <th>Predicted Numbers</th>
+                                <th>Confidence</th>
+                                <th>Result</th>
+                                <th>ROI</th>
+                                <th>Winning Day</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    `;
+    
+    data.session_summaries.forEach(session => {
+        if (session.error) {
+            html += `
+                <tr class="table-danger">
+                    <td>${session.session_number}</td>
+                    <td>${session.analysis_date}</td>
+                    <td colspan="5" class="text-danger">Error: ${session.error}</td>
+                </tr>
+            `;
+        } else {
+            html += `
+                <tr>
+                    <td>${session.session_number}</td>
+                    <td>${session.analysis_date}</td>
+                    <td>
+            `;
+            
+            session.predicted_numbers.forEach(num => {
+                html += `<span class="badge bg-primary me-1">${num}</span>`;
+            });
+            
+            html += `
+                        <small class="text-muted">...</small>
+                    </td>
+                    <td>
+                        <div class="confidence-meter">
+                            <div class="confidence-fill" style="width: ${session.confidence_score * 100}%"></div>
+                        </div>
+                        <small>${Math.round(session.confidence_score * 100)}%</small>
+                    </td>
+                    <td>
+                        <span class="status-badge ${session.success ? 'status-success' : 'status-danger'}">
+                            ${session.success ? 'WIN' : 'LOSE'}
+                        </span>
+                    </td>
+                    <td class="${session.roi_percentage > 0 ? 'text-success' : 'text-danger'}">
+                        ${session.roi_percentage}%
+                    </td>
+                    <td>${session.winning_day || '-'}</td>
+                </tr>
+            `;
+        }
+    });
+    
+    html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#multiResultContent').html(html);
+    $('#multiResults').show();
+    $('#singleResults').hide();
+    $('#resultsSection').show();
+}
+
+function showError(message) {
+    hideStatus();
+    $('#resultsSection').html(`
+        <div class="alert alert-danger">
+            <h5><i class="fas fa-exclamation-circle"></i> Error</h5>
+            <p>${message}</p>
+        </div>
+    `).show();
+}
+
+function clearResults() {
+    $('#resultsSection').hide();
+    $('#statusRow').hide();
+}
+</script>
+{% endblock %}

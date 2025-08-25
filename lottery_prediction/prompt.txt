@@ -1,0 +1,85 @@
+WARNING 2025-07-26 20:59:05,442 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-21 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,444 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 20:59:05,445 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-22 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,445 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 20:59:05,446 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-22 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,448 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 20:59:05,449 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-22 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,450 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 20:59:05,452 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-23 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,452 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 20:59:05,453 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-23 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 20:59:05,453 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 20:59:05,454 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-23 has data available. Latest available: 2025-07-25
+    Validation accuracy: 0.2900
+    ✓ dynamic ensemble trained and saved
+  Training stacking ensemble...
+    Training with data from 2025-06-24 to 2025-07-24
+WARNING 2025-07-26 21:00:13,438 ensemble Error generating meta-features for FrequencyBasedPredictor: 'date'
+WARNING 2025-07-26 21:00:13,438 ensemble Error generating meta-features for DayOfWeekPredictor: 'date'
+WARNING 2025-07-26 21:00:13,438 ensemble Error generating meta-features for CyclicalPredictor: 'date'
+WARNING 2025-07-26 21:00:13,531 ensemble Error generating meta-features for FrequencyBasedPredictor: 'date'
+WARNING 2025-07-26 21:00:13,955 extractors Predicting for old date 2025-05-25
+WARNING 2025-07-26 21:00:13,955 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-05-25 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:13,955 extractors Predicting for old date 2025-05-25
+WARNING 2025-07-26 21:00:13,955 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-05-25 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,201 train_models Error evaluating ensemble on 2025-07-02: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find 
+a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+WARNING 2025-07-26 21:00:14,203 extractors Predicting for old date 2025-07-03
+WARNING 2025-07-26 21:00:14,204 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-03 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,204 extractors Predicting for old date 2025-07-03
+WARNING 2025-07-26 21:00:14,204 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-03 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,204 train_models Error evaluating ensemble on 2025-07-03: Input X contains NaN.
+LogisticRegression does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find 
+a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values
+WARNING 2025-07-26 21:00:14,208 extractors Predicting for old date 2025-07-04
+WARNING 2025-07-26 21:00:14,208 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-04 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,208 extractors Predicting for old date 2025-07-04
+WARNING 2025-07-26 21:00:14,211 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-04 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,213 extractors Predicting for old date 2025-07-04
+WARNING 2025-07-26 21:00:14,214 extractors Predicting for old date 2025-07-04
+WARNING 2025-07-26 21:00:14,215 extractors Predicting for old date 2025-07-05
+WARNING 2025-07-26 21:00:14,217 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-05 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,217 extractors Predicting for old date 2025-07-05
+WARNING 2025-07-26 21:00:14,219 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-05 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,222 extractors Predicting for old date 2025-07-05
+WARNING 2025-07-26 21:00:14,223 extractors Predicting for old date 2025-07-05
+WARNING 2025-07-26 21:00:14,224 extractors Predicting for old date 2025-07-06
+WARNING 2025-07-26 21:00:14,224 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-06 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,224 extractors Predicting for old date 2025-07-06
+WARNING 2025-07-26 21:00:14,224 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-06 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,224 extractors Predicting for old date 2025-07-06
+WARNING 2025-07-26 21:00:14,224 extractors Predicting for old date 2025-07-06
+WARNING 2025-07-26 21:00:14,231 extractors Predicting for old date 2025-07-07
+WARNING 2025-07-26 21:00:14,262 extractors Predicting for old date 2025-07-11
+WARNING 2025-07-26 21:00:14,262 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-11 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,269 extractors Predicting for old date 2025-07-11
+WARNING 2025-07-26 21:00:14,270 extractors Predicting for old date 2025-07-11
+WARNING 2025-07-26 21:00:14,272 extractors Predicting for old date 2025-07-12
+WARNING 2025-07-26 21:00:14,273 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-12 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,273 extractors Predicting for old date 2025-07-12
+WARNING 2025-07-26 21:00:14,275 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-12 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,277 extractors Predicting for old date 2025-07-12
+WARNING 2025-07-26 21:00:14,279 extractors Predicting for old date 2025-07-12
+WARNING 2025-07-26 21:00:14,280 extractors Predicting for old date 2025-07-13
+WARNING 2025-07-26 21:00:14,281 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-13 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,281 extractors Predicting for old date 2025-07-13
+WARNING 2025-07-26 21:00:14,282 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-13 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,285 extractors Predicting for old date 2025-07-13
+WARNING 2025-07-26 21:00:14,286 extractors Predicting for old date 2025-07-13
+WARNING 2025-07-26 21:00:14,288 extractors Predicting for old date 2025-07-14
+WARNING 2025-07-26 21:00:14,357 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 21:00:14,358 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-22 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,360 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 21:00:14,360 extractors Predicting for old date 2025-07-22
+WARNING 2025-07-26 21:00:14,363 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 21:00:14,364 ensemble Error getting predictions from LotteryGBM_gradient_boosting: Data leakage detected! Target date 2025-07-23 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,364 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 21:00:14,365 ensemble Error getting predictions from LotteryGBM_hist_gradient_boosting: Data leakage detected! Target date 2025-07-23 has data available. Latest available: 2025-07-25
+WARNING 2025-07-26 21:00:14,369 extractors Predicting for old date 2025-07-23
+WARNING 2025-07-26 21:00:14,370 extractors Predicting for old date 2025-07-23
+    Validation accuracy: 0.3250
+    ✓ stacking ensemble trained and saved
+Model training completed. Models saved to models
+(.venv) PS C:\Users\n2t\Documents\xoso_crawler>

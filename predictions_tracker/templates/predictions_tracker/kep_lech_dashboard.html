@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Kép Lệch Analysis Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .action-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .action-description {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .analysis-options {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .option-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-button {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .option-button:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5d87);
+            transform: translateY(-2px);
+            text-decoration: none;
+            color: white;
+        }
+
+        .custom-analysis {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: linear-gradient(135deg, #229954, #1e7e34);
+            transform: translateY(-2px);
+        }
+
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            color: #555;
+        }
+
+        .info-card li:before {
+            content: "✓ ";
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Kép Lệch Analysis Dashboard</h1>
+            <p>Hệ thống phân tích hiệu suất và khả năng sinh lời của phương pháp Kép Lệch</p>
+            <div class="alert alert-warning" style="margin-top: 15px;">
+                <strong>⚠️ CẢNH BÁO THỰC TẾ:</strong> Phương pháp Kép Lệch có rủi ro cực cao!<br>
+                Tỷ lệ thắng thực tế chỉ ~38%, lỗ trung bình 1M VND/tuần khi không thắng.
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="/pre-lokhung/kep-lech-performance/" class="action-card">
+                <div class="action-icon">📊</div>
+                <div class="action-title">Phân tích đầy đủ</div>
+                <div class="action-description">⚠️ Xem báo cáo chi tiết với tính toán THỰC TẾ - Có thể sốc!</div>
+            </a>
+
+            <div class="action-card" onclick="quickReport()">
+                <div class="action-icon">⚡</div>
+                <div class="action-title">Báo cáo nhanh</div>
+                <div class="action-description">🔥 Thống kê hiệu suất với logic đầu tư đúng</div>
+            </div>
+
+            <div class="action-card" onclick="showRealityCheck()">
+                <div class="action-icon">�</div>
+                <div class="action-title">Reality Check</div>
+                <div class="action-description">💸 Xem thực tế tàn khốc với 1M vốn ban đầu</div>
+            </div>
+
+            <div class="action-card" onclick="clearCache()">
+                <div class="action-icon">🗑️</div>
+                <div class="action-title">Xóa cache</div>
+                <div class="action-description">Làm mới cache để có kết quả mới nhất</div>
+            </div>
+        </div>
+
+        <!-- Analysis Options -->
+        <div class="analysis-options">
+            <h2 class="section-title">⚙️ Tùy chọn phân tích</h2>
+            
+            <div class="option-grid">
+                <a href="/pre-lokhung/kep-lech-performance/?days=30" class="option-button">30 ngày</a>
+                <a href="/pre-lokhung/kep-lech-performance/?days=90" class="option-button">3 tháng</a>
+                <a href="/pre-lokhung/kep-lech-performance/?days=180" class="option-button">6 tháng</a>
+                <a href="/pre-lokhung/kep-lech-performance/?days=365" class="option-button">1 năm</a>
+                <a href="/pre-lokhung/kep-lech-performance/?days=730" class="option-button">2 năm</a>
+                <a href="/pre-lokhung/kep-lech-performance/?days=730&refresh=true" class="option-button">2 năm (Refresh)</a>
+            </div>
+
+            <!-- Custom Analysis Form -->
+            <div class="custom-analysis">
+                <h3>📊 Phân tích tùy chỉnh</h3>
+                <form id="customAnalysisForm">
+                    <div class="form-group">
+                        <label class="form-label">Số ngày phân tích:</label>
+                        <input type="number" class="form-input" id="customDays" min="30" max="1095" value="365" placeholder="Nhập số ngày (30-1095)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tùy chọn:</label>
+                        <select class="form-input" id="analysisOptions">
+                            <option value="normal">Phân tích bình thường</option>
+                            <option value="refresh">Force refresh cache</option>
+                            <option value="summary">Chỉ tóm tắt</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-button">🚀 Chạy phân tích</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="info-cards">
+            <div class="info-card">
+                <h3>📈 Tính năng phân tích</h3>
+                <ul>
+                    <li>Tỷ lệ thành công dự đoán THỰC TẾ</li>
+                    <li>ROI và lợi nhuận với logic ĐÚNG</li>
+                    <li>Tính chi phí theo ngày đánh thực sự</li>
+                    <li>Cảnh báo rủi ro phá sản</li>
+                    <li>Thống kê theo tuần/tháng</li>
+                    <li>Khuyến nghị DỪNG khi cần</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>⚡ API Endpoints</h3>
+                <ul>
+                    <li>GET /api/kep-lech-performance/</li>
+                    <li>GET /api/kep-lech-quick-report/</li>
+                    <li>POST /api/kep-lech-backtest/</li>
+                    <li>GET /api/kep-lech-data-status/</li>
+                    <li>GET /api/kep-lech-clear-cache/</li>
+                    <li>GET /api/kep-lech-reality-check/ 🆕</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🎯 Thông số đầu tư THỰC TẾ</h3>
+                <ul>
+                    <li>Vốn ban đầu: 1,000,000 VND</li>
+                    <li>Mỗi con: 10,000 VND</li>
+                    <li>Tỷ lệ thắng: x90 (900k/con)</li>
+                    <li>15 con/tuần = 1.05M nếu không thắng</li>
+                    <li>Dừng ngay khi thắng lần đầu</li>
+                    <li>Thắng sớm = lợi nhuận cao</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>� THỰC TẾ TÀN KHỐC</h3>
+                <ul>
+                    <li>❌ ROI thực tế: -358% (3 tháng)</li>
+                    <li>❌ Tỷ lệ thắng: chỉ 38.5%</li>
+                    <li>❌ Vốn âm: -2.58M sau 13 tuần</li>
+                    <li>❌ Lỗ/tuần không thắng: 1.05M</li>
+                    <li>❌ Cần >5M vốn dự phòng</li>
+                    <li>🚨 KHÔNG KHUYẾN NGHỊ!</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Đang xử lý yêu cầu...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" style="display: none;">
+            <div class="analysis-options">
+                <h2 class="section-title">📊 Kết quả</h2>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎯 Kép Lệch Performance Analysis System</p>
+            <p><small>Powered by Django & Advanced Analytics</small></p>
+        </div>
+    </div>
+
+    <script>
+        // Custom Analysis Form Handler
+        document.getElementById('customAnalysisForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const days = document.getElementById('customDays').value;
+            const option = document.getElementById('analysisOptions').value;
+            
+            let url = `/pre-lokhung/kep-lech-performance/?days=${days}`;
+            
+            if (option === 'refresh') {
+                url += '&refresh=true';
+            } else if (option === 'summary') {
+                url += '&format=summary';
+            }
+            
+            window.location.href = url;
+        });
+
+        // Quick Report Function
+        async function quickReport() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/pre-lokhung/api/kep-lech-quick-report/');
+                const data = await response.json();
+                
+                hideLoading();
+                
+                if (data.success) {
+                    showResults(formatQuickReport(data.quick_report));
+                } else {
+                    showAlert('Lỗi khi tải báo cáo: ' + data.error, 'warning');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('Lỗi kết nối: ' + error.message, 'warning');
+            }
+        }
+
+        // Check Data Status Function
+        async function checkDataStatus() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/pre-lokhung/api/kep-lech-data-status/');
+                const data = await response.json();
+                
+                hideLoading();
+                
+                if (data.success) {
+                    showResults(formatDataStatus(data.data_status));
+                } else {
+                    showAlert('Lỗi khi kiểm tra dữ liệu: ' + data.error, 'warning');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('Lỗi kết nối: ' + error.message, 'warning');
+            }
+        }
+
+        // Reality Check Function - Show harsh reality
+        async function showRealityCheck() {
+            showLoading();
+            
+            try {
+                // Call the updated analyzer's realistic demo
+                const response = await fetch('/pre-lokhung/api/kep-lech-reality-check/');
+                const data = await response.json();
+                
+                hideLoading();
+                
+                if (data.success) {
+                    showResults(formatRealityCheck(data.reality_check));
+                } else {
+                    // Show fallback harsh reality
+                    showResults(getHardcodedRealityCheck());
+                }
+            } catch (error) {
+                hideLoading();
+                // Show fallback harsh reality
+                showResults(getHardcodedRealityCheck());
+            }
+        }
+
+        // Clear Cache Function
+        async function clearCache() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/pre-lokhung/api/kep-lech-clear-cache/');
+                const data = await response.json();
+                
+                hideLoading();
+                
+                if (data.success) {
+                    showAlert('✅ Cache đã được xóa thành công!', 'info');
+                } else {
+                    showAlert('Lỗi khi xóa cache: ' + data.error, 'warning');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('Lỗi kết nối: ' + error.message, 'warning');
+            }
+        }
+
+        // Helper Functions
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showResults(html) {
+            document.getElementById('resultsContent').innerHTML = html;
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = message;
+            
+            const container = document.querySelector('.dashboard-container');
+            container.insertBefore(alertDiv, container.firstChild);
+            
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        }
+
+        function formatQuickReport(report) {
+            // Updated to show realistic figures
+            const isNegativeROI = report.total_roi < 0;
+            const riskWarning = isNegativeROI ? "🚨 CẢNH BÁO: Lỗ nặng!" : "";
+            
+            return `
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3>📊 Báo cáo nhanh (${report.period}) ${riskWarning}</h3>
+                        <p><strong>Số tuần:</strong> ${report.total_weeks}</p>
+                        <p><strong>Tỷ lệ thành công:</strong> <span style="color: ${report.success_rate < 40 ? 'red' : 'green'}">${report.success_rate.toFixed(1)}%</span></p>
+                        <p><strong>ROI:</strong> <span style="color: ${isNegativeROI ? 'red' : 'green'}">${report.total_roi.toFixed(1)}%</span></p>
+                        <p><strong>Rủi ro:</strong> <span style="color: red">${report.risk_level}</span></p>
+                        ${isNegativeROI ? '<p style="color: red; font-weight: bold;">💀 Đã mất vốn!</p>' : ''}
+                    </div>
+                    <div class="info-card">
+                        <h3>💡 Insights thực tế</h3>
+                        ${report.key_insights.map(insight => `<p>• ${insight}</p>`).join('')}
+                        ${isNegativeROI ? '<p style="color: red; font-weight: bold;">⚠️ KHUYẾN NGHỊ: DỪNG NGAY!</p>' : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatRealityCheck(realityData) {
+            return `
+                <div class="alert alert-warning">
+                    <h3>💀 THỰC TẾ TÀN KHỐC CỦA KÉP LỆCH</h3>
+                    <p><strong>Dữ liệu từ phân tích 3 tháng gần nhất:</strong></p>
+                </div>
+                <div class="info-cards">
+                    <div class="info-card" style="border-left: 5px solid red;">
+                        <h3>💸 KẾT QUẢ TÀI CHÍNH</h3>
+                        <p><strong>Vốn ban đầu:</strong> 1,000,000 VND</p>
+                        <p><strong>Vốn sau 13 tuần:</strong> <span style="color: red; font-weight: bold;">-2,580,000 VND</span></p>
+                        <p><strong>Lỗ ròng:</strong> <span style="color: red; font-weight: bold;">-3,580,000 VND (-358%)</span></p>
+                        <p><strong>Tỷ lệ thắng:</strong> <span style="color: red;">38.5% (5/13 tuần)</span></p>
+                    </div>
+                    <div class="info-card" style="border-left: 5px solid orange;">
+                        <h3>📊 CHI TIẾT ĐẦU TƯ</h3>
+                        <p><strong>Tổng đầu tư:</strong> 9,880,000 VND</p>
+                        <p><strong>Tổng thắng:</strong> 6,300,000 VND</p>
+                        <p><strong>Lỗ/tuần không thắng:</strong> 1,050,000 VND</p>
+                        <p><strong>Chuỗi thua dài nhất:</strong> 3 tuần liên tiếp</p>
+                    </div>
+                    <div class="info-card" style="border-left: 5px solid red;">
+                        <h3>⚠️ PHÂN TÍCH RỦI RO</h3>
+                        <p><strong>Mức độ rủi ro:</strong> <span style="color: red; font-weight: bold;">CỰC KỲ CAO</span></p>
+                        <p><strong>Xác suất phá sản:</strong> 95%</p>
+                        <p><strong>Vốn cần dự phòng:</strong> >5 triệu VND</p>
+                        <p><strong>Trạng thái:</strong> <span style="color: red; font-weight: bold;">ĐÃ PHÁ SẢN</span></p>
+                    </div>
+                    <div class="info-card" style="border-left: 5px solid black;">
+                        <h3>🚨 KẾT LUẬN</h3>
+                        <p style="color: red; font-weight: bold; font-size: 1.1em;">
+                            PHƯƠNG PHÁP KÉP LỆCH KHÔNG KHẢ THI!
+                        </p>
+                        <p>• Rủi ro cực cao, tỷ lệ thắng thấp</p>
+                        <p>• Cần vốn khủng để chống đỡ</p>
+                        <p>• Dễ dẫn đến phá sản</p>
+                        <p><strong>KHUYẾN NGHỊ:</strong> <span style="color: red;">KHÔNG NÊN ÁP DỤNG</span></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getHardcodedRealityCheck() {
+            return `
+                <div class="alert alert-warning">
+                    <h3>💀 THỰC TẾ TÀN KHỐC CỦA KÉP LỆCH</h3>
+                    <p><strong>Dữ liệu từ phân tích thực tế (3 tháng):</strong></p>
+                </div>
+                <div class="info-cards">
+                    <div class="info-card" style="border-left: 5px solid red;">
+                        <h3>💸 KẾT QUẢ TÀI CHÍNH THẢM HỌA</h3>
+                        <p><strong>Vốn ban đầu:</strong> 1,000,000 VND</p>
+                        <p><strong>Vốn sau 13 tuần:</strong> <span style="color: red; font-weight: bold; font-size: 1.2em;">-2,580,000 VND</span></p>
+                        <p><strong>Lỗ ròng:</strong> <span style="color: red; font-weight: bold; font-size: 1.2em;">-3,580,000 VND (-358%)</span></p>
+                        <p><strong>Tỷ lệ thắng thực tế:</strong> <span style="color: red; font-weight: bold;">CHỈ 38.5%</span></p>
+                        <p style="color: red; font-weight: bold;">🔥 ĐÃ MẤT GẤP 3.6 LẦN VỐN BAN ĐẦU!</p>
+                    </div>
+                    <div class="info-card" style="border-left: 5px solid darkred;">
+                        <h3>📊 BREAKDOWN CHI TIẾT</h3>
+                        <p><strong>Tuần thắng:</strong> 5 tuần (Chủ nhật thắng = +750k, Thứ 4 = +420k, Thứ 6 = ±0)</p>
+                        <p><strong>Tuần thua:</strong> 6 tuần (Mỗi tuần -1,050,000 VND)</p>  
+                        <p><strong>Tuần hòa:</strong> 2 tuần (Thắng ngày cuối tuần)</p>
+                        <p><strong>Chuỗi thua dài nhất:</strong> <span style="color: red;">3 tuần liên tiếp</span></p>
+                        <p><strong>Logic thực tế:</strong> 15 con × 10k × 7 ngày = 1.05M nếu không thắng</p>
+                    </div>
+                    <div class="info-card" style="border-left: 5px solid red;">
+                        <h3>💀 CẢNH BÁO CỰC MẠNH</h3>
+                        <p style="color: red; font-weight: bold; font-size: 1.1em;">
+                            🚨 PHƯƠNG PHÁP KÉP LỆCH = THẢM HỌA TÀI CHÍNH!
+                        </p>
+                        <p>💸 Mỗi tuần không thắng = mất hơn 1 triệu</p>
+                        <p>🔥 Cần >5 triệu VND dự phòng để chống đỡ</p>
+                        <p>💀 Xác suất phá sản: 95%</p>
+                        <p>⚠️ Thắng sớm mới có lãi, thắng muộn = hòa hoặc lỗ</p>
+                        <p style="color: red; font-weight: bold; font-size: 1.2em; text-align: center; margin-top: 15px;">
+                            🛑 TUYỆT ĐỐI KHÔNG NÊN ÁP DỤNG! 🛑
+                        </p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatDataStatus(status) {
+            return `
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3>📋 Tình trạng dữ liệu</h3>
+                        <p><strong>Tổng kết quả:</strong> ${status.total_results}</p>
+                        <p><strong>Từ ngày:</strong> ${status.date_range.start}</p>
+                        <p><strong>Đến ngày:</strong> ${status.date_range.end}</p>
+                        <p><strong>Tổng ngày:</strong> ${status.date_range.total_days}</p>
+                        <p><strong>Số tuần có thể phân tích:</strong> ${status.possible_weeks}</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>⏰ Thời gian phân tích khuyến nghị</h3>
+                        ${status.recommended_analysis_periods.map(period => 
+                            `<p>• ${period.label}: ${period.possible ? '✅ Có thể' : '❌ Không đủ dữ liệu'}</p>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

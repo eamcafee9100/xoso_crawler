@@ -1,0 +1,235 @@
+<!-- Bảng báo cáo tháng -->
+<div class="table-responsive">
+  <table id="monthlyReportTable" class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th class="method-name">Phương pháp</th>
+        {% for day in days_in_month %}
+        <th class="date-header {% if day.weekday >= 5 %}weekend-col{% endif %}">
+          {{ day.day }}<br>
+          <small>{{ day|date:"D" }}</small>
+        </th>
+        {% endfor %}
+        <th class="method-name">Tổng kết</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for method in methods %}
+      <tr>
+        <td class="method-name">
+          <strong>{{ method.name }}</strong><br>
+          <small>({{ method.code }})</small>
+        </td>
+        
+        {% for day in days_in_month %}
+          {% if report_data|get_item:method.id|get_item:day %}
+            {% with prediction=report_data|get_item:method.id|get_item:day %}
+            <td class="prediction-cell {% if prediction.is_hit %}hit-cell{% endif %}" 
+                data-hit-rate="{{ prediction.hit_rate|floatformat:0 }}"
+                data-method="{{ method.name }}"
+                data-date="{{ day|date:'d/m/Y' }}">
+              <div>{{ prediction.hit_rate|floatformat:0 }}%</div>
+              <div class="small text-muted">{{ prediction.hit_count }}/{{ prediction.total_count }}</div>
+            </td>
+            {% endwith %}
+          {% else %}
+            <td class="no-data-cell" data-hit-rate="0" data-method="{{ method.name }}" data-date="{{ day|date:'d/m/Y' }}">-</td>
+          {% endif %}
+        {% endfor %}
+        
+        {% if method_totals|get_item:method.id %}
+          {% with total=method_totals|get_item:method.id %}
+          <td class="total-cell" data-hit-rate="{{ total.hit_rate|floatformat:0 }}">
+            <div>{{ total.hit_rate|floatformat:0 }}%</div>
+            <div class="small text-muted">{{ total.hits }}/{{ total.total }}</div>
+          </td>
+          {% endwith %}
+        {% else %}
+          <td class="no-data-cell" data-hit-rate="0">-</td>
+        {% endif %}
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td class="method-name"><strong>Tổng kết</strong></td>
+        
+        {% for day in days_in_month %}
+          {% if day_totals|get_item:day %}
+            {% with total=day_totals|get_item:day %}
+            <td class="total-cell" data-hit-rate="{{ total.hit_rate|floatformat:0 }}">
+              <div>{{ total.hit_rate|floatformat:0 }}%</div>
+              <div class="small text-muted">{{ total.hits }}/{{ total.total }}</div>
+            </td>
+            {% endwith %}
+          {% else %}
+            <td class="no-data-cell" data-hit-rate="0">-</td>
+          {% endif %}
+        {% endfor %}
+        
+        <td class="total-cell">-</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<script>
+  $(document).ready(function() {
+    // Khởi tạo DataTables với các tùy chọn
+    var table = $('#monthlyReportTable').DataTable({
+      // Bật filter (tìm kiếm)
+      searching: true,
+      // Bật sorting
+      ordering: true,
+      // Số hàng hiển thị mỗi trang
+      pageLength: 25,
+      // Thêm chọn số hàng hiển thị
+      lengthMenu: [10, 25, 50, 100],
+      // Tùy chỉnh vị trí của các điều khiển
+      dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
+           '<"row"<"col-sm-12"tr>>' +
+           '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+      // Tùy chỉnh ngôn ngữ
+      language: {
+        search: "Tìm kiếm:",
+        lengthMenu: "Hiển thị _MENU_ hàng",
+        info: "Hiển thị _START_ đến _END_ của _TOTAL_ hàng",
+        infoEmpty: "Hiển thị 0 đến 0 của 0 hàng",
+        infoFiltered: "(lọc từ _MAX_ hàng)",
+        paginate: {
+          first: "Đầu",
+          last: "Cuối",
+          next: "Tiếp",
+          previous: "Trước"
+        }
+      },
+      // Định nghĩa cách sắp xếp cho cột tỷ lệ trúng
+      columnDefs: [
+        {
+          targets: '_all', // Áp dụng cho tất cả các cột
+          render: function(data, type, row) {
+            if (type === 'sort' && $(row).data('hit-rate')) {
+              return $(row).data('hit-rate');
+            }
+            return data;
+          }
+        }
+      ]
+    });
+    
+    // Thêm filter tùy chỉnh cho tỷ lệ trúng
+    $.fn.dataTable.ext.search.push(
+      function(settings, data, dataIndex) {
+        var min = parseInt($('#min-hit-rate').val(), 10);
+        var max = parseInt($('#max-hit-rate').val(), 10);
+        
+        // Lấy tỷ lệ trúng từ data-hit-rate của cell
+        var hitRate = parseFloat($(table.row(dataIndex).node()).find('td:eq(1)').data('hit-rate')) || 0;
+        
+        if (
+          (isNaN(min) && isNaN(max)) ||
+          (isNaN(min) && hitRate <= max) ||
+          (min <= hitRate && isNaN(max)) ||
+          (min <= hitRate && hitRate <= max)
+        ) {
+          return true;
+        }
+        return false;
+      }
+    );
+    
+    // Cập nhật bảng khi thay đổi filter
+    $('#min-hit-rate, #max-hit-rate').keyup(function() {
+      table.draw();
+    });
+    
+    // Thêm filter cho phương pháp
+    $('#method-filter').on('change', function() {
+      var methodName = $(this).val();
+      if (methodName === '') {
+        table.column(0).search('').draw();
+      } else {
+        table.column(0).search(methodName, true, false).draw();
+      }
+    });
+  });
+</script>
+
+<!-- Thêm filter UI -->
+<div class="row mb-4 mt-3">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Lọc theo phương pháp</h5>
+      </div>
+      <div class="card-body">
+        <select id="method-filter" class="form-select">
+          <option value="">Tất cả phương pháp</option>
+          {% for method in methods %}
+            <option value="{{ method.name }}">{{ method.name }} ({{ method.code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Lọc theo tỷ lệ trúng (%)</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-6">
+            <label for="min-hit-rate">Từ:</label>
+            <input type="number" id="min-hit-rate" class="form-control" min="0" max="100">
+          </div>
+          <div class="col-6">
+            <label for="max-hit-rate">Đến:</label>
+            <input type="number" id="max-hit-rate" class="form-control" min="0" max="100">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Điều khiển hiển thị</h5>
+      </div>
+      <div class="card-body">
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="checkbox" id="show-hit-only">
+          <label class="form-check-label" for="show-hit-only">
+            Chỉ hiển thị các ô có trúng
+          </label>
+        </div>
+        <button id="reset-filters" class="btn btn-outline-secondary w-100">Xóa bộ lọc</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Xử lý filter chỉ hiển thị ô có trúng
+  $('#show-hit-only').on('change', function() {
+    if (this.checked) {
+      $('.no-data-cell, .prediction-cell:not(.hit-cell)').closest('tr').hide();
+    } else {
+      $('.no-data-cell, .prediction-cell:not(.hit-cell)').closest('tr').show();
+    }
+  });
+  
+  // Xử lý nút reset filters
+  $('#reset-filters').on('click', function() {
+    $('#method-filter').val('');
+    $('#min-hit-rate').val('');
+    $('#max-hit-rate').val('');
+    $('#show-hit-only').prop('checked', false);
+    
+    var table = $('#monthlyReportTable').DataTable();
+    table.search('').columns().search('').draw();
+    $('.no-data-cell, .prediction-cell:not(.hit-cell)').closest('tr').show();
+  });
+</script>

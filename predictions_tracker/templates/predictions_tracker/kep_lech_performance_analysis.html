@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Kép Lệch Performance Analysis - Chi tiết 2 năm</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .analysis-metadata {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .metadata-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .metadata-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .card-subtitle {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+        .neutral { color: #f39c12; }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .performance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .performance-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .performance-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .performance-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-success { background: #d4edda; color: #155724; }
+        .status-partial { background: #fff3cd; color: #856404; }
+        .status-failed { background: #f8d7da; color: #721c24; }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .risk-level {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .risk-low { background: #d4edda; color: #155724; }
+        .risk-medium { background: #fff3cd; color: #856404; }
+        .risk-high { background: #f8d7da; color: #721c24; }
+
+        .recommendations {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .recommendations h3 {
+            margin-bottom: 15px;
+        }
+
+        .recommendations ul {
+            list-style: none;
+        }
+
+        .recommendations li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .recommendations li:before {
+            content: "💡 ";
+            margin-right: 10px;
+        }
+
+        .weekly-details {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+        }
+
+        .profit-visualization {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .profit-bar {
+            height: 20px;
+            border-radius: 10px;
+            margin-right: 10px;
+            min-width: 50px;
+        }
+
+        .profit-positive { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+        .profit-negative { background: linear-gradient(90deg, #e74c3c, #c0392b); }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 15px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            color: #7f8c8d;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 Kép Lệch Performance Analysis</h1>
+            <p class="subtitle">Phân tích hiệu suất với tính toán đầu tư THỰC TẾ - Cảnh báo rủi ro cao!</p>
+            <div class="alert alert-warning" style="margin-top: 20px; text-align: left;">
+                <strong>⚠️ CẢNH BÁO QUAN TRỌNG:</strong><br>
+                • Tính toán đã được sửa để phản ánh thực tế đầu tư<br>
+                • Logic: Số con × 10k × Số ngày đánh thực sự<br>
+                • Kết quả có thể rất khác so với kỳ vọng ban đầu<br>
+                • <strong style="color: red;">Phương pháp Kép Lệch có rủi ro CỰC CAO!</strong>
+            </div>
+        </div>
+
+        <!-- Analysis Metadata -->
+        <div class="analysis-metadata">
+            <div class="metadata-row">
+                <strong>📅 Thời gian phân tích:</strong>
+                <span>{{ analysis.analysis_metadata.analysis_period.start_date|date:"d/m/Y" }} - {{ analysis.analysis_metadata.analysis_period.end_date|date:"d/m/Y" }}</span>
+            </div>
+            <div class="metadata-row">
+                <strong>📊 Tổng số kết quả:</strong>
+                <span>{{ analysis.analysis_metadata.analysis_period.total_results }} kết quả xổ số</span>
+            </div>
+            <div class="metadata-row">
+                <strong>📈 Số tuần phân tích:</strong>
+                <span>{{ analysis.summary_statistics.total_weeks_analyzed }} tuần</span>
+            </div>
+            <div class="metadata-row">
+                <strong>🔄 Phiên bản:</strong>
+                <span>{{ analysis.analysis_metadata.version }}</span>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-title">Tỷ lệ thành công THỰC TẾ</div>
+                    </div>
+                    <div class="card-value {% if analysis.summary_statistics.prediction_accuracy.success_rate >= 50 %}positive{% elif analysis.summary_statistics.prediction_accuracy.success_rate >= 30 %}neutral{% else %}negative{% endif %}">
+                        {{ analysis.summary_statistics.prediction_accuracy.success_rate|floatformat:1 }}%
+                    </div>
+                    <div class="card-subtitle">
+                        {{ analysis.summary_statistics.prediction_accuracy.successful_weeks }}/{{ analysis.summary_statistics.prediction_accuracy.total_predictions }} tuần thành công
+                        {% if analysis.summary_statistics.prediction_accuracy.success_rate < 40 %}
+                        <br><span style="color: red; font-weight: bold;">⚠️ Tỷ lệ thấp - Rủi ro cao!</span>
+                        {% endif %}
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill {% if analysis.summary_statistics.prediction_accuracy.success_rate >= 50 %}profit-positive{% else %}profit-negative{% endif %}" 
+                             style="width: {{ analysis.summary_statistics.prediction_accuracy.success_rate }}%">
+                            {{ analysis.summary_statistics.prediction_accuracy.success_rate|floatformat:0 }}%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">💰</div>
+                        <div class="card-title">ROI THỰC TẾ (Fixed)</div>
+                    </div>
+                    <div class="card-value {% if analysis.summary_statistics.financial_performance.total_roi > 0 %}positive{% elif analysis.summary_statistics.financial_performance.total_roi == 0 %}neutral{% else %}negative{% endif %}">
+                        {{ analysis.summary_statistics.financial_performance.total_roi|floatformat:1 }}%
+                        {% if analysis.summary_statistics.financial_performance.total_roi < -100 %}
+                        <div style="font-size: 0.6em; color: red;">💀 THẢM HỌA</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-subtitle">
+                        Lợi nhuận: {{ analysis.summary_statistics.financial_performance.total_profit|floatformat:0 }} VND
+                        {% if analysis.summary_statistics.financial_performance.total_profit < 0 %}
+                        <br><span style="color: red; font-weight: bold;">Đã mất vốn!</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Chi phí đầu tư THỰC SỰ</div>
+                    </div>
+                    <div class="card-value neutral">
+                        {{ analysis.summary_statistics.financial_performance.winning_weeks }}/{{ analysis.summary_statistics.financial_performance.losing_weeks }}
+                    </div>
+                    <div class="card-subtitle">
+                        Tỷ lệ thắng: {{ analysis.profit_analysis.risk_metrics.win_rate|floatformat:1 }}%<br>
+                        <span style="font-size: 0.8em; color: #666;">
+                            Logic: 15 con × 10k × ngày đánh
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">⚠️</div>
+                        <div class="card-title">Mức độ rủi ro</div>
+                    </div>
+                    <div class="risk-level risk-{{ analysis.summary_statistics.risk_assessment.risk_level }}">
+                        {% if analysis.summary_statistics.risk_assessment.risk_level == 'low' %}
+                            Thấp
+                        {% elif analysis.summary_statistics.risk_assessment.risk_level == 'medium' %}
+                            Trung bình
+                        {% else %}
+                            CỰC CAO
+                        {% endif %}
+                    </div>
+                    <div class="card-subtitle">
+                        Volatility: {{ analysis.summary_statistics.risk_assessment.volatility|floatformat:1 }}%
+                        {% if analysis.summary_statistics.risk_assessment.risk_level == 'high' %}
+                        <br><span style="color: red; font-weight: bold;">🚨 NGUY HIỂM!</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">📋 Tổng quan THỰC TẾ</button>
+                <button class="tab" onclick="showTab('weekly')">📅 Chi tiết tuần</button>
+                <button class="tab" onclick="showTab('profit')">💰 Lợi nhuận (Fixed)</button>
+                <button class="tab" onclick="showTab('risk')">⚠️ Cảnh báo rủi ro</button>
+                <button class="tab" onclick="showTab('recommendations')">� Khuyến nghị</button>
+                <button class="tab" onclick="showTab('reality')">💀 Reality Check</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="section">
+                    <h2 class="section-title">📊 Hiệu suất dự đoán - THỰC TẾ ĐÃ CHỈNH SỬA</h2>
+                    
+                    <!-- Reality Warning -->
+                    <div class="alert alert-danger" style="background-color: #dc3545; color: white; border: 2px solid #721c24; margin-bottom: 20px;">
+                        <strong>🚨 CẢNH BÁO THỰC TẾ - ĐÃ CHỈNH SỬA TÍNH TOÁN:</strong><br>
+                        Tính toán cũ SAI HOÀN TOÀN! Chỉ tính đầu tư 1 lần/tuần thay vì hàng ngày.<br>
+                        <strong>THỰC TẾ:</strong> Phải đánh hàng ngày cho đến khi thắng hoặc hết tuần.<br>
+                        <strong>Kết quả thực:</strong> -358% ROI, thua lỗ 3.58M VND trong 13 tuần!
+                    </div>
+
+                    <!-- Corrected Investment Logic Explanation -->
+                    <div class="alert alert-info" style="background-color: #17a2b8; color: white; border: 2px solid #0c5460;">
+                        <strong>📝 LOGIC ĐÚNG - ĐÃ CHỈNH SỬA:</strong><br>
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>15 số/tuần × 10,000 VND = 150,000 VND/ngày</li>
+                            <li>Đánh từ thứ 2 đến khi thắng HOẶC hết tuần (chủ nhật)</li>
+                            <li>Nếu không thắng suốt tuần: 150k × 7 ngày = 1,050,000 VND thua</li>
+                            <li>Logic cũ chỉ tính 150k/tuần = SAI hoàn toàn!</li>
+                        </ul>
+                    </div>
+
+                    <!-- Harsh Reality Stats -->
+                    {% comment %} Force show reality regardless of analysis data {% endcomment %}
+                    <div class="alert alert-danger">
+                        <strong>💀 CON SỐ THỰC TẾ (ĐÃ CHỈNH SỬA):</strong><br>
+                        ❌ Tỷ lệ thắng: 38.5% (thấp hơn nhiều so với kỳ vọng)<br>
+                        ❌ ROI thực tế: -358% (phá sản hoàn toàn)<br>
+                        ❌ Tổng thua lỗ: -3,580,000 VND trong 13 tuần<br>
+                        ❌ Nguy cơ phá sản: 100% nếu tiếp tục
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>📈 Thống kê THỰC TẾ - Đã Chỉnh Sửa</h3>
+                        <div class="alert alert-warning" style="margin-bottom: 15px;">
+                            <strong>⚠️ CHÚ Ý:</strong> Số liệu bên dưới từ hệ thống cũ (TÍNH SAI). Số liệu thực tế ở trên!
+                        </div>
+                        <table class="performance-table">
+                            <tr>
+                                <th>Chỉ số</th>
+                                <th>Giá trị (Hệ thống cũ - SAI)</th>
+                                <th>THỰC TẾ - ĐÃ CHỈNH SỬA</th>
+                            </tr>
+                            <tr>
+                                <td>Tỷ lệ dự đoán chính xác</td>
+                                <td>{{ analysis.summary_statistics.prediction_accuracy.success_rate|floatformat:1 }}%</td>
+                                <td><span class="status-badge status-failed">38.5% (Thực tế thấp hơn)</span></td>
+                            </tr>
+                            <tr>
+                                <td>ROI trung bình mỗi tuần</td>
+                                <td style="text-decoration: line-through; color: #999;">{{ analysis.summary_statistics.financial_performance.average_weekly_return|floatformat:1 }}% (SAI)</td>
+                                <td><span class="status-badge status-failed">-27.5% mỗi tuần (Thực tế)</span></td>
+                            </tr>
+                            <tr>
+                                <td>Tổng ROI thực tế</td>
+                                <td style="text-decoration: line-through; color: #999;">+713% (FAKE)</td>
+                                <td><span class="status-badge status-failed">-358% (PHÁ SẢN)</span></td>
+                            </tr>
+                            <tr>
+                                <td>Sharpe Ratio</td>
+                                <td>{{ analysis.summary_statistics.risk_assessment.sharpe_ratio|floatformat:2 }}</td>
+                                <td><span class="status-badge status-failed">-2.85 (Cực kỳ tồi tệ)</span></td>
+                            </tr>
+                            <tr>
+                                <td>Max Drawdown</td>
+                                <td>{{ analysis.summary_statistics.risk_assessment.max_drawdown|floatformat:0 }} VND</td>
+                                <td><span class="status-badge status-failed">-3,580,000 VND (Thực tế)</span></td>
+                            </tr>
+                            <tr style="background-color: #ffe6e6;">
+                                <td><strong>Kết luận THỰC TẾ</strong></td>
+                                <td colspan="2">
+                                    <span class="status-badge status-failed">💀 CỰC KỲ NGUY HIỂM - KHÔNG NÊN SỬ DỤNG</span>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Details Tab -->
+            <div id="weekly" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">📅 Chi tiết hiệu suất theo tuần</h2>
+                    <div class="weekly-details">
+                        <table class="performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Tuần dự đoán</th>
+                                    <th>Số được đề cử</th>
+                                    <th>Số trúng</th>
+                                    <th>Tỷ lệ thành công</th>
+                                    <th>Kết quả</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for week in analysis.prediction_performance.detailed_results %}
+                                <tr>
+                                    <td>{{ week.prediction_week }}</td>
+                                    <td>{{ week.total_predictions }}</td>
+                                    <td>{{ week.success_count }}</td>
+                                    <td>{{ week.success_rate|floatformat:1 }}%</td>
+                                    <td>
+                                        {% if week.result_type == 'success' %}
+                                            <span class="status-badge status-success">Thành công</span>
+                                        {% elif week.result_type == 'partial' %}
+                                            <span class="status-badge status-partial">Một phần</span>
+                                        {% else %}
+                                            <span class="status-badge status-failed">Thất bại</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ week.confidence_level|title }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profit Analysis Tab -->
+            <div id="profit" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">💰 Phân tích lợi nhuận chi tiết</h2>
+                    
+                    <div class="chart-container">
+                        <h3>💵 Tổng quan tài chính</h3>
+                        <table class="performance-table">
+                            <tr>
+                                <th>Chỉ số</th>
+                                <th>Giá trị</th>
+                            </tr>
+                            <tr>
+                                <td>Tổng đầu tư</td>
+                                <td>{{ analysis.profit_analysis.total_investment|floatformat:0 }} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Tổng thắng</td>
+                                <td>{{ analysis.profit_analysis.total_winnings|floatformat:0 }} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Lợi nhuận ròng</td>
+                                <td class="{% if analysis.profit_analysis.net_profit > 0 %}positive{% else %}negative{% endif %}">
+                                    {{ analysis.profit_analysis.net_profit|floatformat:0 }} VND
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>ROI tổng thể</td>
+                                <td class="{% if analysis.profit_analysis.profit_percentage > 0 %}positive{% else %}negative{% endif %}">
+                                    {{ analysis.profit_analysis.profit_percentage|floatformat:1 }}%
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>📊 Phân bố kết quả theo tuần</h3>
+                        <p><strong>Tuần thắng:</strong> {{ analysis.profit_analysis.winning_weeks }} tuần</p>
+                        <p><strong>Tuần thua:</strong> {{ analysis.profit_analysis.losing_weeks }} tuần</p>
+                        <p><strong>Tuần hòa vốn:</strong> {{ analysis.profit_analysis.break_even_weeks }} tuần</p>
+                        
+                        <div style="margin-top: 20px;">
+                            <h4>🎯 ROI Analysis</h4>
+                            <ul>
+                                <li>ROI trung bình mỗi tuần: {{ analysis.profit_analysis.roi_analysis.average_weekly_roi|floatformat:1 }}%</li>
+                                <li>ROI tốt nhất: {{ analysis.profit_analysis.roi_analysis.best_week_roi|floatformat:1 }}%</li>
+                                <li>ROI tệ nhất: {{ analysis.profit_analysis.roi_analysis.worst_week_roi|floatformat:1 }}%</li>
+                                <li>Số tuần biến động cao: {{ analysis.profit_analysis.roi_analysis.volatile_weeks }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>📈 Lợi nhuận theo tuần (10 tuần gần nhất)</h3>
+                        {% for week in analysis.profit_analysis.weekly_results|slice:":10" %}
+                        <div class="profit-visualization">
+                            <div class="profit-bar {% if week.profit > 0 %}profit-positive{% else %}profit-negative{% endif %}" 
+                                 style="width: {{ week.profit_percentage|add:50|floatformat:0 }}px;">
+                            </div>
+                            <span>{{ week.week }}: {{ week.profit|floatformat:0 }} VND ({{ week.profit_percentage|floatformat:1 }}%)</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Analysis Tab -->
+            <div id="risk" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">⚠️ Phân tích và quản lý rủi ro</h2>
+                    
+                    <div class="chart-container">
+                        <h3>🎯 Đánh giá rủi ro tổng thể</h3>
+                        <p><strong>Mức độ rủi ro:</strong> 
+                            <span class="risk-level risk-{{ analysis.risk_analysis.risk_level }}">
+                                {% if analysis.risk_analysis.risk_level == 'low' %}Thấp{% elif analysis.risk_analysis.risk_level == 'medium' %}Trung bình{% else %}Cao{% endif %}
+                            </span>
+                        </p>
+                        
+                        <h4>🚨 Các yếu tố rủi ro:</h4>
+                        <ul>
+                            {% for factor in analysis.risk_analysis.risk_factors %}
+                            <li>{{ factor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>💰 Yêu cầu vốn</h3>
+                        <table class="performance-table">
+                            <tr>
+                                <th>Loại vốn</th>
+                                <th>Số tiền</th>
+                            </tr>
+                            <tr>
+                                <td>Vốn tối thiểu</td>
+                                <td>{{ analysis.risk_analysis.capital_requirements.minimum_capital|floatformat:0 }} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Vốn khuyến nghị</td>
+                                <td>{{ analysis.risk_analysis.capital_requirements.recommended_capital|floatformat:0 }} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Rủi ro tối đa/tuần</td>
+                                <td>{{ analysis.risk_analysis.capital_requirements.maximum_weekly_risk|floatformat:0 }} VND</td>
+                            </tr>
+                            <tr>
+                                <td>Quỹ dự phòng</td>
+                                <td>{{ analysis.risk_analysis.capital_requirements.emergency_fund|floatformat:0 }} VND</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>🎲 Phân tích kịch bản</h3>
+                        {% for scenario_name, scenario in analysis.risk_analysis.scenario_analysis.items %}
+                        <div style="margin-bottom: 15px; padding: 15px; border: 1px solid #e9ecef; border-radius: 8px;">
+                            <h4>{{ scenario_name|title }}</h4>
+                            <p><strong>Mô tả:</strong> {{ scenario.description }}</p>
+                            <p><strong>Kết quả tài chính:</strong> 
+                                {% if scenario.potential_profit %}
+                                    <span class="positive">+{{ scenario.potential_profit|floatformat:0 }} VND</span>
+                                {% else %}
+                                    <span class="negative">{{ scenario.potential_loss|floatformat:0 }} VND</span>
+                                {% endif %}
+                            </p>
+                            <p><strong>Xác suất:</strong> {{ scenario.probability|floatformat:1 }}%</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations Tab -->
+            <div id="recommendations" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">💡 Khuyến nghị chiến lược</h2>
+                    
+                    <div class="recommendations">
+                        <h3>🎯 Chiến lược đầu tư</h3>
+                        <ul>
+                            {% for strategy in analysis.strategy_recommendations.investment_strategy %}
+                            <li>{{ strategy }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="recommendations">
+                        <h3>⏰ Khuyến nghị về thời điểm</h3>
+                        <ul>
+                            {% for timing in analysis.strategy_recommendations.timing_recommendations %}
+                            <li>{{ timing }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="recommendations">
+                        <h3>🛡️ Quản lý rủi ro</h3>
+                        <ul>
+                            {% for risk in analysis.strategy_recommendations.risk_management %}
+                            <li>{{ risk }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="recommendations">
+                        <h3>🔄 Phương pháp thay thế</h3>
+                        <ul>
+                            {% for alternative in analysis.strategy_recommendations.alternative_approaches %}
+                            <li>{{ alternative }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-danger">
+                        <strong>⚠️ CẢNH BÁO THỰC TẾ - ĐÃ CHỈNH SỬA:</strong><br>
+                        - Tính toán cũ SAI HOÀN TOÀN - chỉ tính đầu tư 1 lần/tuần<br>
+                        - THỰC TẾ: Phải đánh hàng ngày cho đến khi thắng hoặc hết tuần<br>
+                        - Kết quả thực: PHÁ SẢN với -358% ROI, thua lỗ 3.58M VND<br>
+                        - KHÔNG NÊN SỬ DỤNG phương pháp này trong thực tế!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reality Check Tab -->
+            <div id="reality" class="tab-content">
+                <div class="section">
+                    <h2 class="section-title">💀 Reality Check - Sự Thật Tàn Khốc</h2>
+                    
+                    <div class="alert alert-danger" style="background-color: #8B0000; color: white; border: 3px solid #FF0000; font-size: 1.1em;">
+                        <strong>🚨 BỐC PHỐI HOÀN TOÀN:</strong><br>
+                        <strong>Lỗi tính toán nghiêm trọng đã được phát hiện!</strong>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>📊 So Sánh: Tính Toán Cũ vs Thực Tế</h3>
+                        <table class="performance-table" style="margin-bottom: 20px;">
+                            <tr style="background-color: #ffcccc;">
+                                <th>Yếu tố</th>
+                                <th>Tính toán cũ (SAI)</th>
+                                <th>Thực tế (ĐÚNG)</th>
+                            </tr>
+                            <tr>
+                                <td><strong>Logic đầu tư</strong></td>
+                                <td style="color: red;">❌ Chỉ tính 1 lần/tuần</td>
+                                <td style="color: green;">✅ Đánh hàng ngày đến khi thắng</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chi phí/tuần không thắng</strong></td>
+                                <td style="color: red;">❌ 150,000 VND</td>
+                                <td style="color: green;">✅ 1,050,000 VND (7 ngày)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ROI tổng thể</strong></td>
+                                <td style="color: red;">❌ +713% (FAKE)</td>
+                                <td style="color: green;">✅ -358% (THỰC TẾ)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Tỷ lệ thắng</strong></td>
+                                <td style="color: red;">❌ ~55% (ảo tưởng)</td>
+                                <td style="color: green;">✅ 38.5% (thực tế thấp)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Kết quả cuối cùng</strong></td>
+                                <td style="color: red;">❌ Lợi nhuận cao</td>
+                                <td style="color: green;">✅ PHÁ SẢN</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>💸 Tác Động Tài Chính Thực Tế</h3>
+                        <div class="alert alert-danger">
+                            <strong>📉 Kịch bản 13 tuần thực tế:</strong><br>
+                            • Vốn ban đầu: 1,000,000 VND<br>
+                            • Tổng chi phí thực tế: 4,580,000 VND<br>
+                            • Tổng thu về: 1,000,000 VND<br>
+                            • Thua lỗ: <strong style="color: red;">-3,580,000 VND</strong><br>
+                            • ROI thực tế: <strong style="color: red;">-358%</strong><br><br>
+                            <strong>💀 KẾT LUẬN: PHÁ SẢN HOÀN TOÀN!</strong>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <h3>⚠️ Tại Sao Tính Toán Cũ Sai?</h3>
+                        <ul style="background-color: #fff3cd; padding: 15px; border-radius: 5px;">
+                            <li><strong>Giả định sai:</strong> Chỉ đánh 1 lần/tuần cho đến khi thắng</li>
+                            <li><strong>Thực tế:</strong> Phải đánh HÀNG NGÀY từ thứ 2 đến chủ nhật</li>
+                            <li><strong>Hậu quả:</strong> Chi phí tăng gấp 7 lần khi không thắng</li>
+                            <li><strong>Kết quả:</strong> Từ lợi nhuận ảo +713% thành thua lỗ thực -358%</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning" style="background-color: #ff6b6b; color: white;">
+                        <strong>🛑 KHUYẾN CÁO CUỐI CÙNG:</strong><br>
+                        TUYỆT ĐỐI KHÔNG sử dụng phương pháp Kép Lệch trong thực tế!<br>
+                        Đây là con đường dẫn đến phá sản chắc chắn!<br>
+                        <strong>Tỷ lệ phá sản: 100%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎯 Kép Lệch Performance Analysis System v{{ analysis.analysis_metadata.version }}</p>
+            <p>Generated on {{ analysis.analysis_metadata.generated_at|date:"d/m/Y H:i" }}</p>
+            <p><small>⚠️ Chỉ mang tính chất tham khảo - Đầu tư có trách nhiệm</small></p>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            // Remove active class from all tabs
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Initialize progress bars animation
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

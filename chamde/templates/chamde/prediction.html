@@ -1,0 +1,458 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block title %}Dự đoán Chạm - ChamDe{% endblock %}
+
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Dự đoán</li>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Bộ lọc -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <label for="method" class="form-label">Phương pháp dự đoán:</label>
+          <select name="method" id="method" class="form-select">
+            <option value="all" {% if prediction_method == 'all' %}selected{% endif %}>Tất cả phương pháp</option>
+            <option value="cham_dau" {% if prediction_method == 'cham_dau' %}selected{% endif %}>Chạm đầu</option>
+            <option value="cham_duoi" {% if prediction_method == 'cham_duoi' %}selected{% endif %}>Chạm đuôi</option>
+            <option value="cau_cham1" {% if prediction_method == 'cau_cham1' %}selected{% endif %}>Cầu chạm kiểu 1</option>
+            <option value="cau_cham2" {% if prediction_method == 'cau_cham2' %}selected{% endif %}>Cầu chạm kiểu 2</option>
+            <option value="qua_tram" {% if prediction_method == 'qua_tram' %}selected{% endif %}>Mẫu quả trám</option>
+            <option value="lo_gan" {% if prediction_method == 'lo_gan' %}selected{% endif %}>Lô gan</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label for="target_date" class="form-label">Ngày dự đoán:</label>
+          <input type="date" name="target_date" id="target_date" class="form-control" value="{{ target_date|date:'Y-m-d' }}">
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">&nbsp;</label>
+          <button type="submit" class="btn btn-primary d-block">
+            <i class="fas fa-search"></i> Dự đoán
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  {% if prediction_method == 'all' %}
+    <!-- Kết quả tổng hợp từ tất cả phương pháp -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Kết quả tổng hợp</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> 
+          Kết quả này được tổng hợp từ tất cả các phương pháp dự đoán, với trọng số dựa trên độ tin cậy của từng phương pháp.
+        </div>
+        
+        <h5 class="text-primary mb-3">Top 10 số được gợi ý:</h5>
+        <div class="d-flex flex-wrap mb-4">
+          {% for number in top_numbers %}
+            <div class="text-center me-3 mb-3">
+              <div class="number-badge bg-primary" style="width: 40px; height: 40px; font-size: 1.2rem;">{{ number }}</div>
+              <small class="d-block mt-1">{{ number_scores|get_item:number|floatformat:2 }} điểm</small>
+            </div>
+          {% endfor %}
+        </div>
+        
+        <h5 class="text-primary mb-3">Tổng hợp điểm của các số:</h5>
+        <div class="row">
+          {% for number, score in number_scores %}
+            <div class="col-md-2 col-4 mb-3">
+              <div class="card h-100">
+                <div class="card-body text-center p-2">
+                  <div class="number-badge bg-{% if forloop.counter <= 10 %}primary{% elif forloop.counter <= 20 %}info{% else %}secondary{% endif %} mx-auto mb-2" style="width: 35px; height: 35px;">{{ number }}</div>
+                  <div class="progress mb-2" style="height: 5px;">
+                    <div class="progress-bar" role="progressbar" style="width: {{ score|mul:100|floatformat:0 }}%"></div>
+                  </div>
+                  <small>{{ score|floatformat:2 }} điểm</small>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Kết quả chi tiết từng phương pháp -->
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="card-title mb-0"><i class="fas fa-list"></i> Kết quả chi tiết từng phương pháp</h5>
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-tabs" id="methodTabs" role="tablist">
+          {% for method_key, prediction in predictions.items %}
+            <li class="nav-item" role="presentation">
+              <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                      id="{{ method_key }}-tab" 
+                      data-bs-toggle="tab" 
+                      data-bs-target="#{{ method_key }}" 
+                      type="button" 
+                      role="tab" 
+                      aria-controls="{{ method_key }}" 
+                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                {{ prediction.method_name }}
+              </button>
+            </li>
+          {% endfor %}
+        </ul>
+        
+        <div class="tab-content" id="methodTabsContent">
+          {% for method_key, prediction in predictions.items %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                 id="{{ method_key }}" 
+                 role="tabpanel" 
+                 aria-labelledby="{{ method_key }}-tab">
+              
+              <div class="p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="text-primary mb-0">{{ prediction.method_name }}</h5>
+                  <span class="badge bg-{% if prediction.confidence >= 70 %}success{% elif prediction.confidence >= 40 %}primary{% else %}secondary{% endif %}">
+                    Độ tin cậy: {{ prediction.confidence|floatformat:1 }}%
+                  </span>
+                </div>
+                
+                <p class="mb-3">{{ prediction.description }}</p>
+                
+                <h6 class="mb-2">Các số dự đoán:</h6>
+                <div class="d-flex flex-wrap mb-3">
+                  {% for number in prediction.numbers %}
+                    <span class="number-badge bg-primary me-2 mb-2">{{ number }}</span>
+                  {% empty %}
+                    <p class="text-muted">Không có số dự đoán nào</p>
+                  {% endfor %}
+                </div>
+                
+                {% if method_key == 'cham_dau' and prediction.top_chams %}
+                  <h6 class="mb-2">Top chạm đầu:</h6>
+                  <div class="d-flex flex-wrap mb-3">
+                    {% for cham in prediction.top_chams %}
+                      <div class="me-3 mb-2">
+                        <span class="number-badge bg-info">{{ cham.value }}</span>
+                        <small class="d-block text-center mt-1">{{ cham.hit_rate|floatformat:1 }}%</small>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                
+                {% if method_key == 'cham_duoi' and prediction.top_chams %}
+                  <h6 class="mb-2">Top chạm đuôi:</h6>
+                  <div class="d-flex flex-wrap mb-3">
+                    {% for cham in prediction.top_chams %}
+                      <div class="me-3 mb-2">
+                        <span class="number-badge bg-info">{{ cham.value }}</span>
+                        <small class="d-block text-center mt-1">{{ cham.hit_rate|floatformat:1 }}%</small>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                
+                {% if method_key == 'cau_cham1' and prediction.cham_value %}
+                  <div class="alert alert-info">
+                    <strong>Chạm đầu từ giải nhất Chủ Nhật ({{ prediction.source_date|date:"d/m/Y" }}):</strong> {{ prediction.cham_value }}
+                    <br>
+                    <strong>Tỷ lệ trúng lịch sử:</strong> {{ prediction.historical_hit_rate|floatformat:1 }}%
+                  </div>
+                {% endif %}
+                
+                {% if method_key == 'cau_cham2' and prediction.cau_cham2_value %}
+                  <div class="alert alert-info">
+                    <strong>Cầu chạm kiểu 2 từ Chủ Nhật ({{ prediction.source_date|date:"d/m/Y" }}):</strong> {{ prediction.cau_cham2_value }}
+                    <br>
+                    <strong>Tỷ lệ trúng lịch sử:</strong> {{ prediction.historical_hit_rate|floatformat:1 }}%
+                  </div>
+                {% endif %}
+                
+                {% if method_key == 'qua_tram' and prediction.patterns %}
+                  <h6 class="mb-2">Các mẫu quả trám gần đây:</h6>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th>Ngày</th>
+                          <th>Mẫu</th>
+                          <th>Dự đoán</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for pattern in prediction.patterns %}
+                          <tr>
+                            <td>{{ pattern.ngay|date:"d/m/Y" }}</td>
+                            <td>{{ pattern.digit_top }}-{{ pattern.digit_mid_left }}{{ pattern.digit_mid_right }}-{{ pattern.digit_bottom }}</td>
+                            <td>{{ pattern.predicted_number }}</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% endif %}
+                
+                {% if method_key == 'lo_gan' and prediction.lo_gan_stats %}
+                  <h6 class="mb-2">Các số lô gan:</h6>
+                  <div class="table-responsive">
+                    <table class="table table-sm table-striped">
+                      <thead>
+                        <tr>
+                          <th>Số</th>
+                          <th>Số ngày gan</th>
+                          <th>Xác suất sắp về</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for stat in prediction.lo_gan_stats %}
+                          <tr>
+                            <td>{{ stat.number }}</td>
+                            <td>{{ stat.current_absent_days }}</td>
+                            <td>{{ stat.due_probability|floatformat:1 }}%</td>
+                          </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                {% endif %}
+                
+                <div class="text-end mt-3">
+                  <a href="{% url 'chamde:cham_prediction' %}?method={{ method_key }}&target_date={{ target_date|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                    <i class="fas fa-search-plus"></i> Xem chi tiết
+                  </a>
+                </div>
+              </div>
+              
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  
+  {% else %}
+    <!-- Kết quả từ một phương pháp cụ thể -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center">
+          <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> {{ method_name }}</h5>
+          <span class="badge bg-light text-primary">{{ prediction.confidence|floatformat:1 }}% độ tin cậy</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> {{ prediction.description }}
+        </div>
+        
+        <h5 class="text-primary mb-3">Các số được dự đoán:</h5>
+        <div class="d-flex flex-wrap mb-4">
+          {% for number in prediction.numbers %}
+            <span class="number-badge bg-primary me-2 mb-2" style="width: 40px; height: 40px; font-size: 1.2rem;">{{ number }}</span>
+          {% empty %}
+            <p class="text-muted">Không có số dự đoán nào</p>
+          {% endfor %}
+        </div>
+        
+        {% if prediction_method == 'cham_dau' and prediction.top_chams %}
+          <h5 class="text-primary mb-3">Thông tin chạm đầu:</h5>
+          <div class="row mb-4">
+            {% for cham in prediction.top_chams %}
+              <div class="col-md-4">
+                <div class="card mb-3">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Chạm {{ cham.value }}</h6>
+                  </div>
+                  <div class="card-body">
+                    <p class="mb-2">Tỷ lệ trúng: <strong>{{ cham.hit_rate|floatformat:1 }}%</strong></p>
+                    <p class="mb-0">Số lần trúng: <strong>{{ cham.hits }}/{{ cham.total }}</strong></p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Chạm đầu là các cặp số có chữ số hàng chục giống nhau. Chọn chạm có tỷ lệ trúng cao nhất để tăng cơ hội trúng.
+          </div>
+        {% endif %}
+        
+        {% if prediction_method == 'cham_duoi' and prediction.top_chams %}
+          <h5 class="text-primary mb-3">Thông tin chạm đuôi:</h5>
+          <div class="row mb-4">
+            {% for cham in prediction.top_chams %}
+              <div class="col-md-4">
+                <div class="card mb-3">
+                  <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Chạm {{ cham.value }}</h6>
+                  </div>
+                  <div class="card-body">
+                    <p class="mb-2">Tỷ lệ trúng: <strong>{{ cham.hit_rate|floatformat:1 }}%</strong></p>
+                    <p class="mb-0">Số lần trúng: <strong>{{ cham.hits }}/{{ cham.total }}</strong></p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Chạm đuôi là các cặp số có chữ số hàng đơn vị giống nhau. Chọn chạm có tỷ lệ trúng cao nhất để tăng cơ hội trúng.
+          </div>
+        {% endif %}
+        
+        {% if prediction_method == 'cau_cham1' and prediction.cham_value %}
+          <h5 class="text-primary mb-3">Thông tin cầu chạm kiểu 1:</h5>
+          <div class="alert alert-info mb-4">
+            <h6 class="mb-2"><i class="fas fa-info-circle"></i> Nguồn dữ liệu:</h6>
+            <p class="mb-2">Chủ Nhật ({{ prediction.source_date|date:"d/m/Y" }})</p>
+            <p class="mb-2">Chữ số giữa giải nhất: <strong>{{ prediction.cham_value }}</strong></p>
+            <p class="mb-0">Tỷ lệ trúng lịch sử: <strong>{{ prediction.historical_hit_rate|floatformat:1 }}%</strong></p>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Cầu chạm kiểu 1 dựa trên chữ số giữa của giải nhất ngày Chủ Nhật. Thường trúng trong tuần tiếp theo.
+          </div>
+        {% endif %}
+        
+        {% if prediction_method == 'cau_cham2' and prediction.cau_cham2_value %}
+          <h5 class="text-primary mb-3">Thông tin cầu chạm kiểu 2:</h5>
+          <div class="alert alert-info mb-4">
+            <h6 class="mb-2"><i class="fas fa-info-circle"></i> Nguồn dữ liệu:</h6>
+            <p class="mb-2">Chủ Nhật ({{ prediction.source_date|date:"d/m/Y" }})</p>
+            <p class="mb-2">Cầu chạm kiểu 2: <strong>{{ prediction.cau_cham2_value }}</strong></p>
+            <p class="mb-0">Tỷ lệ trúng lịch sử: <strong>{{ prediction.historical_hit_rate|floatformat:1 }}%</strong></p>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Cầu chạm kiểu 2 dựa trên tổng giải đặc biệt Chủ Nhật và đuôi giải đặc biệt thứ 6. Thường trúng trong tuần tiếp theo.
+          </div>
+        {% endif %}
+        
+        {% if prediction_method == 'qua_tram' and prediction.patterns %}
+          <h5 class="text-primary mb-3">Thông tin mẫu quả trám:</h5>
+          <div class="table-responsive mb-4">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Ngày</th>
+                  <th>Mẫu</th>
+                  <th>Dự đoán</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pattern in prediction.patterns %}
+                  <tr>
+                    <td>{{ pattern.ngay|date:"d/m/Y" }}</td>
+                    <td>
+                      <div class="text-center">
+                        <div class="mb-1">{{ pattern.digit_top }}</div>
+                        <div>{{ pattern.digit_mid_left }}{{ pattern.digit_mid_right }}</div>
+                        <div class="mt-1">{{ pattern.digit_bottom }}</div>
+                      </div>
+                    </td>
+                    <td>
+                      <span class="number-badge bg-primary">{{ pattern.predicted_number }}</span>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Mẫu quả trám tìm các số hình thành hình quả trám trong các giải Ba, Tư, Năm. Số dự đoán thường về trong 5 ngày tiếp theo.
+          </div>
+        {% endif %}
+        
+        {% if prediction_method == 'lo_gan' and prediction.lo_gan_stats %}
+          <h5 class="text-primary mb-3">Thông tin lô gan:</h5>
+          <div class="table-responsive mb-4">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Số</th>
+                  <th>Số ngày gan</th>
+                  <th>Xác suất sắp về</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stat in prediction.lo_gan_stats %}
+                  <tr>
+                    <td>
+                      <span class="number-badge bg-primary">{{ stat.number }}</span>
+                    </td>
+                    <td>{{ stat.current_absent_days }} ngày</td>
+                    <td>
+                      <div class="progress">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ stat.due_probability }}%" aria-valuenow="{{ stat.due_probability }}" aria-valuemin="0" aria-valuemax="100">{{ stat.due_probability|floatformat:1 }}%</div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="alert alert-warning">
+            <i class="fas fa-lightbulb"></i> <strong>Gợi ý:</strong> Lô gan là các số lâu ngày không xuất hiện, có xác suất sắp về cao dựa trên phân tích thống kê.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+  
+  <!-- Lưu dự đoán -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-save"></i> Lưu dự đoán</h5>
+    </div>
+    <div class="card-body">
+      <form method="post" action="{% url 'chamde:save_prediction' %}">
+        {% csrf_token %}
+        
+        <input type="hidden" name="target_date" value="{{ target_date|date:'Y-m-d' }}">
+        <input type="hidden" name="method" value="{{ prediction_method }}">
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="selected_numbers" class="form-label">Chọn số để lưu:</label>
+            <select name="selected_numbers" id="selected_numbers" class="form-select" multiple size="8">
+              {% if prediction_method == 'all' %}
+                {% for number in top_numbers %}
+                  <option value="{{ number }}" selected>{{ number }} ({{ number_scores|get_item:number|floatformat:2 }} điểm)</option>
+                {% endfor %}
+              {% else %}
+                {% for number in prediction.numbers %}
+                  <option value="{{ number }}" selected>{{ number }}</option>
+                {% endfor %}
+              {% endif %}
+            </select>
+            <div class="form-text">Giữ Ctrl để chọn nhiều số</div>
+          </div>
+          
+          <div class="col-md-6">
+            <label for="confidence" class="form-label">Độ tin cậy:</label>
+            <input type="range" class="form-range" id="confidence" name="confidence" min="0" max="100" step="5" 
+                  value="{% if prediction_method == 'all' %}80{% else %}{{ prediction.confidence|floatformat:0 }}{% endif %}">
+            <div class="d-flex justify-content-between">
+              <span>0%</span>
+              <span>50%</span>
+              <span>100%</span>
+            </div>
+            
+            <div class="mt-3">
+              <label for="notes" class="form-label">Ghi chú:</label>
+              <textarea name="notes" id="notes" class="form-control" rows="3"></textarea>
+            </div>
+          </div>
+          
+          <div class="col-12 text-center mt-4">
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save"></i> Lưu dự đoán
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+{% endblock %}

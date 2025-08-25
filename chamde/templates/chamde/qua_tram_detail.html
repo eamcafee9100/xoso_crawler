@@ -1,0 +1,86 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block title %}Chi tiết mẫu quả trám - {{ pattern.digit_top }}{{ pattern.digit_mid_left }}{{ pattern.digit_mid_right }}{{ pattern.digit_bottom }}{% endblock %}
+
+{% block content %}
+<h2>Chi tiết mẫu quả trám</h2>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h4>Mẫu:</h4>
+        <div>
+            <b>{{ pattern.digit_top }}</b><br>
+            <b>{{ pattern.digit_mid_left }}</b> <b>{{ pattern.digit_mid_right }}</b><br>
+            <b>{{ pattern.digit_bottom }}</b>
+        </div>
+        <p><b>Ngày tạo:</b> {{ pattern.ngay|date:"d/m/Y" }}</p>
+        <p><b>Số dự đoán:</b> {{ pattern.predicted_number }}</p>
+        <p>
+            <b>Trạng thái:</b>
+            {% if pattern.has_hit %}
+                <span style="color:green">Đã về</span>
+            {% else %}
+                <span style="color:red">Chưa về</span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<h4>Thống kê hiệu suất mẫu này</h4>
+<ul>
+    <li>Tổng số mẫu: {{ pattern_stats.total_patterns }}</li>
+    <li>Số mẫu đã về: {{ pattern_stats.hit_patterns }}</li>
+    <li>Tỷ lệ về: {{ pattern_stats.hit_rate }}%</li>
+    <li>Thời gian trung bình để về: 
+        {% if pattern_stats.avg_days_to_hit %}
+            {{ pattern_stats.avg_days_to_hit }} ngày
+        {% else %}
+            Không có dữ liệu
+        {% endif %}
+    </li>
+</ul>
+
+<h4>Lịch sử các mẫu tương tự</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày</th>
+            <th>Số dự đoán</th>
+            <th>Trạng thái</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sp in similar_patterns %}
+        <tr>
+            <td>{{ sp.ngay|date:"d/m/Y" }}</td>
+            <td>{{ sp.predicted_number }}</td>
+            <td>
+                {% if sp.has_hit %}
+                    <span style="color:green">Đã về</span>
+                {% else %}
+                    <span style="color:red">Chưa về</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Không có dữ liệu</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4>Theo dõi kết quả</h4>
+{% if tracking_info.status == 'completed' %}
+    <div class="alert alert-success">
+        Đã về vào ngày {{ tracking_info.hit_date|date:"d/m/Y" }} (sau {{ tracking_info.days_to_hit }} ngày)
+    </div>
+{% else %}
+    <div class="alert alert-warning">
+        Đã dự đoán {{ tracking_info.days_passed }} ngày, chưa về.<br>
+        Số dự đoán: {{ tracking_info.predicted_number }}
+    </div>
+{% endif %}
+
+<a href="{% url 'qua_tram_pattern' %}">← Quay lại danh sách</a>
+{% endblock %}

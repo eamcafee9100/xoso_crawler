@@ -1,0 +1,498 @@
+{% extends "predictions_tracker/base.html" %}
+{% load static %}
+{% load pre_xs_tags %}
+
+{% block title %}Cyclical Intelligence Analysis{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="fas fa-sync-alt"></i>
+                        Cyclical Intelligence Analysis
+                    </h4>
+                    
+                    <div class="d-flex gap-2">
+                        <input type="date" id="analysisDate" class="form-control form-control-sm" 
+                               value="{{ today|date:'Y-m-d' }}">
+                        <button type="button" class="btn btn-primary btn-sm" id="runAnalysis">
+                            <i class="fas fa-play"></i> Analyze
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Loading State -->
+                    <div id="loadingState" class="text-center py-4" style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Đang phân tích cyclical intelligence...</p>
+                    </div>
+                    
+                    <!-- Error State -->
+                    <div id="errorState" class="alert alert-danger" style="display: none;">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Lỗi</h5>
+                        <p id="errorMessage"></p>
+                    </div>
+                    
+                    <!-- Results -->
+                    <div id="resultsContainer" style="display: none;">
+                        
+                        <!-- Context Analysis -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5><i class="fas fa-calendar-check"></i> Cyclical Context Analysis</h5>
+                                <div id="contextAnalysis" class="table-responsive">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Method Sync Matrix -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5><i class="fas fa-project-diagram"></i> Method Sync Matrix</h5>
+                                <div id="syncMatrix" class="table-responsive">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Optimal Methods -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-filter"></i> Cyclical Filtered Methods</h5>
+                                <div id="filteredMethods">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-trophy"></i> Top Sync Methods</h5>
+                                <div id="topSyncMethods">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Intelligent Predictions -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5><i class="fas fa-brain"></i> Intelligent Number Predictions</h5>
+                                <div id="numberPredictions">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Performance Metrics -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h5><i class="fas fa-chart-line"></i> Performance Metrics</h5>
+                                <div id="performanceMetrics">
+                                    <!-- Populated by JS -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Set default date to today
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    $('#analysisDate').val(dateStr);
+    
+    // Run analysis on button click
+    $('#runAnalysis').on('click', function() {
+        runCyclicalAnalysis();
+    });
+    
+    // Run initial analysis
+    runCyclicalAnalysis();
+});
+
+function runCyclicalAnalysis() {
+    const analysisDate = $('#analysisDate').val();
+    
+    if (!analysisDate) {
+        alert('Vui lòng chọn ngày phân tích');
+        return;
+    }
+    
+    // Show loading state
+    showLoadingState();
+    
+    // Call API
+    $.ajax({
+        url: '{% url "api_cyclical_prediction_v3" %}',
+        method: 'GET',
+        data: {
+            analysis_date: analysisDate,
+            limit: 15,
+            threshold: 60
+        },
+        timeout: 30000,  // 30 second timeout
+        success: function(response) {
+            hideLoadingState();
+            
+            if (response.success) {
+                displayResults(response);
+            } else {
+                showError(response.message || 'Phân tích thất bại');
+            }
+        },
+        error: function(xhr, status, error) {
+            hideLoadingState();
+            
+            let errorMsg = 'Lỗi kết nối API';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMsg = xhr.responseJSON.message;
+            } else if (status === 'timeout') {
+                errorMsg = 'Timeout - Quá trình phân tích mất quá nhiều thời gian';
+            }
+            
+            showError(errorMsg);
+        }
+    });
+}
+
+function showLoadingState() {
+    $('#loadingState').show();
+    $('#errorState').hide();
+    $('#resultsContainer').hide();
+    $('#runAnalysis').prop('disabled', true);
+}
+
+function hideLoadingState() {
+    $('#loadingState').hide();
+    $('#runAnalysis').prop('disabled', false);
+}
+
+function showError(message) {
+    $('#errorMessage').text(message);
+    $('#errorState').show();
+    $('#resultsContainer').hide();
+}
+
+function displayResults(data) {
+    $('#errorState').hide();
+    $('#resultsContainer').show();
+    
+    // Display context analysis
+    displayContextAnalysis(data.cyclical_analysis.context_analysis);
+    
+    // Display sync matrix
+    displaySyncMatrix(data.cyclical_analysis.method_sync_matrix);
+    
+    // Display optimal methods
+    displayOptimalMethods(data.optimal_methods);
+    
+    // Display number predictions
+    displayNumberPredictions(data.intelligent_predictions);
+    
+    // Display performance metrics
+    displayPerformanceMetrics(data.performance_metrics);
+}
+
+function displayContextAnalysis(contextData) {
+    let html = `
+        <table class="table table-sm table-bordered">
+            <tr>
+                <th>Analysis Date</th>
+                <td>${contextData.analysis_date}</td>
+                <th>Month Phase</th>
+                <td><span class="badge bg-primary">${contextData.day_of_month_phase}</span></td>
+            </tr>
+            <tr>
+                <th>Week Phase</th>
+                <td><span class="badge bg-secondary">${contextData.week_phase}</span></td>
+                <th>Month Trend</th>
+                <td><span class="badge bg-info">${contextData.month_trend}</span></td>
+            </tr>
+            <tr>
+                <th>Cycle Strength</th>
+                <td><span class="badge bg-success">${(contextData.cycle_strength * 100).toFixed(1)}%</span></td>
+                <th>Fatigued Methods</th>
+                <td>${contextData.fatigued_methods.length}</td>
+            </tr>
+        </table>
+    `;
+    
+    $('#contextAnalysis').html(html);
+}
+
+function displaySyncMatrix(syncData) {
+    if (syncData.error) {
+        $('#syncMatrix').html(`<div class="alert alert-warning">Sync Matrix Error: ${syncData.error}</div>`);
+        return;
+    }
+    
+    let html = `
+        <div class="mb-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>${syncData.total_methods_analyzed}</h6>
+                            <small>Methods Analyzed</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>${syncData.summary_stats.avg_cyclical_fitness}%</h6>
+                            <small>Avg Cyclical Fitness</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h6>${(syncData.summary_stats.avg_fatigue_risk * 100).toFixed(1)}%</h6>
+                            <small>Avg Fatigue Risk</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <table class="table table-sm table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Method</th>
+                    <th>Category</th>
+                    <th>Cyclical Fitness</th>
+                    <th>Phase Alignment</th>
+                    <th>Fatigue Risk</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    syncData.sync_records.forEach(record => {
+        const fitnessClass = record.cyclical_fitness >= 50 ? 'text-success' : 
+                           record.cyclical_fitness >= 30 ? 'text-warning' : 'text-danger';
+        const fatigueClass = record.fatigue_risk < 0.3 ? 'text-success' : 
+                            record.fatigue_risk < 0.6 ? 'text-warning' : 'text-danger';
+        
+        html += `
+            <tr>
+                <td><strong>${record.method_name}</strong></td>
+                <td><span class="badge bg-secondary">${record.method_category}</span></td>
+                <td><span class="${fitnessClass}">${record.cyclical_fitness.toFixed(1)}%</span></td>
+                <td>${(record.phase_alignment * 100).toFixed(1)}%</td>
+                <td><span class="${fatigueClass}">${(record.fatigue_risk * 100).toFixed(1)}%</span></td>
+                <td><span class="badge bg-info">${record.trend_analysis.direction}</span></td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    $('#syncMatrix').html(html);
+}
+
+function displayOptimalMethods(optimalData) {
+    // Filtered Methods
+    let filteredHtml = `
+        <div class="mb-2">
+            <small class="text-muted">
+                ${optimalData.filtered_count} / ${optimalData.total_candidates} methods selected
+            </small>
+        </div>
+        <table class="table table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Method</th>
+                    <th>Cyclical Score</th>
+                    <th>Fitness</th>
+                    <th>Trend</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    optimalData.cyclical_filtered.forEach(method => {
+        const scoreClass = method.cyclical_score >= 70 ? 'text-success' : 
+                          method.cyclical_score >= 50 ? 'text-warning' : 'text-danger';
+        
+        filteredHtml += `
+            <tr>
+                <td><strong>${method.method_name}</strong></td>
+                <td><span class="${scoreClass}">${method.cyclical_score}</span></td>
+                <td>${method.cyclical_fitness.toFixed(1)}%</td>
+                <td><span class="badge bg-info">${method.trend_direction}</span></td>
+            </tr>
+        `;
+    });
+    
+    filteredHtml += `
+            </tbody>
+        </table>
+    `;
+    
+    $('#filteredMethods').html(filteredHtml);
+    
+    // Top Sync Methods
+    let topSyncHtml = `
+        <table class="table table-sm">
+            <thead class="table-light">
+                <tr>
+                    <th>Method</th>
+                    <th>Phase Alignment</th>
+                    <th>Fitness</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    optimalData.top_sync_methods.slice(0, 5).forEach(method => {
+        topSyncHtml += `
+            <tr>
+                <td><strong>${method.method_name}</strong></td>
+                <td>${(method.phase_alignment * 100).toFixed(1)}%</td>
+                <td>${method.cyclical_fitness.toFixed(1)}%</td>
+            </tr>
+        `;
+    });
+    
+    topSyncHtml += `
+            </tbody>
+        </table>
+    `;
+    
+    $('#topSyncMethods').html(topSyncHtml);
+}
+
+function displayNumberPredictions(predictions) {
+    let html = `
+        <div class="row">
+            <div class="col-md-4">
+                <h6>Cyclical Numbers</h6>
+                <div class="d-flex flex-wrap gap-1">
+    `;
+    
+    predictions.cyclical_numbers.forEach(num => {
+        html += `<span class="badge bg-primary">${num}</span>`;
+    });
+    
+    html += `
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Method Numbers</h6>
+                <div class="d-flex flex-wrap gap-1">
+    `;
+    
+    predictions.method_numbers.forEach(num => {
+        html += `<span class="badge bg-secondary">${num}</span>`;
+    });
+    
+    html += `
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Fusion Numbers (Final)</h6>
+                <div class="d-flex flex-wrap gap-1">
+    `;
+    
+    predictions.fusion_numbers.forEach(num => {
+        html += `<span class="badge bg-success">${num}</span>`;
+    });
+    
+    html += `
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <small class="text-muted">
+                Fusion Strategy: Method Weight ${(predictions.fusion_strategy.method_weight * 100)}%, 
+                Cyclical Weight ${(predictions.fusion_strategy.cyclical_weight * 100)}%
+            </small>
+        </div>
+    `;
+    
+    $('#numberPredictions').html(html);
+}
+
+function displayPerformanceMetrics(metrics) {
+    const confidenceClass = metrics.confidence_level === 'High' ? 'text-success' : 
+                           metrics.confidence_level === 'Medium' ? 'text-warning' : 'text-danger';
+    
+    let html = `
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>${metrics.expected_accuracy}%</h4>
+                        <small>Expected Accuracy</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>${metrics.confidence_level}</h4>
+                        <small>Confidence Level</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>${(metrics.cyclical_strength * 100).toFixed(1)}%</h4>
+                        <small>Cyclical Strength</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>${metrics.risk_assessment.fatigue_risk}</h4>
+                        <small>Fatigue Risk</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <h6>Performance Breakdown</h6>
+            <table class="table table-sm">
+                <tr>
+                    <th>Base Accuracy</th>
+                    <td>${metrics.performance_breakdown.base_accuracy}%</td>
+                </tr>
+                <tr>
+                    <th>Method Bonus</th>
+                    <td>+${metrics.performance_breakdown.method_bonus}%</td>
+                </tr>
+                <tr>
+                    <th>Fusion Bonus</th>
+                    <td>+${metrics.performance_breakdown.fusion_bonus}%</td>
+                </tr>
+            </table>
+        </div>
+    `;
+    
+    $('#performanceMetrics').html(html);
+}
+</script>
+{% endblock %}

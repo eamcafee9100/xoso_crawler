@@ -1,0 +1,123 @@
+<!-- templates/results/number_frequency_stats_form.html -->
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block title %}
+{% if object %}Cập nhật dữ liệu tần suất số{% else %}Tạo mới dữ liệu tần suất số{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">
+                {% if object %}Cập nhật dữ liệu tần suất số{% else %}Tạo mới dữ liệu tần suất số{% endif %}
+            </h3>
+            <div>
+                <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left"></i> Quay lại
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Thông tin cơ bản</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="{{ form.number.id_for_label }}" class="form-label">Số (2 chữ số)</label>
+                                <input type="text" 
+                                       class="form-control {% if form.number.errors %}is-invalid{% endif %}"
+                                       id="{{ form.number.id_for_label }}"
+                                       name="{{ form.number.name }}"
+                                       value="{{ form.number.value|default:'' }}"
+                                       maxlength="2"
+                                       required>
+                                {% if form.number.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.number.errors }}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Nhập số 2 chữ số (00-99). Ví dụ: 27
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.date.id_for_label }}" class="form-label">Ngày xuất hiện</label>
+                                <input type="date" 
+                                       class="form-control {% if form.date.errors %}is-invalid{% endif %}"
+                                       id="{{ form.date.id_for_label }}"
+                                       name="{{ form.date.name }}"
+                                       value="{{ form.date.value|date:'Y-m-d'|default:'' }}"
+                                       required>
+                                {% if form.date.errors %}
+                                <div class="invalid-feedback">
+                                    {{ form.date.errors }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Thông tin giải</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input"
+                                       id="{{ form.appeared_in_special.id_for_label }}"
+                                       name="{{ form.appeared_in_special.name }}"
+                                       {% if form.appeared_in_special.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.appeared_in_special.id_for_label }}">
+                                    Xuất hiện trong giải đặc biệt
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input"
+                                       id="{{ form.appeared_in_first.id_for_label }}"
+                                       name="{{ form.appeared_in_first.name }}"
+                                       {% if form.appeared_in_first.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.appeared_in_first.id_for_label }}">
+                                    Xuất hiện trong giải nhất
+                                </label>
+                            </div>
+                            
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" 
+                                       class="form-check-input"
+                                       id="{{ form.appeared_in_other.id_for_label }}"
+                                       name="{{ form.appeared_in_other.name }}"
+                                       {% if form.appeared_in_other.value %}checked{% endif %}>
+                                <label class="form-check-label" for="{{ form.appeared_in_other.id_for_label }}">
+                                    Xuất hiện trong các giải khác
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> 
+                        {% if object %}Cập nhật{% else %}Lưu{% endif %}
+                    </button>
+                    <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

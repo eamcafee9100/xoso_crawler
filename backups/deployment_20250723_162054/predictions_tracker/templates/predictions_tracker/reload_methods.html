@@ -1,0 +1,21 @@
+{% extends "predictions_tracker/base.html" %}
+{% block page_header %}Reload Prediction Methods{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <button class="btn btn-primary" type="submit">
+                <i class="bi bi-arrow-repeat"></i> Quét & Tính toán lại các phương pháp
+            </button>
+        </form>
+        <hr>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <p>Chức năng này sẽ quét lại toàn bộ các phương pháp trong <code>methods_btl</code> và thực hiện tính toán trên dữ liệu 30 ngày gần nhất.</p>
+    </div>
+</div>
+{% endblock %}

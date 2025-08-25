@@ -1,0 +1,243 @@
+{% extends "results/base.html" %}
+{% load humanize %}
+
+{% block title %}Model Performance - {{ model.get_model_type_display }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title">Model Performance</h3>
+                        <p class="text-muted mb-0">{{ model.get_model_type_display }} - {{ model.created_at|date:"d/m/Y H:i" }}</p>
+                    </div>
+                    <div>
+                        <a href="{% url 'model_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Models
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Model Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h5>Model Type</h5>
+                                    <p class="mb-0">{{ model.get_model_type_display }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h5>Training Accuracy</h5>
+                                    <p class="mb-0">
+                                        {% if model.accuracy %}
+                                            {{ model.accuracy|floatformat:2 }}%
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h5>Current Accuracy</h5>
+                                    <p class="mb-0">{{ current_accuracy|floatformat:2 }}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h5>Status</h5>
+                                    <p class="mb-0">
+                                        {% if model.is_active %}
+                                            <i class="fas fa-check-circle"></i> Active
+                                        {% else %}
+                                            <i class="fas fa-pause-circle"></i> Inactive
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Model Details</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Model ID:</strong></td>
+                                            <td>{{ model.id }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>File Path:</strong></td>
+                                            <td><small>{{ model.file_path }}</small></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Training Data Size:</strong></td>
+                                            <td>
+                                                {% if model.training_data_size %}
+                                                    {{ model.training_data_size|intcomma }} records
+                                                {% else %}
+                                                    N/A
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Created:</strong></td>
+                                            <td>{{ model.created_at|date:"d/m/Y H:i:s" }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Last Updated:</strong></td>
+                                            <td>{{ model.updated_at|date:"d/m/Y H:i:s" }}</td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Prediction Statistics</h5>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <tr>
+                                            <td><strong>Total Predictions:</strong></td>
+                                            <td>{{ total_predictions }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Correct Predictions:</strong></td>
+                                            <td>{{ correct_predictions }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Wrong Predictions:</strong></td>
+                                            <td>{{ total_predictions|add:0|add:correct_predictions|add:"-"|add:correct_predictions|default:0 }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Accuracy Rate:</strong></td>
+                                            <td>
+                                                <div class="progress">
+                                                    <div class="progress-bar bg-success" role="progressbar" 
+                                                         style="width: {{ current_accuracy }}%">
+                                                        {{ current_accuracy|floatformat:1 }}%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Model Metadata -->
+                    {% if model.metadata %}
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Model Metadata</h5>
+                                </div>
+                                <div class="card-body">
+                                    <pre class="bg-light p-3">{{ model.metadata|pprint }}</pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Recent Predictions -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Recent Predictions (Last 100)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Current State</th>
+                                                    <th>Predicted</th>
+                                                    <th>Actual</th>
+                                                    <th>Confidence</th>
+                                                    <th>Result</th>
+                                                    <th>Created</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for prediction in recent_predictions %}
+                                                <tr>
+                                                    <td>{{ prediction.prediction_date|date:"d/m/Y" }}</td>
+                                                    <td>
+                                                        <span class="badge bg-secondary">{{ prediction.current_state }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ prediction.predicted_state }}</span>
+                                                    </td>
+                                                    <td>
+                                                        {% if prediction.actual_state %}
+                                                            <span class="badge bg-info">{{ prediction.actual_state }}</span>
+                                                        {% else %}
+                                                            <span class="text-muted">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if prediction.confidence %}
+                                                            {{ prediction.confidence|floatformat:3 }}
+                                                        {% else %}
+                                                            <span class="text-muted">-</span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if prediction.is_correct is None %}
+                                                            <span class="badge bg-warning">Pending</span>
+                                                        {% elif prediction.is_correct %}
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-check"></i> Correct
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-danger">
+                                                                <i class="fas fa-times"></i> Wrong
+                                                            </span>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>{{ prediction.created_at|date:"d/m H:i" }}</td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-muted">
+                                                        No predictions yet
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

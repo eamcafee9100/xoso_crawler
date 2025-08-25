@@ -1,0 +1,725 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+{% block title %}Improved Combined Analysis - Xổ Số{% endblock %}
+
+{% block extra_css %}
+<style>
+.prediction-number {
+    display: inline-block;
+    width: 45px;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    margin: 2px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.confidence-high { background-color: #28a745; color: white; }
+.confidence-medium { background-color: #ffc107; color: black; }
+.confidence-low { background-color: #6c757d; color: white; }
+
+/* Highlight matched predictions */
+.prediction-matched {
+    background-color: #dc3545 !important;
+    color: white !important;
+    border: 3px solid #721c24;
+    box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+    animation: glow 2s infinite;
+    transform: scale(1.1);
+}
+
+@keyframes glow {
+    0% { 
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+        border-color: #721c24;
+    }
+    50% { 
+        box-shadow: 0 0 25px rgba(220, 53, 69, 1), 0 0 35px rgba(255, 193, 7, 0.6);
+        border-color: #ffc107;
+    }
+    100% { 
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.8);
+        border-color: #721c24;
+    }
+}
+
+.actual-number {
+    display: inline-block;
+    width: 35px;
+    height: 35px;
+    line-height: 35px;
+    text-align: center;
+    margin: 2px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+}
+
+.actual-results-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.processing-stage {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.stage-pending { background-color: #f8f9fa; color: #6c757d; }
+.stage-in_progress { background-color: #fff3cd; color: #856404; }
+.stage-complete { background-color: #d4edda; color: #155724; }
+.stage-error { background-color: #f8d7da; color: #721c24; }
+.stage-skipped { background-color: #e2e3e5; color: #383d41; }
+
+.debug-info {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+    font-family: monospace;
+    font-size: 12px;
+}
+
+.method-predictions {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}
+
+.method-header {
+    background-color: #f8f9fa;
+    padding: 5px 10px;
+    margin: -10px -10px 10px -10px;
+    border-radius: 5px 5px 0 0;
+    font-weight: bold;
+}
+
+.prediction-mini {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    margin: 1px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    background-color: #6c757d;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.prediction-mini.matched {
+    background-color: #dc3545 !important;
+    border: 2px solid #721c24;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+    animation: pulse 1.5s infinite;
+    transform: scale(1.15);
+}
+
+@keyframes pulse {
+    0% { 
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(220, 53, 69, 1), 0 0 30px rgba(255, 193, 7, 0.4);
+    }
+    100% { 
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.8);
+    }
+}
+
+.summary-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.confidence-bar {
+    height: 4px;
+    background-color: #e9ecef;
+    border-radius: 2px;
+    margin-top: 5px;
+}
+
+.confidence-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+.accuracy-stats {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.match-highlight {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+}
+
+.hit-rate-indicator {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    margin-left: 5px;
+}
+
+.hit-rate-excellent { background-color: #28a745; color: white; }
+.hit-rate-good { background-color: #ffc107; color: black; }
+.hit-rate-poor { background-color: #dc3545; color: white; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-brain"></i> Improved Combined Analysis
+                        {% if target_date %}
+                            - Dự đoán cho {{ target_date|date:"d/m/Y" }}
+                        {% endif %}
+                    </h3>
+                    <div class="card-tools">
+                        {% if processing_time %}
+                            <span class="badge badge-info">{{ processing_time|floatformat:2 }}s</span>
+                        {% endif %}
+                        {% if from_cache %}
+                            <span class="badge badge-success">From Cache</span>
+                        {% endif %}
+                        {% if timestamp %}
+                            <small class="text-muted">{{ timestamp|date:"H:i:s d/m/Y" }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Actual Results Section (Always show if available) -->
+                    {% if actual_result %}
+                    <div class="actual-results-section">
+                        <h5><i class="fas fa-check-circle"></i> Kết quả thực tế ngày {{ target_date|date:"d/m/Y" }}</h5>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <p><strong>Giải đặc biệt:</strong> {{ actual_result.giai_db }}</p>
+                                {% if actual_result.all_prizes %}
+                                <div class="row">
+                                    {% for prize_name, prize_value in actual_result.all_prizes.items %}
+                                    {% if prize_value %}
+                                    <div class="col-md-6 mb-1">
+                                        <small><strong>{{ prize_name|upper }}:</strong> {{ prize_value }}</small>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <div class="accuracy-stats">
+                                    <h6><i class="fas fa-bullseye"></i> Thống kê trúng</h6>
+                                    {% if prediction_accuracy %}
+                                    <div>
+                                        <strong>Độ chính xác:</strong> 
+                                        <span class="badge badge-light">{{ prediction_accuracy.accuracy }}%</span>
+                                    </div>
+                                    <div>
+                                        <strong>Số trúng:</strong> 
+                                        <span class="badge badge-light">{{ prediction_accuracy.hit_count }}/{{ prediction_accuracy.total_actual }}</span>
+                                    </div>
+                                    <div>
+                                        <strong>Tỷ lệ:</strong> 
+                                        <span class="badge badge-light">{{ prediction_accuracy.hit_rate }}%</span>
+                                    </div>
+                                    {% else %}
+                                    <small>Đang tính toán...</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Summary Stats -->
+                    {% if not error %}
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-1">{{ ml_predictions_count|default:0 }}</h3>
+                                    <small>Dự đoán ML</small>
+                                    {% if actual_result and ml_predictions %}
+                                        {% with ml_hits=0 %}
+                                            {% for pred in ml_predictions %}
+                                                {% comment %}Count ML hits{% endcomment %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-1">{{ traditional_methods_count|default:0 }}</h3>
+                                    <small>Phương pháp truyền thống</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-1">{{ combined_predictions|length|default:0 }}</h3>
+                                    <small>Dự đoán tổng hợp</small>
+                                    {% if prediction_accuracy %}
+                                        <div class="hit-rate-indicator 
+                                            {% if prediction_accuracy.hit_rate > 15 %}hit-rate-excellent
+                                            {% elif prediction_accuracy.hit_rate > 5 %}hit-rate-good
+                                            {% else %}hit-rate-poor{% endif %}">
+                                            {{ prediction_accuracy.hit_rate }}% trúng
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <h3 class="mb-1">{{ working_models|default:0 }}</h3>
+                                    <small>Models hoạt động</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Date Selection -->
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <form method="get" class="row align-items-end">
+                                <div class="col-md-3">
+                                    <label for="selected_date" class="form-label">Chọn ngày phân tích:</label>
+                                    <input type="date" 
+                                        id="selected_date" 
+                                        name="selected_date" 
+                                        class="form-control"
+                                        value="{{ selected_date|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-search"></i> Phân tích
+                                    </button>
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" name="force_refresh" value="true" class="btn btn-warning w-100">
+                                        <i class="fas fa-sync-alt"></i> Làm mới
+                                    </button>
+                                </div>
+                                <div class="col-md-5">
+                                    <small class="text-muted">
+                                        Dự đoán cho ngày: <strong>{{ target_date|date:'d/m/Y' }}</strong>
+                                        {% if from_cache %}
+                                            <span class="badge badge-info">Từ cache</span>
+                                        {% else %}
+                                            <span class="badge badge-success">Mới tạo</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Debug Information -->
+                    {% if request.GET.debug == '1' %}
+                    <div class="debug-info">
+                        <h6>DEBUG INFORMATION:</h6>
+                        <p><strong>Selected Date:</strong> {{ selected_date }}</p>
+                        <p><strong>Target Date:</strong> {{ target_date }}</p>
+                        <p><strong>From Cache:</strong> {{ from_cache|default:"False" }}</p>
+                        <p><strong>Error:</strong> {{ error|default:"None" }}</p>
+                        <p><strong>Analysis Complete:</strong> {{ analysis_complete|default:"False" }}</p>
+                        <p><strong>Show Predictions:</strong> {{ show_predictions|default:"False" }}</p>
+                        <p><strong>Has Actual Result:</strong> {{ actual_result|yesno:"Yes,No" }}</p>
+                        
+                        {% if analysis_results %}
+                            <p><strong>Analysis Results Keys:</strong> {{ analysis_results.keys|join:", " }}</p>
+                        {% endif %}
+                        
+                        {% if data_quality %}
+                            <p><strong>Data Quality:</strong></p>
+                            <ul>
+                                <li>Historical Days: {{ data_quality.historical_days }}</li>
+                                <li>ML Predictions Count: {{ data_quality.ml_predictions_count }}</li>
+                                <li>Traditional Methods: {{ data_quality.traditional_methods }}</li>
+                                <li>Working Models: {{ data_quality.working_models }}</li>
+                            </ul>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Error Display -->
+                    {% if error %}
+                    <div class="alert alert-danger">
+                        <h5><i class="fas fa-exclamation-triangle"></i> Error</h5>
+                        <p>{{ error_message }}</p>
+                    </div>
+
+                    <!-- Main Analysis Results -->
+                    {% elif analysis_complete and show_predictions %}
+                        
+                        <!-- Combined Predictions (Main Section) -->
+                        {% if combined_predictions %}
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h4 class="mb-0">
+                                            <i class="fas fa-star"></i> Dự đoán tổng hợp
+                                            {% if target_date %}
+                                                cho ngày {{ target_date|date:"d/m/Y" }}
+                                            {% endif %}
+                                            {% if actual_result %}
+                                                <span class="badge badge-light ml-2">
+                                                    <i class="fas fa-eye"></i> So sánh với kết quả thực tế
+                                                </span>
+                                            {% endif %}
+                                        </h4>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if actual_result %}
+                                        <div class="match-highlight mb-3">
+                                            <i class="fas fa-info-circle"></i> 
+                                            <strong>Chú thích:</strong> Các số <span style="color: #dc3545; font-weight: bold;">màu đỏ nhấp nháy</span> là những số dự đoán trúng với kết quả thực tế!
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <strong>Kết quả thực tế:</strong>
+                                            {% for num in actual_result.all_2digit_numbers %}
+                                                <span class="actual-number">{{ num }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        <div class="row">
+                                            {% for prediction in combined_predictions %}
+                                                <div class="col-md-2 col-sm-3 col-4 mb-3">
+                                                    <div class="text-center">
+                                                        <div class="prediction-number 
+                                                            {% if prediction.confidence > 0.7 %}confidence-high
+                                                            {% elif prediction.confidence > 0.4 %}confidence-medium
+                                                            {% else %}confidence-low{% endif %}
+                                                            {% if actual_result %}
+                                                                {% comment %}Check if prediction matches actual result{% endcomment %}
+                                                                {% if prediction.number in actual_result.all_2digit_numbers %}prediction-matched{% endif %}
+                                                            {% endif %}"
+                                                            data-toggle="tooltip" 
+                                                            title="{% if actual_result and prediction.number in actual_result.giai_db %}TRÚNG GIẢI ĐẶC BIỆT!{% elif actual_result %}Rank: {{ prediction.rank }} | Confidence: {{ prediction.confidence|floatformat:2 }}{% else %}Rank: {{ prediction.rank }} | Confidence: {{ prediction.confidence|floatformat:2 }}{% endif %}">
+                                                            {{ prediction.number }}
+                                                        </div>
+                                                        <small class="d-block mt-1">
+                                                            Rank: {{ prediction.rank }}
+                                                            <br>{{ prediction.confidence|floatformat:2 }}
+                                                            {% if prediction.sources %}
+                                                                <br><span class="text-muted">{{ prediction.sources|length }} nguồn</span>
+                                                            {% endif %}
+                                                            {% comment %}Show which prize it matches{% endcomment %}
+                                                            {% if actual_result %}
+                                                                {% if prediction.number in actual_result.giai_db %}
+                                                                    <br><span class="badge badge-danger">ĐẶC BIỆT!</span>
+                                                                {% elif prediction.number in actual_result.all_prizes.giai_1 %}
+                                                                    <br><span class="badge badge-warning">GIẢI 1</span>
+                                                                {% elif prediction.number in actual_result.all_prizes.giai_2 %}
+                                                                    <br><span class="badge badge-info">GIẢI 2</span>
+                                                                {% elif prediction.number in actual_result.all_prizes.giai_3 %}
+                                                                    <br><span class="badge badge-secondary">GIẢI 3</span>
+                                                                {% endif %}
+                                                            {% endif %}
+                                                        </small>
+                                                        
+                                                        <!-- Confidence bar -->
+                                                        <div class="confidence-bar mt-1">
+                                                            <div class="confidence-fill 
+                                                                {% if prediction.confidence > 0.7 %}bg-success
+                                                                {% elif prediction.confidence > 0.4 %}bg-warning
+                                                                {% else %}bg-secondary{% endif %}"
+                                                                style="width: {{ prediction.confidence|floatformat:0 }}%">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <!-- Prediction Summary -->
+                                        {% if prediction_summary %}
+                                        <div class="mt-4 p-3 bg-light rounded">
+                                            <h6>Thông tin dự đoán:</h6>
+                                            <div class="row">
+                                                <div class="col-md-3">
+                                                    <strong>Tổng số dự đoán:</strong> {{ prediction_summary.total_numbers }}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong>ML Contribution:</strong> {{ prediction_summary.ml_contribution|floatformat:1 }}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong>Traditional Contribution:</strong> {{ prediction_summary.traditional_contribution|floatformat:1 }}
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <strong>Top Confidence:</strong> {{ prediction_summary.top_confidence|floatformat:2 }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- ML Predictions Section -->
+                        {% if ml_predictions %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-robot text-primary"></i> Dự đoán Machine Learning</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            {% for prediction in ml_predictions %}
+                                                <div class="col-md-2 col-sm-3 col-4 mb-2">
+                                                    <div class="text-center">
+                                                        <div class="prediction-mini bg-primary text-white
+                                                            {% if actual_result %}
+                                                                {% if prediction.number in actual_result.all_2digit_numbers %}matched{% endif %}
+                                                            {% endif %}"
+                                                            data-toggle="tooltip" 
+                                                            title="{% if actual_result and prediction.number in actual_result.giai_db %}TRÚNG!{% endif %} ML: {{ prediction.confidence|floatformat:2 }}">
+                                                            {{ prediction.number }}
+                                                        </div>
+                                                        <small class="text-muted d-block">
+                                                            {{ prediction.confidence|floatformat:2 }}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Traditional Predictions Section -->
+                        {% if traditional_predictions.predictions %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-history text-success"></i> Dự đoán Phương Pháp Truyền Thống</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% for method, predictions in traditional_predictions.predictions.items %}
+                                        {% if predictions %}
+                                        <div class="method-predictions">
+                                            <div class="method-header">
+                                                <i class="fas fa-chart-line"></i>
+                                                {{ method|capfirst|replace:'_"," ' }}
+                                                <span class="badge badge-secondary ml-2">{{ predictions|length }} số</span>
+                                                {% comment %}Count hits for this method{% endcomment %}
+                                                {% if actual_result %}
+                                                    {% with method_hits=0 %}
+                                                        {% for pred in predictions %}
+                                                            {% comment %}Count method hits{% endcomment %}
+                                                        {% endfor %}
+                                                        {% comment %}<span class="badge badge-success ml-1">{{ method_hits }} trúng</span>{% endcomment %}
+                                                    {% endwith %}
+                                                {% endif %}
+                                            </div>
+                                            <div class="predictions-grid">
+                                                {% for pred in predictions %}
+                                                    <span class="prediction-mini bg-success text-white
+                                                        {% if actual_result %}
+                                                            {% with pred_number=pred.number|default:pred %}
+                                                                {% if pred_number in actual_result.all_2digit_numbers %}matched{% endif %}
+                                                            {% endwith %}
+                                                        {% endif %}"
+                                                          data-toggle="tooltip" 
+                                                          title="{% if pred.confidence %}{{ method }}: {{ pred.confidence|floatformat:2 }}{% else %}{{ method }}{% endif %}{% if actual_result %} | {% if pred.number|default:pred in actual_result.giai_db %}TRÚNG!{% endif %}{% endif %}">
+                                                        {% if pred.number %}{{ pred.number }}{% else %}{{ pred }}{% endif %}
+                                                    </span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        {% endif %}
+
+                        <!-- SHAP Analysis Section -->
+                        {% if shap_analysis and not shap_analysis.error %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-chart-bar text-info"></i> Phân Tích SHAP</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        {% if shap_analysis.message %}
+                                            <p class="text-muted">{{ shap_analysis.message }}</p>
+                                        {% else %}
+                                            <p class="text-success">SHAP analysis completed successfully</p>
+                                        {% endif %}
+                                        <!-- Add SHAP visualization here if available -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Model Status Section -->
+                        {% if model_status %}
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-cogs text-secondary"></i> Trạng Thái Models</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <strong>Tổng Models:</strong> {{ model_status.total_models|default:0 }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <strong>Models Hoạt Động:</strong> {{ model_status.working_models|default:0 }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                <strong>Tỷ Lệ Hoạt Động:</strong> 
+                                                {% if model_status.total_models > 0 %}
+                                                    {{ model_status.working_models|mul:100|div:model_status.total_models|floatformat:1 }}%
+                                                {% else %}
+                                                    0%
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        {% if model_status.message %}
+                                            <p class="text-muted mt-2">{{ model_status.message }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Performance Metrics -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5><i class="fas fa-tachometer-alt text-secondary"></i> Thông Tin Hiệu Suất</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <strong>Thời gian xử lý:</strong> {{ processing_time|floatformat:2 }} giây
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Dữ liệu lịch sử:</strong> {{ historical_days }} ngày
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Nguồn cache:</strong> 
+                                                {% if from_cache %}
+                                                    <span class="badge badge-success">Cache</span>
+                                                {% else %}
+                                                    <span class="badge badge-info">Fresh</span>
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-md-3">
+                                                <strong>Thời gian:</strong> {{ timestamp|date:"H:i:s d/m" }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+                        <!-- No Analysis State -->
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> Chưa có dữ liệu phân tích</h5>
+                            <p>Vui lòng chọn ngày và nhấn "Phân tích" để bắt đầu.</p>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Initialize tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    console.log('Improved Combined Analysis Template Loaded');
+    
+    // Highlight matched predictions with enhanced animations
+    $('.prediction-matched, .prediction-mini.matched').each(function() {
+        $(this).addClass('animate__animated animate__heartBeat animate__infinite');
+    });
+    
+    // Debug information
+    {% if request.GET.debug == '1' %}
+        console.log('Debug mode enabled');
+        console.log('Analysis complete:', {{ analysis_complete|yesno:"true,false" }});
+        console.log('Show predictions:', {{ show_predictions|yesno:"true,false" }});
+        console.log('From cache:', {{ from_cache|yesno:"true,false" }});
+        console.log('Has actual result:', {{ actual_result|yesno:"true,false" }});
+        
+        {% if actual_result %}
+            console.log('Actual result:', {
+                'giai_db': '{{ actual_result.giai_db }}',
+                'date': '{{ actual_result.date }}'
+            });
+        {% endif %}
+    {% endif %}
+    
+    // Count and log prediction accuracy
+    {% if actual_result and combined_predictions %}
+        let totalPredictions = {{ combined_predictions|length }};
+        let matchedPredictions = $('.prediction-matched').length;
+        console.log(`Prediction accuracy: ${matchedPredictions}/${totalPredictions} (${(matchedPredictions/totalPredictions*100).toFixed(1)}%)`);
+    {% endif %}
+});
+</script>
+{% endblock %}

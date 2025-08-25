@@ -1,0 +1,257 @@
+{% extends "results/base.html" %}
+{% load humanize %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Prediction Models - Xổ Số{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="card-title">Prediction Models</h3>
+                    <div>
+                        <a href="{% url 'state_analysis_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-chart-line"></i> Xem State Analysis
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Model Statistics -->
+                    <div class="row mb-4">
+                        {% for stat in model_stats %}
+                        <div class="col-md-4">
+                            <div class="card 
+                                {% if stat.model_type == 'markov' %}bg-primary{% elif stat.model_type == 'hmm' %}bg-success{% else %}bg-info{% endif %} 
+                                text-white">
+                                <div class="card-body text-center">
+                                    <h5>{{ stat.model_type|upper }}</h5>
+                                    <p class="mb-1">{{ stat.count }} models</p>
+                                    <p class="mb-0">
+                                        Avg Accuracy: 
+                                        {% if stat.avg_accuracy %}
+                                            {{ stat.avg_accuracy|floatformat:2 }}%
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Model Prediction Interface -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Dự đoán State</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="prediction-form">
+                                        <div class="row">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Model Type</label>
+                                                <select name="model_type" class="form-select" required>
+                                                    <option value="markov">Markov Chain</option>
+                                                    <option value="hmm">Hidden Markov Model</option>
+                                                    <option value="lstm">LSTM Neural Network</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Current State</label>
+                                                <input type="text" name="current_state" class="form-control" 
+                                                       placeholder="VD: 01, 23, 45..." required>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">Sequence Length (LSTM)</label>
+                                                <input type="number" name="sequence_length" class="form-control" 
+                                                       value="10" min="5" max="50">
+                                            </div>
+                                            <div class="col-md-3 d-flex align-items-end">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-magic"></i> Dự đoán
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                    
+                                    <!-- Prediction Result -->
+                                    <div id="prediction-result" class="mt-3" style="display: none;">
+                                        <div class="alert alert-success">
+                                            <h6>Kết quả dự đoán:</h6>
+                                            <p class="mb-1">
+                                                <strong>Predicted State:</strong> 
+                                                <span id="predicted-state" class="badge bg-primary fs-6"></span>
+                                            </p>
+                                            <p class="mb-1">
+                                                <strong>Confidence:</strong> 
+                                                <span id="confidence"></span>%
+                                            </p>
+                                            <p class="mb-0">
+                                                <strong>Model Accuracy:</strong> 
+                                                <span id="model-accuracy"></span>%
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Models Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Model Type</th>
+                                    <th>Accuracy</th>
+                                    <th>Training Size</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for model in models %}
+                                <tr>
+                                    <td>{{ model.id }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if model.model_type == 'markov' %}bg-primary
+                                            {% elif model.model_type == 'hmm' %}bg-success
+                                            {% else %}bg-info{% endif %}">
+                                            {{ model.get_model_type_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if model.accuracy %}
+                                            {{ model.accuracy|floatformat:2 }}%
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if model.training_data_size %}
+                                            {{ model.training_data_size|intcomma }}
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if model.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ model.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'model_performance' model.id %}" 
+                                           class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-chart-bar"></i> Performance
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">
+                                        <div class="py-4">
+                                            <i class="fas fa-robot fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted">Chưa có models nào được huấn luyện</p>
+                                            <small class="text-muted">
+                                                Chạy lệnh: <code>python manage.py train_state_models</code>
+                                            </small>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('prediction-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = {
+        model_type: formData.get('model_type'),
+        current_state: formData.get('current_state'),
+        sequence_length: parseInt(formData.get('sequence_length'))
+    };
+    
+    // Show loading
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang dự đoán...';
+    submitBtn.disabled = true;
+    
+    fetch('{% url "predict" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error: ' + data.error);
+        } else {
+            // Show result
+            document.getElementById('predicted-state').textContent = data.predicted_state;
+            document.getElementById('confidence').textContent = (data.confidence * 100).toFixed(2);
+            document.getElementById('model-accuracy').textContent = 
+                data.model_accuracy ? (data.model_accuracy * 100).toFixed(2) : 'N/A';
+            document.getElementById('prediction-result').style.display = 'block';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi dự đoán');
+    })
+    .finally(() => {
+        // Restore button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+</script>
+{% endblock %}

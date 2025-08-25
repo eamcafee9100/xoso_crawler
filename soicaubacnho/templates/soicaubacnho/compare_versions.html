@@ -1,0 +1,184 @@
+{% extends 'soicaubacnho/base.html' %}
+{% load soicaubacnho_xs_tags %}
+{% load static %}
+
+
+{% block title %}So sánh phiên bản{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">So sánh phiên bản</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Chọn ngày để so sánh</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="date" class="form-label">Ngày</label>
+                <input type="date" class="form-control" id="date" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary">Xem kết quả</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="card">
+    <div class="card-header">
+        <h5>So sánh các phiên bản</h5>
+    </div>
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label for="date" class="form-label">Ngày</label>
+                <input type="date" class="form-control" id="date" name="date" value="{{ target_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Phiên bản</label>
+                <div>
+                    {% for version_code, version_name in available_versions %}
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" name="versions" value="{{ version_code }}" 
+                               id="version_{{ version_code }}" {% if version_code in selected_versions %}checked{% endif %}>
+                        <label class="form-check-label" for="version_{{ version_code }}">{{ version_name }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="col-md-4 align-self-end">
+                <button type="submit" class="btn btn-primary">So sánh</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% if combined_predictions %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">So sánh kết quả dự đoán cho ngày {{ target_date }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Phiên bản</th>
+                        <th>Kết quả dự đoán</th>
+                        <th>Độ tin cậy</th>
+                        {% if actual_numbers %}
+                        <th>Kết quả trúng</th>
+                        <th>Tỷ lệ chính xác</th>
+                        {% endif %}
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for version_code, data in combined_predictions.items %}
+                    <tr>
+                        <td>{{ version_code }}</td>
+                        <td>
+                            {% for num in data.numbers %}
+                            {% if actual_numbers and num in actual_numbers %}
+                            <span class="badge bg-success">{{ num }}</span>
+                            {% else %}
+                            <span class="badge bg-primary">{{ num }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ data.confidence }}%</td>
+                        {% if actual_numbers %}
+                        <td>{{ data.hit_count|default:0 }} / {{ data.numbers|length }}</td>
+                        <td>{{ data.accuracy|floatformat:1 }}%</td>
+                        {% endif %}
+                        <td>
+                            <a href="{% url 'prediction_results' data.prediction.id %}" class="btn btn-sm btn-info">Chi tiết</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        {% if actual_numbers %}
+        <div class="mt-4">
+            <h5>Kết quả thực tế:</h5>
+            <div>
+                {% for num in actual_numbers %}
+                <span class="badge bg-dark fs-5 me-1">{{ num }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info mt-3">
+            <i class="fas fa-info-circle"></i> Chưa có kết quả thực tế cho ngày này.
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="card-title">Biểu đồ so sánh</h5>
+    </div>
+    <div class="card-body">
+        <canvas id="comparisonChart"></canvas>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="fas fa-exclamation-triangle"></i> Không có dữ liệu dự đoán cho ngày này.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if combined_predictions and actual_numbers %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var ctx = document.getElementById('comparisonChart').getContext('2d');
+        
+        var versions = [];
+        var hitRates = [];
+        var confidences = [];
+        
+        {% for version_code, data in combined_predictions.items %}
+        versions.push('{{ version_code }}');
+        hitRates.push({{ data.accuracy|default:0|floatformat:1 }});
+        confidences.push({{ data.confidence|default:0 }});
+        {% endfor %}
+        
+        var chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: versions,
+                datasets: [
+                    {
+                        label: 'Tỷ lệ chính xác (%)',
+                        data: hitRates,
+                        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Độ tin cậy (%)',
+                        data: confidences,
+                        backgroundColor: 'rgba(153, 102, 255, 0.5)',
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

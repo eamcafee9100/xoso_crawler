@@ -1,0 +1,77 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Danh sách phương pháp Bạch Thủ Lô{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Phương pháp Bạch Thủ Lô</h1>
+        <div>
+            <a href="{% url 'prediction_btl' %}" class="btn btn-success">
+                <i class="bi bi-lightning"></i> Dự đoán Bạch Thủ Lô
+            </a>
+            <a href="{% url 'btl_statistics' %}" class="btn btn-info text-white">
+                <i class="bi bi-bar-chart"></i> Xem thống kê
+            </a>
+        </div>
+    </div>
+    
+    <!-- Phần còn lại giữ nguyên -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Thống kê tổng quan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for stat in statistics %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ stat.name }}</h5>
+                                    <p class="card-text">Tổng số phương pháp: {{ stat.total_methods }}</p>
+                                    <p class="card-text">Tỷ lệ thắng: {{ stat.win_rate|floatformat:2 }}%</p>
+                                    <p class="card-text">Cập nhật: {{ stat.updated_at|date:"d/m/Y H:i" }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p>Chưa có thống kê nào.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        {% for method in methods %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ method.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Mô tả:</strong> {{ method.description|truncatewords:20 }}</p>
+                    <p><strong>Loại:</strong> {{ method.method_type }}</p>
+                    <p><strong>Tạo lúc:</strong> {{ method.created_at|date:"d/m/Y" }}</p>
+                </div>
+                <div class="card-footer">
+                    <a href="{% url 'btl_method_detail' method.id %}" class="btn btn-primary">Xem chi tiết</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                Không có phương pháp nào được tìm thấy.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,1490 @@
+{% extends "predictions_tracker/base.html" %}
+{% load static %}
+{% load pre_xs_tags %}
+
+{% block title %}Báo cáo dự đoán tháng {{ month_name }} {{ year }}{% endblock %}
+
+{% block extra_css %}
+<style>
+:root {
+    --bs-body-bg: #f8f9fa;
+    --table-sticky-top: 0px;
+}
+
+body {
+    background-color: var(--bs-body-bg);
+}
+
+.content {
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.month-header {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.report-table {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 100vh;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.date-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    min-width: 50px !important;
+    max-width: 60px !important;
+    width: 55px !important;
+    padding: 0.25rem 0.125rem !important;
+    vertical-align: middle !important;
+    position: sticky;
+    top: var(--table-sticky-top);
+    background-color: #495057 !important;
+    color: #ffffff !important;
+    z-index: 10;
+    border-right: 1px solid #6c757d;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+    line-height: 1.1;
+}
+
+.date-header:hover {
+    background-color: #6c757d !important;
+}
+
+.date-header small {
+    font-size: 0.65rem;
+    opacity: 0.9;
+}
+
+.method-name {
+    min-width: 200px;
+    max-width: 200px;
+    width: 200px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 20;
+    border-right: 2px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+
+.prediction-cell {
+    text-align: center;
+    position: relative;
+    min-width: 50px;
+    max-width: 60px;
+    width: 55px;
+    padding: 0.25rem 0.125rem;
+    font-size: 0.9rem;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.hit-cell {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    font-weight: bold;
+}
+
+.miss-cell {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.no-data-cell {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+.hit-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    z-index: 5;
+}
+
+/* CSS cho multiple badges */
+.hit-badge:nth-of-type(1) { right: 2px; }
+.hit-badge:nth-of-type(2) { right: 16px; background-color: #007bff; }
+.hit-badge:nth-of-type(3) { right: 30px; background-color: #ffc107; color: #000; }
+
+.day-detail {
+    display: none;
+    margin-top: 20px;
+    border: 2px solid #007bff;
+    border-radius: 10px;
+    background-color: #f8f9fa;
+    padding: 15px;
+}
+
+.prediction-number {
+    display: inline-block;
+    padding: 2px 6px;
+    margin: 1px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.predicted { background-color: #e3f2fd; color: #1976d2; }
+.hit { background-color: #c8e6c9; color: #2e7d32; }
+.miss { background-color: #ffcdd2; color: #c62828; }
+
+.tracking-day {
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 8px;
+    margin: 2px 0;
+    background-color: #f8f9fa;
+}
+
+.session-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: white;
+}
+
+.method-row {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 10px 0;
+}
+
+.method-row:last-child {
+    border-bottom: none;
+}
+
+.hit-rate-badge {
+    font-size: 11px;
+    padding: 3px 8px;
+}
+
+.summary-card {
+    transition: transform 0.2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Trong block extra_css */
+
+/* Filter effects */
+.method-row {
+    transition: opacity 0.3s ease, transform 0.2s ease;
+}
+
+.method-row[style*="display: none"] {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+#filter-counter {
+    padding: 0.5rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
+    border-left: 4px solid #007bff;
+}
+
+.input-group .input-group-text {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.input-group:focus-within .input-group-text {
+    background-color: #cfe2ff;
+    border-color: #86b7fe;
+}
+
+.hit-badge {
+    position: absolute;
+    top: -15px;
+    font-size: 0.6rem;
+    color: white;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    z-index: 5;
+    cursor: help;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid #fff;
+    font-weight: bold;
+}
+/* ✅ Màu cố định theo ngày trúng */
+.hit-badge[data-day="1"] {
+    background-color: #28a745 !important; /* Xanh lá - Ngày 1 */
+    color: white !important;
+}
+
+.hit-badge[data-day="2"] {
+    background-color: #007bff !important; /* Xanh dương - Ngày 2 */
+    color: white !important;
+}
+
+.hit-badge[data-day="3"] {
+    background-color: #ffc107 !important; /* Vàng - Ngày 3 */
+    color: #000 !important; /* Text đen cho màu vàng */
+}
+
+/* ✅ Vị trí cố định theo thứ tự xuất hiện */
+.hit-badge:nth-of-type(1) { right: 2px; }
+.hit-badge:nth-of-type(2) { right: 16px; }
+.hit-badge:nth-of-type(3) { right: 30px; }
+.hit-badge:nth-of-type(4) { right: 44px; }
+
+/* ✅ Responsive positioning */
+@media (max-width: 768px) {
+    .hit-badge {
+        width: 10px;
+        height: 10px;
+        font-size: 0.5rem;
+        top: -12px;
+    }
+    
+    .hit-badge:nth-of-type(1) { right: 2px; }
+    .hit-badge:nth-of-type(2) { right: 12px; }
+    .hit-badge:nth-of-type(3) { right: 22px; }
+    .hit-badge:nth-of-type(4) { right: 32px; }
+}
+
+/* ✅ Hover effect */
+.hit-badge:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+/* ✅ Responsive positioning cho mobile */
+@media (max-width: 768px) {
+    .hit-badge {
+        width: 10px;
+        height: 10px;
+        font-size: 0.5rem;
+        top: -12px;
+    }
+    
+    .hit-badge[data-day="1"] { right: 2px; }
+    .hit-badge[data-day="2"] { right: 12px; }
+    .hit-badge[data-day="3"] { right: 22px; }
+}
+
+/* ✅ Hover effect */
+.hit-badge:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* Highlight filtered results */
+.filter-highlight {
+    background-color: #fff3cd !important;
+    border-left: 3px solid #ffc107 !important;
+}
+/* Performance indicators */
+.performance-excellent { background-color: #d4edda; color: #155724; }
+.performance-good { background-color: #cce7ff; color: #004085; }
+.performance-average { background-color: #fff3cd; color: #856404; }
+.performance-poor { background-color: #f8d7da; color: #721c24; }
+.performance-no-data { background-color: #e9ecef; color: #6c757d; }
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.method-totals {
+    text-align: center;
+    font-weight: 600;
+    min-width: 80px;
+    padding: 0.5rem;
+    position: sticky;
+    right: 0;
+    background-color: #ffffff;
+    border-left: 2px solid #dee2e6;
+    z-index: 8;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    .method-name {
+        min-width: 150px;
+        max-width: 150px;
+        width: 150px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .navigation-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .method-name {
+        min-width: 120px;
+        max-width: 120px;
+        width: 120px;
+        font-size: 0.75rem;
+    }
+    
+    .date-header {
+        min-width: 40px !important;
+        max-width: 50px !important;
+        width: 45px !important;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 0.25rem;
+    }
+    
+    .container-fluid {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    
+    .table-container {
+        max-height: 100vh;
+    }
+    
+    .date-header {
+        min-width: 35px !important;
+        max-width: 45px !important;
+        width: 40px !important;
+        font-size: 0.65rem;
+    }
+    
+    .method-name {
+        min-width: 100px;
+        max-width: 100px;
+        width: 100px;
+        font-size: 0.7rem;
+    }
+    
+    .month-header {
+        font-size: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block page_header %}Báo cáo dự đoán tháng {{ month_name }} {{ year }}{% endblock %}
+
+{% block page_actions %}
+<div class="navigation-buttons">
+    <a href="?year={{ navigation.prev_year }}&month={{ navigation.prev_month }}" 
+       class="btn btn-outline-secondary">
+        <i class="fas fa-chevron-left"></i> Tháng trước
+    </a>
+    <a href="?year={{ navigation.current_year }}&month={{ navigation.current_month }}" 
+       class="btn btn-primary">
+        Tháng hiện tại
+    </a>
+    <a href="?year={{ navigation.next_year }}&month={{ navigation.next_month }}" 
+       class="btn btn-outline-secondary">
+        Tháng sau <i class="fas fa-chevron-right"></i>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="content">
+    <div class="container-fluid">
+        <!-- Methods Summary -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h4>Tổng quan hiệu suất các phương pháp</h4>
+                <div class="row">
+                    {% for method_summary in methods_summary %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card summary-card performance-{{ method_summary.performance_level }}">
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-2">{{ method_summary.method.name }}</h6>
+                                <div class="row text-center">
+                                    <div class="col-6">
+                                        <div class="fw-bold">{{ method_summary.predictions_count }}</div>
+                                        <small>Dự đoán</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="fw-bold">{{ method_summary.avg_hit_rate }}%</div>
+                                        <small>Tỷ lệ trúng TB</small>
+                                    </div>
+                                </div>
+                                <div class="mt-2 text-center">
+                                    <small>TB {{ method_summary.avg_hit_count }} số/lần</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!-- Bộ lọc phương pháp -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Phân tích đầu đuôi
+                </h5>
+            </div>  
+            <div class="card-body">
+                <form id="analysisForm" onsubmit="return false;">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-date"></i>
+                                </span>
+                                <input type="date" 
+                                    class="form-control" 
+                                    id="dateAnalysis" >
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="button" class="btn btn-warning mb-2" id="analyzeStableNumbers">Phân tích đầu-đuôi ổn định</button>
+                                <div id="stableResult"></div>
+                            </div>
+                        </div>
+                    </div>
+                </form> 
+            </div>
+        </div>    
+
+
+
+        <!-- Bộ lọc phương pháp -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>Bộ lọc phương pháp
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="filterForm" onsubmit="return false;">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-search"></i>
+                                </span>
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="methodSearch" 
+                                    placeholder="Nhập tên phương pháp..."
+                                    autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-percentage"></i>
+                                </span>
+                                <input type="number" 
+                                    class="form-control" 
+                                    id="minHitRate" 
+                                    min="0" 
+                                    max="100" 
+                                    step="5" 
+                                    value="0"
+                                    placeholder="Tỷ lệ trúng tối thiểu">
+                                <span class="input-group-text">%</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-grid gap-2 d-md-flex">
+                                <button type="button" class="btn btn-primary flex-fill" id="applyFilter">
+                                    <i class="fas fa-filter me-1"></i>Áp dụng
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" id="resetFilter">
+                                    <i class="fas fa-undo me-1"></i>Reset
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <!-- Counter sẽ được thêm bởi JavaScript -->
+            </div>
+        </div>
+        <!-- Main Report Table -->
+        <div class="report-table">
+            <div class="table-container">
+                <table class="table table-bordered table-striped table-hover table-sm">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="method-name">Phương pháp</th>
+                            {% for day_data in report_data.days %}
+                            <th class="date-header" data-date="{{ day_data.date|date:'Y-m-d' }}" data-day="{{ day_data.date.day }}">
+                                {{ day_data.date.day }}<br>
+                                <small>{{ day_data.date|date:"D" }}</small>
+                            </th>
+                            {% endfor %}
+                            <th class="method-totals">Tổng kết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        {% for method_summary in methods_summary|sort_methods_numerical %}
+                        <tr class="method-row" 
+                            data-method-name="{{ method_summary.method.name }}"
+                            data-method-id="{{ method_summary.method.id }}"
+                            data-hit-rate="{{ method_summary.avg_hit_rate }}">
+                            <td class="method-name">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-2">{{ forloop.counter }}</span>
+                                    <div>
+                                        <div class="fw-bold">{{ method_summary.method.name }}</div>
+                                        <small class="
+                                            {% if method_summary.avg_hit_rate >= 20 %}text-success
+                                            {% elif method_summary.avg_hit_rate >= 10 %}text-warning
+                                            {% else %}text-danger{% endif %}
+                                            ">
+                                            {{ method_summary.evaluations_count }} đánh giá ({{ method_summary.avg_hit_rate }}%)
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>                            
+                            {% for day_data in report_data.days %}
+                            {% with method_data=day_data.methods_data|get_item:method_summary.method.id %}
+                            {% if method_data.has_data %}
+                                {% with tracking=method_data.tracking_results.0 %}
+                                {% if tracking.has_result %}
+                                    <td class="prediction-cell {% if tracking.hit_count > 0 %}hit-cell{% else %}miss-cell{% endif %}"
+                                        data-method-id="{{ method_summary.method.id }}"
+                                        data-date="{{ day_data.date|date:'Y-m-d' }}">
+                                        <div style="position: relative;">
+                                            {{ method_data.predicted_numbers.0|default:"-" }}
+                                            
+                                            <!-- ✅ HIT BADGES VỚI MÀU CỐ ĐỊNH -->
+                                            {% get_hit_badges_data method_data as hit_badges %}
+                                            {% for badge_data in hit_badges %}
+                                                <span class="hit-badge" 
+                                                    data-day="{{ badge_data.day }}"
+                                                    title="Ngày {{ badge_data.day }}: {{ badge_data.hit_numbers|join:', ' }}"
+                                                    style="background-color: {{ badge_data.bg_color }}; color: {{ badge_data.text_color }};">
+                                                    {{ badge_data.day }}
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                {% else %}
+                                    <td class="prediction-cell no-data-cell"
+                                        data-method-id="{{ method_summary.method.id }}"
+                                        data-date="{{ day_data.date|date:'Y-m-d' }}">
+                                        {{ method_data.predicted_numbers.0|default:"-" }}
+                                    </td>
+                                {% endif %}
+                                {% endwith %}
+                            {% else %}
+                                <td class="prediction-cell no-data-cell">-</td>
+                            {% endif %}
+                            {% endwith %}
+                            {% endfor %}
+                                </td>
+                            <!-- Method Totals -->
+                            <td class="method-totals">
+                                <div class="
+                                    {% if method_summary.avg_hit_rate >= 20 %}text-success
+                                    {% elif method_summary.avg_hit_rate >= 10 %}text-warning
+                                    {% else %}text-danger{% endif %}
+                                    ">
+                                    {{ method_summary.evaluations_count }}<br>
+                                    <small>{{ method_summary.avg_hit_rate }}%</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Day Detail Section (Hidden by default) -->
+        <div id="dayDetail" class="day-detail">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 id="dayDetailTitle">Chi tiết ngày</h4>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="hideDayDetail()">
+                    <i class="fas fa-times"></i> Đóng
+                </button>
+            </div>
+            <div id="dayDetailContent">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script>
+      
+document.addEventListener('DOMContentLoaded', function() {
+    // Store day data for quick access - sử dụng sessions từ view
+    const dayData = {
+        {% for day_data in report_data.days %}
+        "{{ day_data.date|date:'Y-m-d' }}": {
+            date: "{{ day_data.date|date:'d/m/Y' }}",
+            weekday: "{{ day_data.date|date:'l' }}",
+            sessions: [
+                {% for session_data in day_data.sessions %}
+                {
+                    cycle_name: "{{ session_data.session.cycle.cycle_name }}",
+                    status: "{{ session_data.session.status }}",
+                    methods: [
+                        {% for method_data in session_data.methods %}
+                        {
+                            method_id: {{ method_data.method_id }},
+                            method_name: "{{ method_data.method_name }}",
+                            category: "{{ method_data.category }}",
+                            confidence: {{ method_data.confidence }},
+                            predicted_numbers: [{% for num in method_data.predicted_numbers %}{{ num }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                            tracking_results: [
+                                {% for tracking in method_data.tracking_results %}
+                                {
+                                    day: {{ tracking.day }},
+                                    tracking_date: "{{ tracking.tracking_date|date:'d/m' }}",
+                                    has_result: {% if tracking.has_result %}true{% else %}false{% endif %},
+                                    hit_count: {{ tracking.hit_count }},
+                                    hit_rate: {{ tracking.hit_rate }},
+                                    hit_numbers: [{% for num in tracking.hit_numbers %}{{ num }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                                    actual_numbers: [{% for num in tracking.actual_numbers %}{{ num }}{% if not forloop.last %},{% endif %}{% endfor %}]
+                                }{% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                            ],
+                            total_hits: {{ method_data.total_hits }},
+                            avg_hit_rate: {{ method_data.avg_hit_rate }}
+                        }{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    // Add click event listeners to date headers
+    document.querySelectorAll('.date-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const date = this.dataset.date;
+            showDayDetail(date);
+        });
+    });
+
+    // ✅ Sửa hàm loadDayDetail để parse date đúng format
+    function loadDayDetail(date) {
+        // Parse date từ 'YYYY-MM-DD' thành year, month, day
+        const [year, month, day] = date.split('-').map(Number);
+        
+        fetch(`/api/day-detail/${year}/${month}/${day}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Render chi tiết vào modal hoặc expand row
+                    showDayDetailModal(data.data);
+                } else {
+                    console.error('API error:', data.error);
+                    alert('Không thể tải dữ liệu: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                alert('Lỗi kết nối khi tải dữ liệu');
+            });
+    }
+
+    // ✅ Thêm hàm showDayDetailModal để hiển thị kết quả API
+    function showDayDetailModal(apiData) {
+        // Tương tự như showDayDetail nhưng dùng dữ liệu từ API
+        const detailSection = document.getElementById('dayDetail');
+        const titleElement = document.getElementById('dayDetailTitle');
+        const contentElement = document.getElementById('dayDetailContent');
+
+        if (!apiData || apiData.length === 0) {
+            titleElement.textContent = `Chi tiết ngày`;
+            contentElement.innerHTML = '<div class="alert alert-info">Không có dữ liệu cho ngày này</div>';
+            detailSection.style.display = 'block';
+            return;
+        }
+
+        titleElement.textContent = `Chi tiết ngày (từ API)`;
+        
+        let html = '';
+        apiData.forEach(sessionData => {
+            html += `
+                <div class="session-card">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <strong>${sessionData.cycle_name}</strong>
+                            <span class="badge bg-info">${sessionData.session_id}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+            `;
+            
+            sessionData.methods.forEach(method => {
+                html += `
+                    <div class="method-row">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <div class="fw-bold">${method.method_name}</div>
+                                <div class="mt-1">
+                                    <span class="badge bg-info">Tin cậy: ${method.confidence.toFixed(1)}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-1"><small class="text-muted">Số dự đoán:</small></div>
+                `;
+                
+                method.predicted_numbers.forEach(number => {
+                    html += `<span class="prediction-number predicted">${number}</span>`;
+                });
+                
+                html += `
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row">
+                `;
+                
+                method.tracking_results.forEach(tracking => {
+                    html += `
+                        <div class="col-4">
+                            <div class="tracking-day">
+                                <div class="text-center mb-2">
+                                    <strong>Ngày ${tracking.day}</strong>
+                                </div>
+                                <div class="text-center mb-2">
+                                    <span class="hit-rate-badge badge bg-primary">
+                                        ${tracking.hit_count} trúng (${tracking.hit_rate.toFixed(1)}%)
+                                    </span>
+                                </div>
+                    `;
+                    
+                    if (tracking.hit_numbers && tracking.hit_numbers.length > 0) {
+                        html += '<div class="mb-1"><small class="text-success">Trúng:</small><br>';
+                        tracking.hit_numbers.forEach(number => {
+                            html += `<span class="prediction-number hit">${number}</span>`;
+                        });
+                        html += '</div>';
+                    }
+                    
+                    html += '</div></div>';
+                });
+                
+                html += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div></div>';
+        });
+        
+        contentElement.innerHTML = html;
+        detailSection.style.display = 'block';
+        detailSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ✅ Chức năng lọc phương pháp - PHIÊN BẢN ĐÃ SỬA
+    const methodSearch = document.getElementById('methodSearch');
+    const minHitRate = document.getElementById('minHitRate');
+    const applyFilter = document.getElementById('applyFilter');
+    
+    // Thêm event listener cho Enter key trong input
+    methodSearch.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilterMethods();
+        }
+    });
+    
+    minHitRate.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilterMethods();
+        }
+    });
+    
+    applyFilter.addEventListener('click', applyFilterMethods);
+    
+    function applyFilterMethods() {
+        const searchTerm = methodSearch.value.toLowerCase().trim();
+        const minRate = parseFloat(minHitRate.value) || 0;
+        
+        // Get all method rows
+        const methodRows = document.querySelectorAll('.method-row');
+        let visibleCount = 0;
+        
+        methodRows.forEach(row => {
+            try {
+                // ✅ FIX: Lấy tên method từ data attribute hoặc text content
+                let methodName = '';
+                if (row.dataset.methodName) {
+                    methodName = row.dataset.methodName.toLowerCase();
+                } else {
+                    // Fallback: lấy từ text content của .fw-bold
+                    const nameElement = row.querySelector('.method-name .fw-bold');
+                    methodName = nameElement ? nameElement.textContent.toLowerCase() : '';
+                }
+                
+                // ✅ FIX: Lấy hit rate từ data attribute hoặc DOM
+                let hitRate = 0;
+                if (row.dataset.hitRate) {
+                    hitRate = parseFloat(row.dataset.hitRate);
+                } else {
+                    // Fallback: lấy từ DOM
+                    const hitRateCell = row.querySelector('.method-totals div small');
+                    if (hitRateCell) {
+                        const hitRateText = hitRateCell.textContent;
+                        const match = hitRateText.match(/(\d+(?:\.\d+)?)%/);
+                        if (match) {
+                            hitRate = parseFloat(match[1]);
+                        }
+                    }
+                }
+                
+                // ✅ Kiểm tra điều kiện lọc
+                const nameMatch = !searchTerm || methodName.includes(searchTerm);
+                const rateMatch = hitRate >= minRate;
+                
+                // ✅ Hiển thị/ẩn row
+                if (nameMatch && rateMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+                
+            } catch (error) {
+                console.error('Lỗi khi lọc method row:', error);
+                // Hiển thị row nếu có lỗi
+                row.style.display = '';
+                visibleCount++;
+            }
+        });
+        
+        // ✅ Cập nhật counter hiển thị
+        updateFilterCounter(visibleCount, methodRows.length);
+        
+        // ✅ Cuộn lên đầu bảng sau khi filter
+        const tableContainer = document.querySelector('.table-container');
+        if (tableContainer) {
+            tableContainer.scrollTop = 0;
+        }
+    }
+    
+    // ✅ Hàm cập nhật counter
+    function updateFilterCounter(visible, total) {
+        let counterElement = document.getElementById('filter-counter');
+        
+        // Tạo counter element nếu chưa có
+        if (!counterElement) {
+            counterElement = document.createElement('div');
+            counterElement.id = 'filter-counter';
+            counterElement.className = 'mt-2 text-muted';
+            
+            const cardBody = document.querySelector('.card-body');
+            if (cardBody) {
+                cardBody.appendChild(counterElement);
+            }
+        }
+        
+        // Cập nhật text
+        if (visible === total) {
+            counterElement.innerHTML = `<small><i class="fas fa-list"></i> Hiển thị tất cả ${total} phương pháp</small>`;
+        } else {
+            counterElement.innerHTML = `<small><i class="fas fa-filter"></i> Hiển thị ${visible}/${total} phương pháp</small>`;
+        }
+    }
+    
+    // ✅ Thêm nút Reset filter
+    const resetFilterBtn = document.createElement('button');
+    resetFilterBtn.className = 'btn btn-outline-secondary';
+    resetFilterBtn.innerHTML = '<i class="fas fa-undo"></i> Reset';
+    resetFilterBtn.onclick = function() {
+        methodSearch.value = '';
+        minHitRate.value = '0';
+        applyFilterMethods();
+    };
+    
+    // Thêm reset button vào UI
+    const applyFilterParent = applyFilter.parentElement;
+    if (applyFilterParent) {
+        applyFilterParent.classList.remove('col-md-4');
+        applyFilterParent.classList.add('col-md-4');
+        applyFilterParent.innerHTML = `
+            <div class="d-grid gap-2 d-md-flex">
+                ${applyFilter.outerHTML}
+                ${resetFilterBtn.outerHTML}
+            </div>
+        `;
+        
+        // Re-bind events sau khi thay đổi DOM
+        const newApplyBtn = applyFilterParent.querySelector('button:first-child');
+        const newResetBtn = applyFilterParent.querySelector('button:last-child');
+        
+        newApplyBtn.addEventListener('click', applyFilterMethods);
+        newResetBtn.addEventListener('click', function() {
+            methodSearch.value = '';
+            minHitRate.value = '0';
+            applyFilterMethods();
+        });
+    }
+    
+    // ✅ Khởi tạo counter ban đầu
+    const initialTotal = document.querySelectorAll('.method-row').length;
+    updateFilterCounter(initialTotal, initialTotal);
+    
+    // Add click event listeners to prediction cells
+    document.querySelectorAll('.prediction-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            const date = this.dataset.date;
+            const methodId = parseInt(this.dataset.methodId);
+            if (date && methodId) {
+                showDayDetail(date, methodId);
+            }
+        });
+    });
+
+    function showDayDetail(date, selectedMethodId = null) {
+        const data = dayData[date];
+        if (!data) return;
+
+        const detailSection = document.getElementById('dayDetail');
+        const titleElement = document.getElementById('dayDetailTitle');
+        const contentElement = document.getElementById('dayDetailContent');
+
+        titleElement.textContent = `Chi tiết ngày ${data.date} (${data.weekday})`;
+
+        let html = '';
+        if (data.sessions.length === 0) {
+            html = '<div class="alert alert-info">Không có dự đoán cho ngày này</div>';
+        } else {
+            data.sessions.forEach(session => {
+                // Filter methods - chỉ hiển thị method được chọn
+                const filteredMethods = selectedMethodId ? 
+                    session.methods.filter(method => method.method_id === selectedMethodId) : 
+                    session.methods;
+
+                if (filteredMethods.length === 0) return; // Skip session nếu không có method phù hợp
+
+                html += `
+                    <div class="session-card">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <strong>${session.cycle_name}</strong>
+                                <span class="badge bg-secondary">${session.status}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                `;
+
+                filteredMethods.forEach(method => {
+                    html += `
+                        <div class="method-row">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <div class="fw-bold">${method.method_name}</div>
+                                    <small class="text-muted">${method.category}</small>
+                                    <div class="mt-1">
+                                        <span class="badge bg-info">Tin cậy: ${method.confidence.toFixed(1)}</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-1"><small class="text-muted">Số dự đoán:</small></div>
+                    `;
+
+                    method.predicted_numbers.forEach(number => {
+                        html += `<span class="prediction-number predicted">${number}</span>`;
+                    });
+
+                    html += `
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="row">
+                    `;
+
+                    method.tracking_results.forEach(tracking => {
+                        html += `
+                            <div class="col-4">
+                                <div class="tracking-day">
+                                    <div class="text-center mb-2">
+                                        <strong>Ngày ${tracking.day}</strong><br>
+                                        <small>${tracking.tracking_date}</small>
+                                    </div>
+                        `;
+
+                        if (tracking.has_result) {
+                            const badgeClass = tracking.hit_rate >= 20 ? 'bg-success' : 
+                                            tracking.hit_rate >= 10 ? 'bg-warning' : 'bg-danger';
+                            
+                            html += `
+                                <div class="text-center mb-2">
+                                    <span class="hit-rate-badge badge ${badgeClass}">
+                                        ${tracking.hit_count}/${method.predicted_numbers.length} 
+                                        (${tracking.hit_rate.toFixed(1)}%)
+                                    </span>
+                                </div>
+                            `;
+
+                            if (tracking.hit_numbers.length > 0) {
+                                html += '<div class="mb-1"><small class="text-success">Trúng:</small><br>';
+                                tracking.hit_numbers.forEach(number => {
+                                    html += `<span class="prediction-number hit">${number}</span>`;
+                                });
+                                html += '</div>';
+                            }
+
+                            html += '<div><small class="text-muted">KQ thực:</small><br>';
+                            tracking.actual_numbers.slice(0, 10).forEach(number => {
+                                html += `<span class="prediction-number">${number}</span>`;
+                            });
+                            if (tracking.actual_numbers.length > 10) {
+                                html += '<small class="text-muted">...</small>';
+                            }
+                            html += '</div>';
+                        } else {
+                            html += `
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-clock"></i><br>Chờ kết quả
+                                </div>
+                            `;
+                        }
+
+                        html += '</div></div>';
+                    });
+
+                    html += `
+                                    </div>
+                                    <div class="mt-2 text-center">
+                                        <small class="text-muted">
+                                            Tổng: ${method.total_hits} số trúng | 
+                                            TB: ${method.avg_hit_rate.toFixed(1)}%
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div></div>';
+            });
+
+            // Thông báo nếu không tìm thấy method được chọn
+            if (html === '' && selectedMethodId) {
+                html = '<div class="alert alert-warning">Không tìm thấy dữ liệu cho phương pháp này trong ngày được chọn</div>';
+            }
+        }
+
+        contentElement.innerHTML = html;
+        detailSection.style.display = 'block';
+        detailSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Sửa event listener cho date header để hiển thị tất cả methods
+    document.querySelectorAll('.date-header').forEach(header => {
+        header.addEventListener('click', function() {
+            const date = this.dataset.date;
+            showDayDetail(date); // Không truyền methodId = hiển thị tất cả
+        });
+    });
+
+    window.hideDayDetail = function() {
+        document.getElementById('dayDetail').style.display = 'none';
+    };
+    const dayDataKeys = [
+        {% for day_data in report_data.days %}
+        "{{ day_data.date|date:'Y-m-d' }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    /**
+    * ✅ Lấy danh sách ngày lùi lại từ ngày phân tích
+    * @param {string} analysisDate - Ngày phân tích dạng 'YYYY-MM-DD'
+    * @param {number} windowSize - Số ngày lùi lại (mặc định 30)
+    * @returns {Array<string>} - Danh sách ngày hợp lệ
+    */
+    function getPastDates(analysisDate, windowSize = 30) {
+        if (!analysisDate || typeof analysisDate !== 'string') {
+            console.error('analysisDate phải là string không rỗng');
+            return [];
+        }
+        
+        // ✅ Sử dụng dayDataKeys thay vì Object.keys(dayData)
+        const allDates = [...dayDataKeys].sort();
+        const idx = allDates.indexOf(analysisDate);
+        
+        if (idx === -1) {
+            console.warn(`Không tìm thấy ngày ${analysisDate} trong dữ liệu. Có sẵn: ${allDates.slice(0, 5).join(', ')}...`);
+            return [];
+        }
+        
+        const startIdx = Math.max(0, idx - windowSize);
+        const result = allDates.slice(startIdx, idx);
+        
+        console.log(`Lấy ${result.length} ngày từ ${result[0] || 'N/A'} đến ${result[result.length-1] || 'N/A'}`);
+        return result;
+    }
+    function collectHitMatrix() {
+        const matrix = { 1: [], 2: [], 3: [] };
+        document.querySelectorAll('.hit-badge').forEach(badge => {
+            const day = badge.dataset.day;
+            if (!['1', '2', '3'].includes(day)) return;
+            const title = badge.getAttribute('title') || '';
+            const match = title.match(/: (.+)$/);
+            if (match) {
+                const numbers = match[1].split(',').map(s => s.trim()).filter(Boolean);
+                matrix[day].push(numbers);
+            }
+        });
+        return matrix;
+    }
+    /**
+     * ✅ Lập ma trận số trúng từ dữ liệu dayData
+     * @param {Array<string>} dateList - Danh sách ngày
+     * @returns {Object} { 1: Array<Array<string>>, 2: Array<Array<string>>, 3: Array<Array<string>> }
+     */
+    function buildHitMatrixFromDayData(dateList) {
+        const matrix = { 1: [], 2: [], 3: [] };
+        
+        if (!Array.isArray(dateList)) {
+            console.error('dateList phải là mảng');
+            return matrix;
+        }
+        
+        dateList.forEach(date => {
+            // ✅ Sửa lỗi: dùng đúng date thay vì analysisDate
+            const dayObj = dayData[date];
+            if (!dayObj || !Array.isArray(dayObj.sessions)) return;
+            
+            dayObj.sessions.forEach(session => {
+                if (!Array.isArray(session.methods)) return;
+                
+                session.methods.forEach(method => {
+                    if (!Array.isArray(method.tracking_results)) return;
+                    
+                    method.tracking_results.forEach(tracking => {
+                        if (tracking.has_result && 
+                            Array.isArray(tracking.hit_numbers) && 
+                            tracking.hit_numbers.length > 0 &&
+                            matrix[tracking.day]) {
+                            matrix[tracking.day].push(tracking.hit_numbers.map(String));
+                        }
+                    });
+                });
+            });
+        });
+        
+        return matrix;
+    }
+
+
+    /**
+     * ✅ Trích xuất đặc trưng từ ma trận số trúng
+     * @param {Array<Array<string>>} dayMatrix - Ma trận số trúng
+     * @returns {Object} Đặc trưng đã trích xuất
+     */
+    function extractFeatures(dayMatrix) {
+        if (!Array.isArray(dayMatrix)) {
+            console.error('dayMatrix phải là mảng');
+            return { heads: [], tails: [], allNumbers: [], rollingStats: {}, lagFeatures: {}, oneHot: {} };
+        }
+        
+        const heads = [], tails = [], allNumbers = [];
+        
+        dayMatrix.forEach(row => {
+            if (!Array.isArray(row)) return;
+            row.forEach(num => {
+                const numStr = String(num);
+                if (numStr.length === 2) {
+                    heads.push(numStr[0]);
+                    tails.push(numStr[1]);
+                    allNumbers.push(numStr);
+                }
+            });
+        });
+
+        // ✅ Hàm phụ với error handling
+        function rollingStats(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) {
+                return { mean: 0, std: 0, min: 0, max: 0, freq: {} };
+            }
+            
+            const freq = {};
+            arr.forEach(x => freq[x] = (freq[x] || 0) + 1);
+            const values = Object.values(freq);
+            
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            const std = Math.sqrt(values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length);
+            
+            return {
+                mean,
+                std,
+                min: Math.min(...values),
+                max: Math.max(...values),
+                freq
+            };
+        }
+
+        function lagFeatures(arr) {
+            if (!Array.isArray(arr) || arr.length === 0) {
+                return { avg_gap: null, max_gap: null, min_gap: null };
+            }
+            
+            const lastIndex = {};
+            const gaps = [];
+            
+            arr.forEach((x, i) => {
+                if (lastIndex[x] !== undefined) {
+                    gaps.push(i - lastIndex[x]);
+                }
+                lastIndex[x] = i;
+            });
+            
+            return {
+                avg_gap: gaps.length ? gaps.reduce((a, b) => a + b, 0) / gaps.length : null,
+                max_gap: gaps.length ? Math.max(...gaps) : null,
+                min_gap: gaps.length ? Math.min(...gaps) : null
+            };
+        }
+
+        return {
+            heads,
+            tails,
+            allNumbers,
+            rollingStats: {
+                head: rollingStats(heads),
+                tail: rollingStats(tails)
+            },
+            lagFeatures: {
+                head: lagFeatures(heads),
+                tail: lagFeatures(tails)
+            }
+        };
+    }
+
+    /**
+     * ✅ Tìm các cặp số xuất hiện thường xuyên
+     */
+    function frequentHeadTailPairs(allNumbers, threshold = 2) {
+        if (!Array.isArray(allNumbers)) return [];
+        
+        const freq = {};
+        allNumbers.forEach(num => {
+            freq[num] = (freq[num] || 0) + 1;
+        });
+        
+        return Object.entries(freq)
+            .filter(([_, count]) => count >= threshold)
+            .map(([pair, count]) => ({ pair, count }))
+            .sort((a, b) => b.count - a.count);
+    }
+
+    /**
+     * Chuẩn hóa dữ liệu thành feature vector cho ML.
+     * @param {Object} features - Kết quả từ extractFeatures().
+     * @returns {Object} Feature vector cho ML.
+     */
+    function prepareMLFeatures(features) {
+        return {
+            head_mean: features.rollingStats.head.mean,
+            head_std: features.rollingStats.head.std,
+            tail_mean: features.rollingStats.tail.mean,
+            tail_std: features.rollingStats.tail.std,
+            head_avg_gap: features.lagFeatures.head.avg_gap,
+            tail_avg_gap: features.lagFeatures.tail.avg_gap
+            // ... thêm các đặc trưng khác nếu cần
+        };
+    }
+
+    /**
+     * ✅ Ghép đầu-đuôi thành số dự đoán
+     */
+    function generatePredictedNumbers(stableHeads, stableTails) {
+        if (!Array.isArray(stableHeads) || !Array.isArray(stableTails)) return [];
+        
+        const predicted = [];
+        stableHeads.forEach(head => {
+            stableTails.forEach(tail => {
+                predicted.push(head + tail);
+            });
+        });
+        return predicted;
+    }
+
+    /**
+     * Trả về các phần tử xuất hiện ở tất cả các mảng con.
+     * @param {Array<Array<string>>} arrays
+     * @returns {Array<string>}
+     */
+    function intersectArrays(arrays) {
+        if (!arrays.length) return [];
+        return arrays.reduce((a, b) => a.filter(x => b.includes(x)));
+    }
+
+    /**
+     * ✅ Tìm đầu/đuôi ổn định
+     */
+    function getStableHeadsTails(matrix) {
+        const stable = { 1: { heads: [], tails: [] }, 2: { heads: [], tails: [] }, 3: { heads: [], tails: [] } };
+        
+        [1, 2, 3].forEach(day => {
+            const allNumbers = matrix[day];
+            if (!Array.isArray(allNumbers) || allNumbers.length === 0) return;
+            
+            // Tách đầu và đuôi cho từng dòng
+            const headsArr = allNumbers.map(row => 
+                Array.isArray(row) ? row.map(num => String(num)[0]).filter(Boolean) : []
+            ).filter(arr => arr.length > 0);
+            
+            const tailsArr = allNumbers.map(row => 
+                Array.isArray(row) ? row.map(num => String(num)[1]).filter(Boolean) : []
+            ).filter(arr => arr.length > 0);
+            
+            // Tìm giao của tất cả các mảng
+            if (headsArr.length > 0) {
+                stable[day].heads = headsArr.reduce((a, b) => a.filter(x => b.includes(x)));
+            }
+            if (tailsArr.length > 0) {
+                stable[day].tails = tailsArr.reduce((a, b) => a.filter(x => b.includes(x)));
+            }
+        });
+        
+        return stable;
+    }
+
+    /**
+     * Đánh giá độ chính xác dự đoán với kết quả thực tế 3 ngày tiếp theo.
+     * @param {Array<string>} predictedNumbers
+     * @param {Array<Array<string>>} next3DaysResults
+     * @returns {number} Số ngày có số dự đoán trúng
+     */
+    function checkPredictionAccuracy(predictedNumbers, next3DaysResults) {
+        let hitCount = 0;
+        next3DaysResults.forEach(dayNumbers => {
+            if (dayNumbers.some(num => predictedNumbers.includes(num))) {
+                hitCount++;
+            }
+        });
+        return hitCount;
+    }
+
+    // ✅ Event listener chính - đã sửa lỗi
+    document.getElementById('analyzeStableNumbers').addEventListener('click', function() {
+        const dateInput = document.getElementById('dateAnalysis');
+        const analysisDate = dateInput.value;
+        
+         // ✅ Debug thông tin đầu vào
+        console.log('Ngày phân tích:', analysisDate);
+        console.log('dayData type:', typeof dayData);
+        console.log('dayData keys count:', dayData ? Object.keys(dayData).length : 'N/A');
+        
+        if (!analysisDate) {
+            document.getElementById('stableResult').innerHTML = '<span class="text-danger">Vui lòng chọn ngày phân tích!</span>';
+            return;
+        }
+        
+        if (!dayData || !dayData[analysisDate]) {
+            console.error('Không có dữ liệu cho ngày:', analysisDate);
+            document.getElementById('stableResult').innerHTML = '<span class="text-danger">Không có dữ liệu cho ngày này!</span>';
+            return;
+        }
+        
+        try {
+            // ✅ Gọi hàm với error handling chi tiết
+            console.log('Đang lấy 30 ngày trước...');
+            const pastDates = getPastDates(analysisDate, 30);
+            
+            if (pastDates.length === 0) {
+                document.getElementById('stableResult').innerHTML = '<span class="text-warning">Không đủ dữ liệu 30 ngày trước.</span>';
+                return;
+            }
+            
+            console.log(`Đã lấy được ${pastDates.length} ngày:`, pastDates.slice(0, 3), '...');
+            
+            // Tiếp tục xử lý...
+            const matrix = buildHitMatrixFromDayData(pastDates);
+            console.log('Ma trận số trúng đã xây dựng:', matrix);
+            const featuresByDay = {};
+            console.log('Đang trích xuất đặc trưng cho từng ngày...');
+            [1, 2, 3].forEach(day => {
+                featuresByDay[day] = extractFeatures(matrix[day]);
+            });
+            
+            const stable = getStableHeadsTails(matrix);
+            const frequentPairs = frequentHeadTailPairs(featuresByDay[1].allNumbers, 2);
+            const predictedNumbers = generatePredictedNumbers(stable[1].heads, stable[1].tails);
+            
+            // Hiển thị kết quả
+            document.getElementById('stableResult').innerHTML = `
+                <div class="alert alert-success">
+                    <b>Phân tích từ ${pastDates[0]} đến ${pastDates[pastDates.length-1]} (${pastDates.length} ngày)</b><br>
+                    <b>Đầu ổn định ngày 1:</b> ${stable[1].heads.join(', ') || 'Không có'}<br>
+                    <b>Đuôi ổn định ngày 1:</b> ${stable[1].tails.join(', ') || 'Không có'}<br>
+                    <b>Số dự đoán:</b> ${predictedNumbers.slice(0, 10).join(', ')}${predictedNumbers.length > 10 ? '...' : ''}<br>
+                    <b>Cặp phổ biến:</b> ${frequentPairs.slice(0, 5).map(p => `${p.pair}(${p.count})`).join(', ')}<br>
+                    <small>Tổng ${matrix[1].length + matrix[2].length + matrix[3].length} dòng dữ liệu</small>
+                </div>
+            `;
+            
+        } catch (error) {
+            console.error('Lỗi trong quá trình phân tích:', error);
+            document.getElementById('stableResult').innerHTML = '<span class="text-danger">Có lỗi xảy ra trong quá trình phân tích!</span>';
+        }
+    });
+});
+</script>
+{% comment %} <script src="{% static 'predictions_tracker/js/lottery_analysis.js' %}"></script> {% endcomment %}
+{% endblock %}

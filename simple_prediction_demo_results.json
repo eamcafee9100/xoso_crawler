@@ -1,0 +1,259 @@
+{
+  "target_date": "2025-08-01",
+  "analysis_metadata": {
+    "start_date": "2025-02-02",
+    "end_date": "2025-07-31",
+    "total_records": 2500,
+    "analysis_timestamp": "2025-07-31T16:30:00"
+  },
+  "individual_strategies": {
+    "hot_numbers": [
+      {
+        "number": "21",
+        "confidence": 85.2,
+        "reasoning": "Hot trend: 2.3x expected frequency"
+      },
+      {
+        "number": "56",
+        "confidence": 78.9,
+        "reasoning": "Hot trend: 2.1x expected frequency"
+      },
+      {
+        "number": "19",
+        "confidence": 72.4,
+        "reasoning": "Hot trend: 1.9x expected frequency"
+      },
+      {
+        "number": "06",
+        "confidence": 68.7,
+        "reasoning": "Hot trend: 1.8x expected frequency"
+      },
+      {
+        "number": "94",
+        "confidence": 65.3,
+        "reasoning": "Hot trend: 1.7x expected frequency"
+      }
+    ],
+    "cold_reversion": [
+      {
+        "number": "33",
+        "confidence": 42.1,
+        "reasoning": "Mean reversion: 25 days absent"
+      },
+      {
+        "number": "77",
+        "confidence": 38.9,
+        "reasoning": "Mean reversion: 22 days absent"
+      },
+      {
+        "number": "44",
+        "confidence": 35.6,
+        "reasoning": "Mean reversion: 18 days absent"
+      }
+    ],
+    "recent_momentum": [
+      {
+        "number": "16",
+        "confidence": 67.8,
+        "reasoning": "Strong momentum: 4 times in 30 days"
+      },
+      {
+        "number": "85",
+        "confidence": 62.3,
+        "reasoning": "Strong momentum: 3 times in 30 days"
+      },
+      {
+        "number": "48",
+        "confidence": 58.7,
+        "reasoning": "Strong momentum: 3 times in 30 days"
+      }
+    ],
+    "position_intelligence": [
+      {
+        "number": "62",
+        "confidence": 73.4,
+        "reasoning": "Position specialist: 60% in special"
+      },
+      {
+        "number": "21",
+        "confidence": 69.2,
+        "reasoning": "Position specialist: 55% in first"
+      },
+      {
+        "number": "59",
+        "confidence": 65.1,
+        "reasoning": "Position specialist: 50% in special"
+      }
+    ],
+    "statistical_edge": [
+      {
+        "number": "94",
+        "confidence": 91.2,
+        "reasoning": "Statistical edge: p-value 0.0023"
+      },
+      {
+        "number": "16",
+        "confidence": 87.5,
+        "reasoning": "Statistical edge: p-value 0.0041"
+      },
+      {
+        "number": "21",
+        "confidence": 83.9,
+        "reasoning": "Statistical edge: p-value 0.0067"
+      }
+    ]
+  },
+  "final_predictions": [
+    {
+      "number": "21",
+      "composite_score": 79.1,
+      "strategy_count": 3,
+      "consensus_strength": 0.6,
+      "strategy_support": [
+        "hot_trend",
+        "position_intelligence",
+        "statistical_edge"
+      ]
+    },
+    {
+      "number": "94",
+      "composite_score": 76.8,
+      "strategy_count": 2,
+      "consensus_strength": 0.4,
+      "strategy_support": [
+        "hot_trend",
+        "statistical_edge"
+      ]
+    },
+    {
+      "number": "16",
+      "composite_score": 72.5,
+      "strategy_count": 2,
+      "consensus_strength": 0.4,
+      "strategy_support": [
+        "recent_momentum",
+        "statistical_edge"
+      ]
+    },
+    {
+      "number": "56",
+      "composite_score": 68.3,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "hot_trend"
+      ]
+    },
+    {
+      "number": "62",
+      "composite_score": 65.7,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "position_intelligence"
+      ]
+    },
+    {
+      "number": "19",
+      "composite_score": 63.2,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "hot_trend"
+      ]
+    },
+    {
+      "number": "85",
+      "composite_score": 61.8,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "recent_momentum"
+      ]
+    },
+    {
+      "number": "06",
+      "composite_score": 59.4,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "hot_trend"
+      ]
+    },
+    {
+      "number": "59",
+      "composite_score": 57.9,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "position_intelligence"
+      ]
+    },
+    {
+      "number": "48",
+      "composite_score": 56.1,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "recent_momentum"
+      ]
+    },
+    {
+      "number": "33",
+      "composite_score": 42.1,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "mean_reversion"
+      ]
+    },
+    {
+      "number": "77",
+      "composite_score": 38.9,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "mean_reversion"
+      ]
+    },
+    {
+      "number": "44",
+      "composite_score": 35.6,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "mean_reversion"
+      ]
+    },
+    {
+      "number": "12",
+      "composite_score": 32.4,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "hot_trend"
+      ]
+    },
+    {
+      "number": "89",
+      "composite_score": 28.7,
+      "strategy_count": 1,
+      "consensus_strength": 0.2,
+      "strategy_support": [
+        "recent_momentum"
+      ]
+    }
+  ],
+  "confidence_analysis": {
+    "overall_confidence": 68.5,
+    "risk_level": "medium",
+    "consensus_rate": 26.7,
+    "statistical_backing_rate": 20.0,
+    "data_quality_score": 83.3,
+    "recommendations": [
+      "Good confidence level - suitable for standard betting",
+      "Low consensus - rely on single strategy, higher uncertainty",
+      "Always combine with your own analysis and risk management"
+    ]
+  }
+}

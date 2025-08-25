@@ -1,0 +1,555 @@
+{% extends "results/base.html" %}
+{% load static %}
+{% load xs_tags %}
+
+
+{% block title %}Báo cáo dự đoán xổ số theo tháng - {{ month_name }} {{ year }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+<style>
+
+/* Định dạng cho bảng tần suất */
+.table-responsive {
+    overflow-x: auto;
+    max-height: 100vh;
+}
+
+/* Cố định header của bảng khi scroll */
+.table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #0d6efd;
+    color: white;
+    z-index: 1;
+}
+
+/* Cố định cột đầu tiên khi scroll ngang */
+.table td:first-child,
+.table th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: white;
+    z-index: 2;
+}
+
+.table thead th:first-child {
+    z-index: 3;
+}
+  .content {
+    padding: 20px;
+  }
+  .month-header {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .report-table {
+    padding-top: 50px;
+    width: 100%;
+    overflow-x: auto;
+  }
+  .date-header {
+    text-align: center;
+    font-weight: bold;
+    min-width: 70px;
+    max-width: 80px;
+    vertical-align: bottom !important;
+  }
+  .method-name {
+    min-width: 180px;
+    font-weight: bold;
+  }
+  .hit-cell {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+    position: relative;
+  }
+  .miss-cell {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    position: relative;
+  }
+  .no-data-cell {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    text-align: center;
+  }
+  .hit-badge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    font-size: 8px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .weekend-col {
+    background-color: #f8f9fa;
+  }
+  .hit-rate-high {
+    color: #28a745;
+    font-weight: bold;
+  }
+  .hit-rate-medium {
+    color: #ffc107;
+    font-weight: bold;
+  }
+  .hit-rate-low {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  .summary-row {
+    background-color: #e9ecef;
+    font-weight: bold;
+  }
+  .hit-count-label {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .hit-rate-label {
+    font-size: 12px;
+  }
+  .navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .method-totals {
+    text-align: center;
+    font-weight: bold;
+  }
+  .day-totals {
+    text-align: center;
+    font-weight: bold;
+  }
+  /* Tooltip styling */
+  .tooltip-cell {
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .tooltip-cell:hover .tooltip-text {
+    visibility: visible;
+    opacity: 0.8;
+
+  }
+
+.tooltip-text {
+  visibility: hidden;
+  width: 250px; /* Tăng kích thước để chứa nhiều thông tin hơn */
+  background-color: #333;
+  color: #4da580;
+  text-align: left; /* Căn lề trái cho nội dung */
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1000;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -125px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Mũi tên tooltip */
+.tooltip-text::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-cell:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+.hit-count-high {
+    color: #ff5722;
+    font-weight: bold;
+    background-color: #fff3e0;
+    padding: 2px 4px;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(255, 87, 34, 0.3);
+}
+/* Styles cho số dự đoán */
+.number-tag {
+  display: inline-block;
+  margin: 2px;
+  padding: 1px 3px;
+  background-color: #f8f9fa;
+  border-radius: 3px;
+  font-size: 11px;
+}
+
+.number-tag.winning {
+  background-color: #d4edda;
+  color: #155724;
+  font-weight: bold;
+}
+
+/* Scroll cho danh sách số dự đoán */
+.numbers-container {
+  max-height: 80px;
+  overflow-y: auto;
+  margin: 5px 0;
+  padding: 3px;
+  background-color: rgba(255,255,255,0.1);
+  border-radius: 3px;
+}
+
+/* date-header JavaScript */
+.date-header {
+    position: relative;
+    cursor: pointer;
+}
+
+.date-header:hover {
+    background-color: #f8f9fa;
+}
+
+#predictionAnalysisModal .modal-lg {
+    max-width: 90%;
+}
+
+@media (max-width: 768px) {
+    #predictionAnalysisModal .modal-lg {
+        max-width: 95%;
+        margin: 10px auto;
+    }
+}
+
+.number-badge {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.badge-frequency {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 10px;
+}
+
+.recommendation-reason {
+    font-size: 11px;
+    color: #666;
+    margin-top: 3px;
+}
+
+.prediction-cell .badge {
+    font-size: 11px;
+}
+
+/* Animation cho số đề xuất */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.card.bg-warning h4 {
+    animation: pulse 1.5s infinite;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="container-fluid">
+    <h1 class="month-header">Báo cáo dự đoán tháng {{ month_name }} {{ year }}</h1>
+    
+    <!-- Navigation buttons -->
+    <div class="navigation-buttons">
+      <a href="?year={{ prev_month.year }}&month={{ prev_month.month }}" class="btn btn-outline-primary">&larr; Tháng trước</a>
+      
+      <form method="get" class="d-flex" action="">
+        <select name="month" class="form-select me-2" style="width: auto;">
+        {% for m in "1,2,3,4,5,6,7,8,9,10,11,12"|split:"," %}
+            <option value="{{ m }}" {% if month == m|add:0 %}selected{% endif %}>
+            Tháng {{ m }}
+            </option>
+        {% endfor %}
+        </select>
+
+        <!-- Dropdown chọn năm -->
+        <select name="year" class="form-select me-2">
+        {% for y in "2020,2021,2022,2023,2024,2025,2026"|split:"," %}
+            <option value="{{ y }}" {% if year == y|add:0 %}selected{% endif %}>
+            {{ y }}
+            </option>
+        {% endfor %}
+        </select>
+        
+        <button type="submit" class="btn btn-primary">Xem</button>
+      </form>
+      
+      <a href="?year={{ next_month.year }}&month={{ next_month.month }}" class="btn btn-outline-primary">Tháng sau &rarr;</a>
+    </div>
+ 
+    {% if has_data %}
+    <div class="report-table">
+      <table class="table table-responsive table-bordered table-striped" id="monthlyReportTable">
+        <thead>
+          <tr>
+            <th class="method-name">Phương pháp</th>
+            {% for day in days_in_month %}
+            <th class="date-header {% if day.weekday >= 5 %}weekend-col{% endif %}">
+              {{ day.day }}<br>
+              <small>{{ day|date:"D" }}</small>
+            </th>
+            {% endfor %}
+            <th class="method-name">Tổng kết</th>
+          </tr>
+          <!-- Day Totals Row -->
+          <tr class="summary-row">
+            <th>Tỷ lệ trúng/ngày</th>
+            {% for day in days_in_month %}
+            <td class="day-totals {% if day.weekday >= 5 %}weekend-col{% endif %}">
+              {% with total=day_totals|get_item_dict:day %}
+                {% if total.total > 0 %}
+                  <div class="
+                    {% if total.hit_rate >= 20 %}hit-rate-high
+                    {% elif total.hit_rate >= 10 %}hit-rate-medium
+                    {% else %}hit-rate-low{% endif %}
+                  ">
+                    {{ total.hits }}/{{ total.total }}<br>
+                    <small>{{ total.hit_rate|floatformat:1 }}%</small>
+                  </div>
+                {% else %}
+                  -
+                {% endif %}
+              {% endwith %}
+            </td>
+            {% endfor %}
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for method in methods %}
+          <tr class="method-row" data-method-code="{{ method.code }}" data-method-name="{{ method.name }}" data-method>
+            <td class="method-name">{{ method.name }}
+              {% with total=method_totals|get_item_dict:method.id %}
+                {% if total.total > 0 %}
+                  <div class="
+                    {% if total.hit_rate >= 20 %}hit-rate-high
+                    {% elif total.hit_rate >= 10 %}hit-rate-medium
+                    {% else %}hit-rate-low{% endif %}
+                  ">
+                    {{ total.hits }}/{{ total.total }} | 
+                    <small>{{ total.hit_rate|floatformat:1 }}%</small>
+                  </div>
+                {% else %}
+                  -
+                {% endif %}
+              {% endwith %}
+            </td>
+            
+            {% for day in days_in_month %}
+              {% with method_data=report_data|get_item_dict:method.id %}
+                {% with day_data=method_data|get_item_dict:day %}
+                  {% if day_data %}
+                    {% if day_data.is_hit %}
+                      <td class="hit-cell tooltip-cell {% if prediction.is_hit %}hit-cell{% endif %}" 
+                          data-hit-rate="{{ prediction.hit_rate|floatformat:0 }}"
+                          data-method="{{ method.name }}" 
+                          data-date="{{ day|date:'d/m/Y' }}">
+                        <div class="hit-count-label {% if day_data.hit_count > 0 %}hit-count-high{% endif %}">
+                            {{ day_data.hit_count }}/{{ day_data.total_count }}
+                        </div>
+                        <div class="hit-rate-label">{{ day_data.hit_rate|floatformat:1 }}%</div>
+                        <div class="tooltip-text">
+                        <strong>{{ method.name }}</strong><br>
+                        <strong>Ngày dự đoán:</strong> {{ day|date:"d/m/Y" }}<br>
+                        <strong>Kết quả:</strong> {{ day_data.hit_count }}/{{ day_data.total_count }} ({{ day_data.hit_rate|floatformat:1 }}%)<br>
+                        
+                        <strong >Số dự đoán:</strong><br>
+                        <div style="max-height: 80px; overflow-y: auto; margin: 5px 0;">
+                            {% for num in day_data.predicted_numbers %}
+                            <span style="display: inline-block; margin: 2px; padding: 1px 3px; color:#333 ; background-color: {% if num in day_data.winning_numbers %}#d4edda{% else %}#f8f9fa{% endif %}; border-radius: 3px;">
+                                {{ num }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <strong>Số trúng:</strong><br>
+                        <div style="margin: 5px 0;">
+                            {% for num in day_data.winning_numbers %}
+                            <span style="display: inline-block; margin: 2px; padding: 1px 3px; background-color: #d4edda; border-radius: 3px;">
+                                {{ num }}
+                            </span>
+                            {% empty %}
+                            <span>Không có số trúng</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <strong>Kết quả ngày {{ day_data.next_day_date|date:"d/m/Y" }}:</strong><br>
+                        <span style="font-weight: bold; color: #28a745;">{{ day_data.special_prize_next_day }}</span>
+                        </div>
+                    </td>
+                    {% else %}
+                    <td class="miss-cell tooltip-cell">
+                        <div class="hit-count-label">0/{{ day_data.total_count }}</div>
+                        <div class="hit-rate-label">0.0%</div>
+                        <div class="tooltip-text prediction-cell">
+                        <strong>{{ method.name }}</strong><br>
+                        <strong>Ngày dự đoán:</strong> {{ day|date:"d/m/Y" }}<br>
+                        <strong>Kết quả:</strong> 0/{{ day_data.total_count }} (0.0%)<br>
+                        
+                        <strong >Số dự đoán:</strong><br>
+                        <div style="max-height: 80px; overflow-y: auto; margin: 5px 0;">
+                            {% for num in day_data.predicted_numbers %}
+                            <span  style="display: inline-block; margin: 2px; padding: 1px 3px; background-color: #f8f9fa; border-radius: 3px;">
+                                {{ num }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                        
+                        <strong>Kết quả ngày {{ day_data.next_day_date|date:"d/m/Y" }}:</strong><br>
+                        <span style="font-weight: bold; color: #dc3545;">{{ day_data.special_prize_next_day }}</span>
+                        </div>
+                    </td>
+                    {% endif %}
+                {% else %}
+                    <td class="no-data-cell">-</td>
+                  {% endif %}
+                {% endwith %}
+              {% endwith %}
+            {% endfor %}
+            
+            <!-- Method Totals Column -->
+            <td class="method-totals">
+              {% with total=method_totals|get_item_dict:method.id %}
+                {% if total.total > 0 %}
+                  <div class="
+                    {% if total.hit_rate >= 20 %}hit-rate-high
+                    {% elif total.hit_rate >= 10 %}hit-rate-medium
+                    {% else %}hit-rate-low{% endif %}
+                  ">
+                    {{ total.hits }}/{{ total.total }}<br>
+                    <small>{{ total.hit_rate|floatformat:1 }}%</small>
+                  </div>
+                {% else %}
+                  -
+                {% endif %}
+              {% endwith %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Legend -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h5 class="mb-0">Chú thích</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="d-flex align-items-center mb-2">
+              <div class="hit-cell p-2 me-2" style="min-width: 60px;">
+                <div class="hit-count-label">2/10</div>
+                <div class="hit-rate-label">20.0%</div>
+              </div>
+              <span>Có trúng (số trúng/tổng số)</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex align-items-center mb-2">
+              <div class="miss-cell p-2 me-2" style="min-width: 60px;">
+                <div class="hit-count-label">0/10</div>
+                <div class="hit-rate-label">0.0%</div>
+              </div>
+              <span>Không trúng</span>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="d-flex align-items-center mb-2">
+              <div class="no-data-cell p-2 me-2" style="min-width: 60px;">-</div>
+              <span>Không có dữ liệu</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    {% else %}
+    <div class="alert alert-warning">
+      <h4 class="alert-heading">Không có dữ liệu!</h4>
+      <p>Không có dữ liệu dự đoán nào cho tháng {{ month_name }} {{ year }}.</p>
+    </div>
+    {% endif %}
+    
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/analyzeTopMethod.js' %}"></script>
+<script>
+// Thêm đoạn code này vào file JavaScript cho monthly_report_allprize.html
+document.addEventListener('DOMContentLoaded', function() {
+    // Thêm sự kiện click cho các ô ngày
+    const dateHeaders = document.querySelectorAll('.date-header');
+    
+    dateHeaders.forEach(header => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', function(event) {
+            // Lấy số ngày từ header
+            const dayElement = this.querySelector('br')?.previousSibling;
+            if (!dayElement) return;
+            const day = dayElement.textContent.trim();
+            if (!day || isNaN(day)) return;
+            
+            // Lấy năm và tháng từ URL hiện tại
+            const urlParams = new URLSearchParams(window.location.search);
+            let year = urlParams.get('year');
+            let month = urlParams.get('month');
+            
+            // Nếu không có năm/tháng trong URL, sử dụng ngày hiện tại
+            if (!year || !month) {
+                const today = new Date();
+                year = today.getFullYear();
+                month = today.getMonth() + 1; // Tháng bắt đầu từ 0
+            }
+            
+            // Tạo chuỗi ngày định dạng YYYY-MM-DD
+            const paddedDay = day.padStart(2, '0');
+            const paddedMonth = month.toString().padStart(2, '0');
+            const dateStr = `${year}-${paddedMonth}-${paddedDay}`;
+            
+            // Chuyển đến trang phân tích ngày
+            window.location.href = `/analysis/daily/?date=${dateStr}`;
+        });
+    });
+});
+</script>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Đảm bảo thêm Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}

@@ -1,0 +1,240 @@
+{% extends 'soicaubacnho/base.html' %}
+{% load soicaubacnho_xs_tags %}
+{% load static %}
+
+
+{% block title %}Cấu hình phiên bản{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Quản lý cấu hình phiên bản</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title">Danh sách cấu hình</h5>
+            </div>
+            <div class="card-body">
+                {% if configs %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Tên cấu hình</th>
+                                <th>Phiên bản mặc định</th>
+                                <th>Trạng thái</th>
+                                <th>Cập nhật lần cuối</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for config in configs %}
+                            <tr>
+                                <td>{{ config.ten_cau_hinh }}</td>
+                                <td>{{ config.phien_ban_mac_dinh }}</td>
+                                <td>
+                                    {% if config.trang_thai %}
+                                    <span class="badge bg-success">Đang sử dụng</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Vô hiệu</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ config.thoi_gian_cap_nhat }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-config-btn" data-id="{{ config.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-center">Chưa có cấu hình nào.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label for="phien_ban_mac_dinh" class="form-label">Phiên bản mặc định</label>
+        <select class="form-select" id="phien_ban_mac_dinh" name="phien_ban_mac_dinh">
+            {% for version_code, version_name in available_versions %}
+            <option value="{{ version_code }}" {% if config.phien_ban_mac_dinh == version_code %}selected{% endif %}>
+                {{ version_name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title" id="configFormTitle">Thêm cấu hình mới</h5>
+            </div>
+            <div class="card-body">
+                <form id="configForm" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="config_id" name="config_id">
+                    
+                    <div class="mb-3">
+                        <label for="ten_cau_hinh" class="form-label">Tên cấu hình</label>
+                        <input type="text" class="form-control" id="ten_cau_hinh" name="ten_cau_hinh" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="phien_ban_mac_dinh" class="form-label">Phiên bản mặc định</label>
+                        <select class="form-select" id="phien_ban_mac_dinh" name="phien_ban_mac_dinh">
+                            {% for version_code, version_name in available_versions %}
+                            <option value="{{ version_code }}">{{ version_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Phương pháp dự đoán</label>
+                        <div class="form-text mb-2">Chọn các phương pháp mặc định.</div>
+                        
+                        <div class="row">
+                            {% for method_code, method_name in prediction_methods %}
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="phuong_phap" 
+                                           value="{{ method_code }}" id="method_{{ method_code }}">
+                                    <label class="form-check-label" for="method_{{ method_code }}">
+                                        {{ method_name }}
+                                    </label>
+                                </div>
+                                
+                                <div class="ms-4 mb-2">
+                                    <label class="form-label small">Trọng số:</label>
+                                    <input type="number" class="form-control form-control-sm" 
+                                           name="trong_so_{{ method_code }}" value="1.0" 
+                                           min="0.1" max="2.0" step="0.1" style="width: 80px;">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="mo_ta" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="mo_ta" name="mo_ta" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="trang_thai" name="trang_thai">
+                        <label class="form-check-label" for="trang_thai">Đang sử dụng</label>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu cấu hình
+                        </button>
+                        <button type="button" id="resetFormBtn" class="btn btn-outline-secondary">
+                            <i class="fas fa-undo"></i> Làm mới
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function runAnalysis(targetDate, version) {
+            fetch('/api/run-analyzer/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCsrfToken()
+                },
+                body: JSON.stringify({
+                    target_date: targetDate,
+                    version: version
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Xử lý response
+            });
+        }
+    // Lưu phiên bản đã chọn vào localStorage
+    document.querySelectorAll('.version-selector').forEach(item => {
+        item.addEventListener('click', function(e) {
+            e.preventDefault();
+            const version = this.dataset.version;
+            localStorage.setItem('selected_version', version);
+            window.location.href = `?version=${version}`;
+        });
+    });
+
+    // Tải phiên bản đã chọn khi trang được load
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedVersion = localStorage.getItem('selected_version');
+        if (savedVersion) {
+            document.querySelector('#version-dropdown').textContent = `Phiên bản: ${savedVersion}`;
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        const configForm = document.getElementById('configForm');
+        const configIdInput = document.getElementById('config_id');
+        const formTitleElement = document.getElementById('configFormTitle');
+        const resetFormBtn = document.getElementById('resetFormBtn');
+        // Cập nhật API call để truyền phiên bản
+        
+        // Xử lý nút chỉnh sửa
+        document.querySelectorAll('.edit-config-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const configId = this.getAttribute('data-id');
+                
+                // Thực hiện AJAX để lấy thông tin cấu hình
+                fetch('/api/get-config/' + configId + '/')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Điền thông tin vào form
+                            configIdInput.value = data.config.id;
+                            document.getElementById('ten_cau_hinh').value = data.config.ten_cau_hinh;
+                            document.getElementById('phien_ban_mac_dinh').value = data.config.phien_ban_mac_dinh;
+                            document.getElementById('mo_ta').value = data.config.mo_ta || '';
+                            document.getElementById('trang_thai').checked = data.config.trang_thai;
+                            
+                            // Thiết lập các phương pháp
+                            document.querySelectorAll('input[name="phuong_phap"]').forEach(checkbox => {
+                                checkbox.checked = data.config.phuong_phap_mac_dinh.includes(checkbox.value);
+                            });
+                            
+                            // Thiết lập trọng số
+                            for (const [method, weight] of Object.entries(data.config.trong_so_mac_dinh)) {
+                                const weightInput = document.querySelector(`input[name="trong_so_${method}"]`);
+                                if (weightInput) {
+                                    weightInput.value = weight;
+                                }
+                            }
+                            
+                            // Cập nhật tiêu đề form
+                            formTitleElement.textContent = 'Chỉnh sửa cấu hình';
+                            
+                            // Cuộn đến form
+                            configForm.scrollIntoView({ behavior: 'smooth' });
+                        } else {
+                            alert('Không thể tải thông tin cấu hình: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        alert('Đã xảy ra lỗi: ' + error);
+                    });
+            });
+        });
+        
+        // Xử lý nút reset form
+        resetFormBtn.addEventListener('click', function() {
+            configForm.reset();
+            configIdInput.value = '';
+            formTitleElement.textContent = 'Thêm cấu hình mới';
+        });
+    });
+</script>
+{% endblock %}

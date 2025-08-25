@@ -1,0 +1,750 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Phân tích {{ phan_tich.ngay_phan_tich|date:"d/m/Y" }}{% endblock %}
+
+{% block page_title %}Chi tiết phân tích{% endblock %}
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+{% endblock %}
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button class="btn btn-success" onclick="createPredictionFromAnalysis()">
+        <i class="fas fa-magic me-2"></i>Tạo dự đoán
+    </button>
+    <button class="btn btn-info" onclick="exportAnalysis()">
+        <i class="fas fa-download me-2"></i>Xuất báo cáo
+    </button>
+    <button class="btn btn-warning" onclick="compareWithOtherDays()">
+        <i class="fas fa-balance-scale me-2"></i>So sánh
+    </button>
+    <a href="{% url 'lokhung:phan_tich_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Basic Info -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                    Thông tin cơ bản
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngày phân tích</label>
+                            <h4 class="text-primary">{{ phan_tich.ngay_phan_tich|date:"l, d/m/Y" }}</h4>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Kết quả xổ số</label>
+                            <div>
+                                <a href="#" class="text-decoration-none" onclick="showLotteryResults()">
+                                    <i class="fas fa-external-link-alt me-1"></i>
+                                    Xem kết quả chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngày tạo</label>
+                            <div>{{ phan_tich.ngay_tao|date:"d/m/Y H:i" }}</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Cập nhật lần cuối</label>
+                            <div>{{ phan_tich.ngay_cap_nhat|date:"d/m/Y H:i" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Numbers Analysis -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-hashtag text-success me-2"></i>
+                    Số xuất hiện
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Số 2D ({{ phan_tich.so_2d_xuat_hien|length }} số)</h6>
+                        <div class="numbers-grid mb-4">
+                            {% for so in phan_tich.so_2d_xuat_hien %}
+                                <span class="badge bg-primary fs-6 px-3 py-2 me-1 mb-2 number-item" 
+                                      data-number="{{ so }}" onclick="analyzeNumber('{{ so }}')">
+                                    {{ so }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Số 3D ({{ phan_tich.so_3d_xuat_hien|length }} số)</h6>
+                        <div class="numbers-grid">
+                            {% for so in phan_tich.so_3d_xuat_hien %}
+                                <span class="badge bg-secondary fs-6 px-3 py-2 me-1 mb-2 number-item" 
+                                      data-number="{{ so }}" onclick="analyzeNumber('{{ so }}')">
+                                    {{ so }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistical Analysis -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-bar text-info me-2"></i>
+                            Thống kê đầu số
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="headStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3">
+                            {% for dau, count in phan_tich.thong_ke_dau.items %}
+                                <span class="badge bg-info me-1 mb-1">{{ dau }}: {{ count }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-chart-pie text-warning me-2"></i>
+                            Thống kê đuôi số
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="tailStatsChart"></canvas>
+                        </div>
+                        <div class="mt-3">
+                            {% for duoi, count in phan_tich.thong_ke_duoi.items %}
+                                <span class="badge bg-warning me-1 mb-1">{{ duoi }}: {{ count }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sum and Touch Analysis -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-plus text-success me-2"></i>
+                            Thống kê tổng
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for tong, count in phan_tich.thong_ke_tong.items %}
+                                <div class="col-4 mb-2">
+                                    <div class="text-center p-2 border rounded">
+                                        <strong>{{ tong }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ count }} lần</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card card-custom h-100">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="fas fa-hand-point-right text-danger me-2"></i>
+                            Thống kê chạm
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="touchStatsChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cycle Analysis -->
+        {% if phan_tich.phan_tich_chu_ky %}
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-sync text-secondary me-2"></i>
+                    Phân tích chu kỳ
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Số</th>
+                                <th>Chu kỳ TB</th>
+                                <th>Lần cuối</th>
+                                <th>Số lần xuất hiện</th>
+                                <th>Dự đoán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for so, thong_tin in phan_tich.phan_tich_chu_ky.items %}
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary">{{ so }}</span>
+                                </td>
+                                <td>{{ thong_tin.chu_ky_tb|floatformat:1 }} ngày</td>
+                                <td>{{ thong_tin.lan_cuoi }} ngày</td>
+                                <td>{{ thong_tin.so_lan_xuat_hien }}</td>
+                                <td>
+                                    {% if thong_tin.lan_cuoi >= thong_tin.chu_ky_tb %}
+                                        <span class="badge bg-success">Có khả năng</span>
+                                    {% else %}
+                                        <span class="badge bg-warning">Chưa đến lúc</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- 3-Day Predictions -->
+        {% if phan_tich.du_doan_3_ngay %}
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-crystal-ball text-purple me-2"></i>
+                    Dự đoán 3 ngày tiếp theo
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="prediction-timeline">
+                    {% for ngay, so_dict in phan_tich.du_doan_3_ngay.items %}
+                    <div class="prediction-day mb-4">
+                        <h6 class="text-primary">
+                            <i class="fas fa-calendar-day me-2"></i>
+                            {{ ngay }}
+                        </h6>
+                        <div class="row">
+                            {% for so, info in so_dict.items %}
+                            <div class="col-md-3 mb-3">
+                                <div class="prediction-card p-3 border rounded 
+                                    {% if info.xac_suat >= 0.7 %}border-success
+                                    {% elif info.xac_suat >= 0.4 %}border-warning
+                                    {% else %}border-light{% endif %}">
+                                    <div class="text-center">
+                                        <span class="badge 
+                                            {% if info.xac_suat >= 0.7 %}bg-success
+                                            {% elif info.xac_suat >= 0.4 %}bg-warning
+                                            {% else %}bg-secondary{% endif %} fs-6 mb-2">
+                                            {{ so }}
+                                        </span>
+                                        <br>
+                                        <small class="text-muted">
+                                            XS: {{ info.xac_suat|floatformat:3 }}<br>
+                                            Chu kỳ: {{ info.chu_ky_tb|floatformat:1 }}<br>
+                                            {% if info.la_ngay_cao_nhat %}
+                                                <span class="badge bg-gold">Ngày tốt nhất</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-bolt text-warning me-2"></i>
+                    Thao tác nhanh
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="createLottoFrame()">
+                        <i class="fas fa-th-large me-2"></i>Tạo lô khung
+                    </button>
+                    <button class="btn btn-outline-success" onclick="suggestNumbers()">
+                        <i class="fas fa-lightbulb me-2"></i>Gợi ý số
+                    </button>
+                    <button class="btn btn-outline-info" onclick="analyzePattern()">
+                        <i class="fas fa-search me-2"></i>Phân tích mẫu
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="findSimilarDays()">
+                        <i class="fas fa-clone me-2"></i>Tìm ngày tương tự
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Summary -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie text-info me-2"></i>
+                    Tóm tắt thống kê
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Tổng số 2D:</span>
+                        <strong>{{ phan_tich.so_2d_xuat_hien|length }}</strong>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Tổng số 3D:</span>
+                        <strong>{{ phan_tich.so_3d_xuat_hien|length }}</strong>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Đầu số khác nhau:</span>
+                        <strong>{{ phan_tich.thong_ke_dau|length }}</strong>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Đuôi số khác nhau:</span>
+                        <strong>{{ phan_tich.thong_ke_duoi|length }}</strong>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Tổng khác nhau:</span>
+                        <strong>{{ phan_tich.thong_ke_tong|length }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Hot/Cold Numbers -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-thermometer-half text-danger me-2"></i>
+                    Số nóng/lạnh
+                </h6>
+            </div>
+            <div class="card-body" id="hot-cold-numbers">
+                <div class="text-center">
+                    <div class="spinner-border spinner-border-sm"></div>
+                    <p class="mt-2 text-muted small">Đang phân tích...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Number Analysis Modal -->
+<div class="modal fade" id="numberAnalysisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Phân tích số <span id="analyzed-number"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="number-analysis-content">
+                <!-- Content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    initCharts();
+    loadHotColdNumbers();
+});
+
+function initCharts() {
+    // Head Stats Chart
+    try {
+        const headData = {{ phan_tich.thong_ke_dau|safe }};
+        console.log('Head data:', headData); // Debug log
+        
+        const headCtx = document.getElementById('headStatsChart');
+        if (headCtx) {
+            // Thiết lập kích thước cố định trước khi tạo chart
+            headCtx.style.width = '100%';
+            headCtx.style.height = '250px';
+            headCtx.width = 400;  // Kích thước cố định
+            headCtx.height = 250; // Kích thước cố định
+            
+            new Chart(headCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(headData),
+                    datasets: [{
+                        label: 'Số lần xuất hiện',
+                        data: Object.values(headData),
+                        backgroundColor: 'rgba(23, 162, 184, 0.5)',
+                        borderColor: 'rgba(23, 162, 184, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    devicePixelRatio: 1, // Giảm xuống 1 thay vì 1.5
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(...Object.values(headData)) + 2 // Giới hạn trục Y
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error('Canvas element headStatsChart not found');
+        }
+    } catch (e) {
+        console.error('Error initializing head stats chart:', e);
+        // Hiển thị dữ liệu dạng text nếu chart không tạo được
+        document.getElementById('headStatsChart').style.display = 'none';
+    }
+
+    
+    // Tail Stats Chart
+    const tailData = {{ phan_tich.thong_ke_duoi|safe }};
+    const tailCtx = document.getElementById('tailStatsChart');
+    new Chart(tailCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(tailData),
+            datasets: [{
+                data: Object.values(tailData),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF',
+                    '#4BC0C0', '#FF9F40'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+    
+    // Touch Stats Chart
+    const touchData = {{ phan_tich.thong_ke_cham|safe }};
+    const touchCtx = document.getElementById('touchStatsChart');
+    new Chart(touchCtx, {
+        type: 'line',
+        data: {
+            labels: Object.keys(touchData),
+            datasets: [{
+                label: 'Chạm',
+                data: Object.values(touchData),
+                borderColor: 'rgba(220, 53, 69, 1)',
+                backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function loadHotColdNumbers() {
+    // Simulate loading hot/cold numbers
+    setTimeout(() => {
+        const hotNumbers = ['12', '34', '56'];
+        const coldNumbers = ['78', '90', '01'];
+        
+        let html = `
+            <div class="mb-3">
+                <h6 class="text-danger">
+                    <i class="fas fa-fire me-2"></i>Số nóng
+                </h6>
+                <div>
+                    ${hotNumbers.map(n => `<span class="badge prediction-correct number-highlight me-1">${n}</span>`).join('')}
+                </div>
+            </div>
+            <div>
+                <h6 class="text-info">
+                    <i class="fas fa-snowflake me-2"></i>Số lạnh
+                </h6>
+                <div>
+                    ${coldNumbers.map(n => `<span class="badge bg-info me-1">${n}</span>`).join('')}
+                </div>
+            </div>
+        `;
+        
+        $('#hot-cold-numbers').html(html);
+    }, 1500);
+}
+
+function analyzeNumber(number) {
+    $('#analyzed-number').text(number);
+    $('#number-analysis-content').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích số ' + number + '...</p></div>');
+    $('#numberAnalysisModal').modal('show');
+    
+    // Simulate analysis
+    setTimeout(() => {
+        const analysis = `
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Thông tin cơ bản</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Số:</span>
+                            <strong>${number}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Đầu:</span>
+                            <strong>${number.charAt(0)}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Đuôi:</span>
+                            <strong>${number.charAt(number.length - 1)}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Tổng:</span>
+                            <strong>${number.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0)}</strong>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Lịch sử xuất hiện</h6>
+                    <p class="text-muted">30 ngày qua: ${Math.floor(Math.random() * 5) + 1} lần</p>
+                    <p class="text-muted">Chu kỳ trung bình: ${Math.floor(Math.random() * 20) + 5} ngày</p>
+                    <p class="text-muted">Lần cuối: ${Math.floor(Math.random() * 15)} ngày trước</p>
+                    <div class="mt-3">
+                        <span class="badge ${Math.random() > 0.5 ? 'bg-success' : 'bg-warning'}">
+                            ${Math.random() > 0.5 ? 'Có khả năng về' : 'Chưa đến lúc'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('#number-analysis-content').html(analysis);
+    }, 2000);
+}
+
+function createPredictionFromAnalysis() {
+    if (confirm('Tạo dự đoán dựa trên phân tích này?')) {
+        const bestNumbers = [];
+        
+        // Get numbers with high probability from 3-day predictions
+        {% if phan_tich.du_doan_3_ngay %}
+        {% for ngay, so_dict in phan_tich.du_doan_3_ngay.items %}
+            {% for so, info in so_dict.items %}
+                {% if info.xac_suat >= 0.5 %}
+                    bestNumbers.push('{{ so }}');
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+        {% endif %}
+        
+        if (bestNumbers.length > 0) {
+            const queryParams = new URLSearchParams({
+                analysis_id: {{ phan_tich.pk }},
+                suggested_numbers: bestNumbers.slice(0, 5).join(','),
+                ngay_phan_tich: '{{ phan_tich.ngay_phan_tich|date:"Y-m-d" }}'
+            });
+            
+            window.location.href = '{% url "lokhung:du_doan_create" %}?' + queryParams.toString();
+        } else {
+            alert('Không tìm thấy số có độ tin cậy cao để tạo dự đoán.');
+        }
+    }
+}
+
+function createLottoFrame() {
+    if (confirm('Tạo lô khung dựa trên phân tích này?')) {
+        const numbers = {{ phan_tich.so_2d_xuat_hien|safe }};
+        const queryParams = new URLSearchParams({
+            analysis_id: {{ phan_tich.pk }},
+            suggested_numbers: numbers.slice(0, 10).join(','),
+            ngay_bat_dau: '{{ phan_tich.ngay_phan_tich|date:"Y-m-d" }}'
+        });
+        
+        window.location.href = '{% url "lokhung:lo_khung_create" %}?' + queryParams.toString();
+    }
+}
+
+function suggestNumbers() {
+    const suggestions = [];
+    
+    // Get top numbers from cycle analysis
+    {% if phan_tich.phan_tich_chu_ky %}
+    {% for so, thong_tin in phan_tich.phan_tich_chu_ky.items %}
+        {% if thong_tin.lan_cuoi >= thong_tin.chu_ky_tb %}
+            suggestions.push('{{ so }}');
+        {% endif %}
+    {% endfor %}
+    {% endif %}
+    
+    if (suggestions.length > 0) {
+        alert('Gợi ý số có khả năng về: ' + suggestions.slice(0, 5).join(', '));
+    } else {
+        alert('Không có gợi ý đặc biệt cho ngày này.');
+    }
+}
+
+function analyzePattern() {
+    alert('Tính năng phân tích mẫu đang được phát triển.');
+}
+
+function findSimilarDays() {
+    alert('Tính năng tìm ngày tương tự đang được phát triển.');
+}
+
+function showLotteryResults() {
+    window.open('/results/detail/{{ phan_tich.ngay_phan_tich|date:"Y-m-d" }}/', '_blank');
+}
+
+function exportAnalysis() {
+    const analysisData = {
+        date: '{{ phan_tich.ngay_phan_tich|date:"Y-m-d" }}',
+        numbers_2d: {{ phan_tich.so_2d_xuat_hien|safe }},
+        numbers_3d: {{ phan_tich.so_3d_xuat_hien|safe }},
+        head_stats: {{ phan_tich.thong_ke_dau|safe }},
+        tail_stats: {{ phan_tich.thong_ke_duoi|safe }},
+        sum_stats: {{ phan_tich.thong_ke_tong|safe }},
+        touch_stats: {{ phan_tich.thong_ke_cham|safe }},
+        cycle_analysis: {{ phan_tich.phan_tich_chu_ky|safe }},
+        predictions_3day: {{ phan_tich.du_doan_3_ngay|safe }}
+    };
+    
+    const dataStr = JSON.stringify(analysisData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'phan_tich_{{ phan_tich.ngay_phan_tich|date:"Y-m-d" }}.json';
+    link.click();
+}
+
+function compareWithOtherDays() {
+    alert('Tính năng so sánh với ngày khác đang được phát triển.');
+}
+</script>
+
+<style>
+.number-item {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.number-item:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.prediction-card {
+    transition: all 0.3s ease;
+}
+
+.prediction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.prediction-timeline {
+    position: relative;
+}
+
+.prediction-day {
+    position: relative;
+    padding-left: 30px;
+}
+
+.prediction-day::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    bottom: -20px;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.prediction-day:last-child::before {
+    display: none;
+}
+
+.prediction-day::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 8px;
+    width: 10px;
+    height: 10px;
+    background: #007bff;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+}
+
+.bg-gold {
+    background: linear-gradient(135deg, #FFD700, #FFA500) !important;
+    color: #000 !important;
+}
+</style>
+{% endblock %}

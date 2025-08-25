@@ -1,0 +1,167 @@
+{% extends 'soicaubacnho/base.html' %}
+{% load soicaubacnho_xs_tags %}
+{% load static %}
+{% block title %}Tổng quan - Phiên bản {{ selected_version }}{% endblock %}
+{% block extra_css %}
+<style>
+  .badge.bg-hit {
+    background-color: #28a745;
+    color: white;
+  }
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="mb-4">Tổng quan <small class="text-muted">(Phiên bản {{ selected_version }})</small></h1>
+<div class="row">
+  <div class="col-md-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title">Dự đoán mới nhất</h5>
+      </div>
+      <div class="card-body">
+        {% if latest_predictions %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Ngày dự đoán</th>
+                  <th>Kết quả dự đoán</th>
+                  <th>Độ tin cậy</th>
+                  <th>Kết quả</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for prediction in latest_predictions %}
+                  <tr>
+                    <td>{{ prediction.ngay_du_doan }}</td>
+                    <td>
+                      {% for num in prediction.get_ket_qua_du_doan %}
+                        {% if prediction.ket_qua_thuc_te and num in prediction.get_ket_qua_thuc_te %}
+                          <span class="badge bg-hit">{{ num }}</span>
+                        {% else %}
+                          <span class="badge bg-primary">{{ num }}</span>
+                        {% endif %}
+                      {% endfor %}
+                    </td>
+                    <td>{{ prediction.ty_le_tin_cay }}%</td>
+                    <td>
+                      {% if prediction.ket_qua_trung %}
+                        <span class="badge bg-success">Trúng</span>
+                      {% elif prediction.ket_qua_trung == False %}
+                        <span class="badge bg-danger">Trượt</span>
+                      {% else %}
+                        <span class="badge bg-secondary">Chưa có kết quả</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <a href="{% url 'prediction_results' prediction.id %}" class="btn btn-sm btn-info">Chi tiết</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-center">Chưa có dự đoán nào cho phiên bản này.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title">Hiệu quả gần đây</h5>
+      </div>
+      <div class="card-body">
+        <canvas id="methodPerformanceChart"></canvas>
+      </div>
+    </div>
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title">Công cụ nhanh</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-grid gap-2">
+          <a href="{% url 'predict_view' %}?version={{ selected_version }}" class="btn btn-primary">
+            <i class="fas fa-chart-line"></i> Phân tích mới
+          </a>
+          <a href="{% url 'compare_versions' %}" class="btn btn-outline-primary">
+            <i class="fas fa-balance-scale"></i> So sánh phiên bản
+          </a>
+          <button id="updateResultsBtn" class="btn btn-outline-success">
+            <i class="fas fa-sync-alt"></i> Cập nhật kết quả
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+// Biểu đồ hiệu quả gần đây
+document.addEventListener('DOMContentLoaded', function() {
+  var ctx = document.getElementById('methodPerformanceChart').getContext('2d');
+  var methods = [];
+  var hitRates = [];
+  {% for method, stats in recent_stats.items %}
+    methods.push('{{ stats.name }}');
+    hitRates.push({{ stats.hit_rate|floatformat:1 }});
+  {% endfor %}
+  var chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: methods,
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: hitRates,
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      }
+    }
+  });
+  // Xử lý nút cập nhật kết quả
+  document.getElementById('updateResultsBtn').addEventListener('click', function() {
+    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang cập nhật...';
+    this.disabled = true;
+    fetch('/soicau/api/update-results/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: JSON.stringify({
+        version: '{{ selected_version }}'
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Đã cập nhật ' + data.updated_count + ' dự đoán.');
+        location.reload();
+      } else {
+        alert('Lỗi: ' + data.message);
+      }
+    })
+    .catch(error => {
+      alert('Đã xảy ra lỗi: ' + error);
+    })
+    .finally(() => {
+      this.innerHTML = '<i class="fas fa-sync-alt"></i> Cập nhật kết quả';
+      this.disabled = false;
+    });
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,831 @@
+<!-- chamde/report.html -->
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block page_title %}Báo cáo Phân tích Chạm{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Báo cáo</li>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Bộ lọc ngày -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <label for="days" class="form-label">Phạm vi báo cáo:</label>
+          <select name="days" id="days" class="form-select">
+            <option value="7" {% if selected_days == 7 %}selected{% endif %}>7 ngày qua</option>
+            <option value="30" {% if selected_days == 30 %}selected{% endif %}>30 ngày qua</option>
+            <option value="90" {% if selected_days == 90 %}selected{% endif %}>90 ngày qua</option>
+            <option value="180" {% if selected_days == 180 %}selected{% endif %}>180 ngày qua</option>
+            <option value="365" {% if selected_days == 365 %}selected{% endif %}>365 ngày qua</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">&nbsp;</label>
+          <button type="submit" class="btn btn-primary d-block">
+            <i class="fas fa-filter"></i> Lọc
+          </button>
+        </div>
+        <div class="col-md-5 text-end">
+          <p class="mb-0 mt-3">
+            <span class="badge bg-info">Báo cáo từ {{ start_date|date:"d/m/Y" }} đến {{ today|date:"d/m/Y" }}</span>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Tóm tắt tổng quan -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-chart-pie"></i> Tóm tắt tổng quan</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card text-center mb-3">
+            <div class="card-body">
+              <h3 class="text-primary">{{ overall_stats.total_results|default:0|intcomma }}</h3>
+              <p class="text-muted mb-0">Kết quả xổ số</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card text-center mb-3">
+            <div class="card-body">
+              <h3 class="text-success">{{ overall_stats.total_predictions|default:0|intcomma }}</h3>
+              <p class="text-muted mb-0">Dự đoán đã tạo</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card text-center mb-3">
+            <div class="card-body">
+              <h3 class="text-info">{{ overall_stats.total_hits|default:0|intcomma }}</h3>
+              <p class="text-muted mb-0">Dự đoán trúng</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card text-center mb-3">
+            <div class="card-body">
+              <h3 class="text-danger">{{ overall_stats.overall_hit_rate|floatformat:1 }}%</h3>
+              <p class="text-muted mb-0">Tỷ lệ trúng tổng thể</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mt-3">
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Tỷ lệ trúng theo phương pháp</h6>
+            </div>
+            <div class="card-body">
+              <canvas id="methodHitRateChart" height="250"></canvas>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Phân tích mẫu quả trám</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-6">
+                  <div class="card text-center mb-3">
+                    <div class="card-body">
+                      <h3 class="text-primary">{{ overall_stats.total_qua_tram|default:0|intcomma }}</h3>
+                      <p class="text-muted mb-0">Mẫu đã phát hiện</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="col-6">
+                  <div class="card text-center mb-3">
+                    <div class="card-body">
+                      <h3 class="text-success">{{ overall_stats.qua_tram_hit_rate|floatformat:1 }}%</h3>
+                      <p class="text-muted mb-0">Tỷ lệ trúng</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                Mẫu quả trám có tỷ lệ trúng {{ overall_stats.qua_tram_hit_rate|floatformat:1 }}%, 
+                với {{ overall_stats.qua_tram_hits }} mẫu trúng trong tổng số {{ overall_stats.total_qua_tram }} mẫu.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hiệu suất theo phương pháp -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-chart-line"></i> Hiệu suất theo phương pháp</h5>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Phương pháp</th>
+              <th>Tổng dự đoán</th>
+              <th>Số lần trúng</th>
+              <th>Tỷ lệ trúng</th>
+              <th>Xu hướng</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for method_key, stats in method_stats.items %}
+              <tr>
+                <td>{{ stats.name }}</td>
+                <td>{{ stats.total|intcomma }}</td>
+                <td>{{ stats.hits|intcomma }}</td>
+                <td>
+                  <div class="progress" style="height: 20px;">
+                    <div class="progress-bar bg-{% if stats.hit_rate >= 70 %}success{% elif stats.hit_rate >= 40 %}primary{% elif stats.hit_rate >= 20 %}warning{% else %}danger{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ stats.hit_rate }}%;" 
+                         aria-valuenow="{{ stats.hit_rate }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                      {{ stats.hit_rate|floatformat:1 }}%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {% with prev_hit_rate=0 %}
+                    {% if stats.hit_rate > prev_hit_rate %}
+                      <span class="text-success"><i class="fas fa-arrow-up"></i> Tăng</span>
+                    {% elif stats.hit_rate < prev_hit_rate %}
+                      <span class="text-danger"><i class="fas fa-arrow-down"></i> Giảm</span>
+                    {% else %}
+                      <span class="text-secondary"><i class="fas fa-minus"></i> Ổn định</span>
+                    {% endif %}
+                  {% endwith %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hiệu suất theo ngày trong tuần -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-calendar-day"></i> Hiệu suất theo ngày trong tuần</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <canvas id="weekdayHitRateChart" height="250"></canvas>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Thứ</th>
+                  <th>Tỷ lệ trúng</th>
+                  <th>Phương pháp tốt nhất</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for weekday_stat in weekday_stats %}
+                  <tr>
+                    <td>{{ weekday_stat.weekday }}</td>
+                    <td>
+                      <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-{% if weekday_stat.hit_rate >= 70 %}success{% elif weekday_stat.hit_rate >= 40 %}primary{% elif weekday_stat.hit_rate >= 20 %}warning{% else %}danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ weekday_stat.hit_rate }}%;" 
+                             aria-valuenow="{{ weekday_stat.hit_rate }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                          {{ weekday_stat.hit_rate|floatformat:1 }}%
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if weekday_stat.best_method %}
+                        <span class="badge bg-success">{{ weekday_stat.best_method.0 }}</span>
+                        <small class="text-muted">({{ weekday_stat.best_method.1.hit_rate|floatformat:1 }}%)</small>
+                      {% else %}
+                        <span class="text-muted">Không có dữ liệu</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hiệu suất theo tháng -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="card-title mb-0"><i class="fas fa-calendar-alt"></i> Hiệu suất theo tháng</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <canvas id="monthHitRateChart" height="250"></canvas>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>Tháng</th>
+                  <th>Tỷ lệ trúng</th>
+                  <th>Phương pháp tốt nhất</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for month_stat in month_stats %}
+                  <tr>
+                    <td>{{ month_stat.month }} {{ month_stat.year }}</td>
+                    <td>
+                      <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-{% if month_stat.hit_rate >= 70 %}success{% elif month_stat.hit_rate >= 40 %}primary{% elif month_stat.hit_rate >= 20 %}warning{% else %}danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ month_stat.hit_rate }}%;" 
+                             aria-valuenow="{{ month_stat.hit_rate }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                          {{ month_stat.hit_rate|floatformat:1 }}%
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      {% if month_stat.best_method %}
+                        <span class="badge bg-success">{{ month_stat.best_method.0 }}</span>
+                        <small class="text-muted">({{ month_stat.best_method.1.hit_rate|floatformat:1 }}%)</small>
+                      {% else %}
+                        <span class="text-muted">Không có dữ liệu</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Hiệu suất theo giá trị chạm -->
+  <div class="card mb-4">
+    <div class="card-header bg-danger text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-percentage"></i> Hiệu suất theo giá trị chạm</h5>
+    </div>
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="chamTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="cham-dau-tab" data-bs-toggle="tab" data-bs-target="#cham-dau" type="button" role="tab" aria-controls="cham-dau" aria-selected="true">
+            Chạm đầu
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="cham-duoi-tab" data-bs-toggle="tab" data-bs-target="#cham-duoi" type="button" role="tab" aria-controls="cham-duoi" aria-selected="false">
+            Chạm đuôi
+          </button>
+        </li>
+      </ul>
+      
+      <div class="tab-content mt-3" id="chamTabsContent">
+        <!-- Chạm đầu -->
+        <div class="tab-pane fade show active" id="cham-dau" role="tabpanel" aria-labelledby="cham-dau-tab">
+          <div class="row">
+            <div class="col-md-6">
+              <canvas id="chamDauHitRateChart" height="250"></canvas>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Chạm</th>
+                      <th>Tổng</th>
+                      <th>Số lần trúng</th>
+                      <th>Tỷ lệ trúng</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cham_value, stats in cham_stats.dau.items %}
+                      <tr class="{% if cham_value == cham_stats.best_cham_dau.value %}table-success{% endif %}">
+                        <td>{{ cham_value }}</td>
+                        <td>{{ stats.total }}</td>
+                        <td>{{ stats.hits }}</td>
+                        <td>
+                          <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{% if stats.hit_rate >= 70 %}success{% elif stats.hit_rate >= 40 %}primary{% elif stats.hit_rate >= 20 %}warning{% else %}danger{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ stats.hit_rate }}%;" 
+                                 aria-valuenow="{{ stats.hit_rate }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                              {{ stats.hit_rate|floatformat:1 }}%
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="alert alert-success mt-3">
+                <strong>Chạm đầu tốt nhất:</strong> {{ cham_stats.best_cham_dau.value }} 
+                ({{ cham_stats.best_cham_dau.stats.hit_rate|floatformat:1 }}% - {{ cham_stats.best_cham_dau.stats.hits }}/{{ cham_stats.best_cham_dau.stats.total }})
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Chạm đuôi -->
+        <div class="tab-pane fade" id="cham-duoi" role="tabpanel" aria-labelledby="cham-duoi-tab">
+          <div class="row">
+            <div class="col-md-6">
+              <canvas id="chamDuoiHitRateChart" height="250"></canvas>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                  <thead>
+                    <tr>
+                      <th>Chạm</th>
+                      <th>Tổng</th>
+                      <th>Số lần trúng</th>
+                      <th>Tỷ lệ trúng</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for cham_value, stats in cham_stats.duoi.items %}
+                      <tr class="{% if cham_value == cham_stats.best_cham_duoi.value %}table-success{% endif %}">
+                        <td>{{ cham_value }}</td>
+                        <td>{{ stats.total }}</td>
+                        <td>{{ stats.hits }}</td>
+                        <td>
+                          <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{% if stats.hit_rate >= 70 %}success{% elif stats.hit_rate >= 40 %}primary{% elif stats.hit_rate >= 20 %}warning{% else %}danger{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ stats.hit_rate }}%;" 
+                                 aria-valuenow="{{ stats.hit_rate }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                              {{ stats.hit_rate|floatformat:1 }}%
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              
+              <div class="alert alert-success mt-3">
+                <strong>Chạm đuôi tốt nhất:</strong> {{ cham_stats.best_cham_duoi.value }} 
+                ({{ cham_stats.best_cham_duoi.stats.hit_rate|floatformat:1 }}% - {{ cham_stats.best_cham_duoi.stats.hits }}/{{ cham_stats.best_cham_duoi.stats.total }})
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Top số xuất hiện nhiều nhất -->
+  <div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+      <h5 class="card-title mb-0"><i class="fas fa-fire"></i> Top số xuất hiện nhiều nhất</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <canvas id="topNumbersChart" height="300"></canvas>
+        </div>
+        
+        <div class="col-md-6">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Số</th>
+                  <th>Số lần xuất hiện</th>
+                  <th>Tỷ lệ xuất hiện</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for num, count, rate in number_stats.top_numbers %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                      <span class="number-badge bg-dark text-white">{{ num }}</span>
+                    </td>
+                    <td>{{ count }}</td>
+                    <td>
+                      <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-dark" 
+                             role="progressbar" 
+                             style="width: {{ rate }}%;" 
+                             aria-valuenow="{{ rate }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                          {{ rate|floatformat:1 }}%
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tải xuống báo cáo -->
+  <div class="card mb-4">
+    <div class="card-body text-center">
+      <h5 class="mb-3">Tải xuống báo cáo chi tiết</h5>
+      <div class="btn-group">
+        <a href="#" class="btn btn-danger">
+          <i class="fas fa-file-pdf"></i> PDF
+        </a>
+        <a href="#" class="btn btn-success">
+          <i class="fas fa-file-excel"></i> Excel
+        </a>
+        <a href="#" class="btn btn-primary">
+          <i class="fas fa-file-csv"></i> CSV
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block cham_scripts %}
+  <script>
+  // 1. Chuẩn bị dữ liệu cho method_stats
+  var methodStats = {
+    {% for method_key, stats in method_stats.items %}
+      "{{ method_key }}": {
+        "name": "{{ stats.name }}",
+        "hit_rate": {{ stats.hit_rate|floatformat:1 }},
+        "hits": {{ stats.hits }},
+        "total": {{ stats.total }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+  var methodKeys = [{% for method_key, stats in method_stats.items %}"{{ method_key }}"{% if not forloop.last %},{% endif %}{% endfor %}];
+
+  // 2. Chuẩn bị dữ liệu cho weekday_stats
+  var weekdayStats = [
+    {% for weekday_stat in weekday_stats %}
+      {
+        "weekday": "{{ weekday_stat.weekday }}",
+        "hit_rate": {{ weekday_stat.hit_rate|floatformat:1 }},
+        "hits": {{ weekday_stat.hits }},
+        "total": {{ weekday_stat.total }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // 3. Chuẩn bị dữ liệu cho month_stats
+  var monthStats = [
+    {% for month_stat in month_stats %}
+      {
+        "label": "{{ month_stat.month }} {{ month_stat.year }}",
+        "hit_rate": {{ month_stat.hit_rate|floatformat:1 }},
+        "hits": {{ month_stat.hits }},
+        "total": {{ month_stat.total }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // 4. Chuẩn bị dữ liệu cho cham_stats
+  var chamDauStats = {
+    {% for i in '0123456789' %}
+      "{{ i }}": {
+        "hit_rate": {{ cham_stats.dau|get_item:i|get_item:'hit_rate'|floatformat:1 }},
+        "hits": {{ cham_stats.dau|get_item:i|get_item:'hits' }},
+        "total": {{ cham_stats.dau|get_item:i|get_item:'total' }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+  var chamDuoiStats = {
+    {% for i in '0123456789' %}
+      "{{ i }}": {
+        "hit_rate": {{ cham_stats.duoi|get_item:i|get_item:'hit_rate'|floatformat:1 }},
+        "hits": {{ cham_stats.duoi|get_item:i|get_item:'hits' }},
+        "total": {{ cham_stats.duoi|get_item:i|get_item:'total' }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  // 5. Chuẩn bị dữ liệu cho top_numbers
+  var topNumbers = [
+    {% for num, count, rate in number_stats.top_numbers %}
+      {
+        "num": "{{ num }}",
+        "count": {{ count }},
+        "rate": {{ rate|floatformat:1 }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  // Biểu đồ tỷ lệ trúng theo phương pháp
+  var methodHitRateCtx = document.getElementById('methodHitRateChart').getContext('2d');
+  var methodHitRateChart = new Chart(methodHitRateCtx, {
+    type: 'bar',
+    data: {
+      labels: methodKeys.map(function(key) { return methodStats[key].name; }),
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: methodKeys.map(function(key) { return methodStats[key].hit_rate; }),
+        backgroundColor: 'rgba(40, 167, 69, 0.6)',
+        borderColor: 'rgba(40, 167, 69, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Phương pháp'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var i = context.dataIndex;
+              var key = methodKeys[i];
+              var stat = methodStats[key];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ tỷ lệ trúng theo ngày trong tuần
+  var weekdayHitRateCtx = document.getElementById('weekdayHitRateChart').getContext('2d');
+  var weekdayHitRateChart = new Chart(weekdayHitRateCtx, {
+    type: 'bar',
+    data: {
+      labels: weekdayStats.map(function(item) { return item.weekday; }),
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: weekdayStats.map(function(item) { return item.hit_rate; }),
+        backgroundColor: 'rgba(23, 162, 184, 0.6)',
+        borderColor: 'rgba(23, 162, 184, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Ngày trong tuần'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var stat = weekdayStats[context.dataIndex];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ tỷ lệ trúng theo tháng
+  var monthHitRateCtx = document.getElementById('monthHitRateChart').getContext('2d');
+  var monthHitRateChart = new Chart(monthHitRateCtx, {
+    type: 'bar',
+    data: {
+      labels: monthStats.map(function(item) { return item.label; }),
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: monthStats.map(function(item) { return item.hit_rate; }),
+        backgroundColor: 'rgba(255, 193, 7, 0.6)',
+        borderColor: 'rgba(255, 193, 7, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Tháng'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var stat = monthStats[context.dataIndex];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ tỷ lệ trúng theo chạm đầu
+  var chamDauHitRateCtx = document.getElementById('chamDauHitRateChart').getContext('2d');
+  var chamDauHitRateChart = new Chart(chamDauHitRateCtx, {
+    type: 'bar',
+    data: {
+      labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: ['0','1','2','3','4','5','6','7','8','9'].map(function(i) { return chamDauStats[i].hit_rate; }),
+        backgroundColor: 'rgba(220, 53, 69, 0.6)',
+        borderColor: 'rgba(220, 53, 69, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Giá trị chạm'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var chamValue = context.label;
+              var stat = chamDauStats[chamValue];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ tỷ lệ trúng theo chạm đuôi
+  var chamDuoiHitRateCtx = document.getElementById('chamDuoiHitRateChart').getContext('2d');
+  var chamDuoiHitRateChart = new Chart(chamDuoiHitRateCtx, {
+    type: 'bar',
+    data: {
+      labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: ['0','1','2','3','4','5','6','7','8','9'].map(function(i) { return chamDuoiStats[i].hit_rate; }),
+        backgroundColor: 'rgba(220, 53, 69, 0.6)',
+        borderColor: 'rgba(220, 53, 69, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Giá trị chạm'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var chamValue = context.label;
+              var stat = chamDuoiStats[chamValue];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ top số xuất hiện nhiều nhất
+  var topNumbersCtx = document.getElementById('topNumbersChart').getContext('2d');
+  var topNumbersChart = new Chart(topNumbersCtx, {
+    type: 'bar',
+    data: {
+      labels: topNumbers.map(function(item) { return item.num; }),
+      datasets: [{
+        label: 'Số lần xuất hiện',
+        data: topNumbers.map(function(item) { return item.count; }),
+        backgroundColor: 'rgba(52, 58, 64, 0.6)',
+        borderColor: 'rgba(52, 58, 64, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Số lần xuất hiện'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Số'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var stat = topNumbers[context.dataIndex];
+              return 'Tỷ lệ xuất hiện: ' + stat.rate + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

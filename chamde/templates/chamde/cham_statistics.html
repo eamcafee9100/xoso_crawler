@@ -1,0 +1,376 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+{% block title %}Thống Kê Chạm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hit-highlight {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        font-weight: bold;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        border-radius: 4px;
+        padding: 2px 6px;
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+    
+    .high-hit-rate {
+        background: linear-gradient(135deg, #dc3545, #fd7e14);
+        color: white;
+        font-weight: bold;
+    }
+    
+    .medium-hit-rate {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: #212529;
+        font-weight: bold;
+    }
+    
+    .low-hit-rate {
+        background: linear-gradient(135deg, #6c757d, #adb5bd);
+        color: white;
+    }
+    
+    @keyframes glow {
+        from { box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); }
+        to { box-shadow: 0 0 20px rgba(40, 167, 69, 0.8); }
+    }
+    
+    .stats-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .number-badge {
+        display: inline-block;
+        width: 35px;
+        height: 35px;
+        line-height: 31px;
+        text-align: center;
+        border-radius: 50%;
+        font-weight: bold;
+        margin: 2px;
+        font-size: 14px;
+    }
+    
+    .weekday-bar {
+        height: 20px;
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        border-radius: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .weekday-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+        animation: shimmer 2s ease-in-out infinite;
+    }
+    
+    @keyframes shimmer {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 300px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-1 text-primary">
+                        <i class="fas fa-chart-line me-2"></i>Thống Kê Chạm
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Phân tích từ {{ start_date|date:"d/m/Y" }} đến {{ end_date|date:"d/m/Y" }}
+                        ({{ selected_days }} ngày)
+                    </p>
+                </div>
+                
+                <!-- Time Range Filter -->
+                <div class="btn-group" role="group">
+                    <a href="?days=7" class="btn btn-outline-primary {% if selected_days == 7 %}active{% endif %}">
+                        7 ngày
+                    </a>
+                    <a href="?days=30" class="btn btn-outline-primary {% if selected_days == 30 %}active{% endif %}">
+                        30 ngày
+                    </a>
+                    <a href="?days=90" class="btn btn-outline-primary {% if selected_days == 90 %}active{% endif %}">
+                        90 ngày
+                    </a>
+                    <a href="?days=365" class="btn btn-outline-primary {% if selected_days == 365 %}active{% endif %}">
+                        1 năm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards Row -->
+    <div class="row g-4 mb-4">
+        <!-- Chạm Đầu Statistics -->
+        <div class="col-lg-6">
+            <div class="card stats-card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-arrow-right me-2"></i>Thống Kê Chạm Đầu
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for stat in cham_dau_stats %}
+                        <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                            <div class="text-center p-3 rounded-3 
+                                {% if stat.hit_rate >= 70 %}bg-success text-white
+                                {% elif stat.hit_rate >= 50 %}bg-warning text-dark
+                                {% else %}bg-light text-dark{% endif %}">
+                                <div class="number-badge bg-white text-primary mb-2">
+                                    {{ stat.value }}
+                                </div>
+                                <div class="small">
+                                    <div class="fw-bold">{{ stat.hit_count }}/{{ stat.total_count }}</div>
+                                    <div class="{% if stat.hit_rate >= 70 %}hit-highlight{% endif %}">
+                                        {{ stat.hit_rate }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chạm Đuôi Statistics -->
+        <div class="col-lg-6">
+            <div class="card stats-card h-100">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-arrow-left me-2"></i>Thống Kê Chạm Đuôi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for stat in cham_duoi_stats %}
+                        <div class="col-6 col-md-4 col-lg-6 col-xl-4">
+                            <div class="text-center p-3 rounded-3 
+                                {% if stat.hit_rate >= 70 %}bg-success text-white
+                                {% elif stat.hit_rate >= 50 %}bg-warning text-dark
+                                {% else %}bg-light text-dark{% endif %}">
+                                <div class="number-badge bg-white text-success mb-2">
+                                    {{ stat.value }}
+                                </div>
+                                <div class="small">
+                                    <div class="fw-bold">{{ stat.hit_count }}/{{ stat.total_count }}</div>
+                                    <div class="{% if stat.hit_rate >= 70 %}hit-highlight{% endif %}">
+                                        {{ stat.hit_rate }}%
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekday Statistics -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card stats-card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-calendar-week me-2"></i>Thống Kê Theo Ngày Trong Tuần
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        {% for day_stat in weekday_stats %}
+                        <div class="col-md-6 col-lg-4 col-xl-3">
+                            <div class="text-center">
+                                <h6 class="fw-bold text-primary">{{ day_stat.weekday }}</h6>
+                                <div class="weekday-bar mb-2" style="width: {{ day_stat.total_count|mul:10 }}%"></div>
+                                <div class="d-flex justify-content-between text-sm text-muted">
+                                    <span>{{ day_stat.total_count }} lần</span>
+                                    <span class="fw-bold">TB: {{ day_stat.avg_total }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Numbers -->
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card stats-card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Top Số Về Nhiều Nhất
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for number in top_numbers %}
+                        <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                            <div class="card text-center h-100 border-0 shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="display-6 fw-bold text-primary mb-2">{{ number.number }}</div>
+                                    <div class="small text-muted">
+                                        <div class="hit-highlight d-inline-block px-2 py-1 rounded mb-1">
+                                            {{ number.total_appearances }} lần
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="badge bg-primary">Đầu: {{ number.cham_dau }}</span>
+                                            <span class="badge bg-success">Đuôi: {{ number.cham_duoi }}</span>
+                                        </div>
+                                        {% if number.last_appearance_date %}
+                                        <div class="mt-1 text-xs">
+                                            Gần nhất: {{ number.last_appearance_date|date:"d/m" }}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card stats-card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Biểu Đồ Tỷ Lệ Trúng
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="hitRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hit Rate Chart
+    const ctx = document.getElementById('hitRateChart').getContext('2d');
+    
+    const chamDauData = [
+        {% for stat in cham_dau_stats %}
+        {{ stat.hit_rate }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    const chamDuoiData = [
+        {% for stat in cham_duoi_stats %}
+        {{ stat.hit_rate }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    const labels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Tỷ lệ trúng Chạm Đầu (%)',
+                data: chamDauData,
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }, {
+                label: 'Tỷ lệ trúng Chạm Đuôi (%)',
+                data: chamDuoiData,
+                backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'So Sánh Tỷ Lệ Trúng Chạm Đầu vs Chạm Đuôi'
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Chữ số (0-9)'
+                    }
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+    
+    // Add highlight effect to high performing numbers
+    document.querySelectorAll('.hit-highlight').forEach(function(element) {
+        element.addEventListener('mouseover', function() {
+            this.style.transform = 'scale(1.1)';
+            this.style.transition = 'transform 0.3s ease';
+        });
+        
+        element.addEventListener('mouseout', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+</script>
+{% endblock %}

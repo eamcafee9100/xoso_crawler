@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Method Analysis V2 Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-warning { background-color: #ffc107; color: #212529; }
+        .btn-warning:hover { background-color: #e0a800; }
+        .output {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.loading {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .status.success {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #007bff;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-bottom: none;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #007bff;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 API Method Analysis V2 Tester</h1>
+        <p>Tool để kiểm tra và debug API response của <code>/pre-lokhung/api/method-analysis-v2/</code></p>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('basic')">Basic Test</div>
+            <div class="tab" onclick="showTab('advanced')">Advanced Debug</div>
+            <div class="tab" onclick="showTab('structure')">Response Structure</div>
+        </div>
+
+        <!-- Basic Test Tab -->
+        <div id="basic" class="tab-content active">
+            <h3>📋 Basic API Test</h3>
+            <div class="form-group">
+                <label for="baseUrl">Base URL (Django Server):</label>
+                <input type="text" id="baseUrl" value="http://localhost:8000" style="width: 300px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="testDate">Analysis Date:</label>
+                <input type="date" id="testDate" value="2025-01-15">
+            </div>
+            
+            <div class="form-group">
+                <label for="limit">Limit:</label>
+                <input type="number" id="limit" value="15" min="1" max="100">
+            </div>
+            
+            <button onclick="testAPI()">🚀 Test API</button>
+            <button onclick="clearOutput()" class="btn-warning">🗑️ Clear Output</button>
+            
+            <div id="status"></div>
+            <div id="output" class="output"></div>
+        </div>
+
+        <!-- Advanced Debug Tab -->
+        <div id="advanced" class="tab-content">
+            <h3>🔧 Advanced Debug</h3>
+            <p>Test multiple scenarios and validate response structure</p>
+            
+            <button onclick="testMultipleDates()" class="btn-success">📅 Test Multiple Dates</button>
+            <button onclick="testErrorScenarios()" class="btn-warning">❌ Test Error Scenarios</button>
+            <button onclick="validateResponseStructure()" class="btn-success">✅ Validate Structure</button>
+            
+            <div id="advancedStatus"></div>
+            <div id="advancedOutput" class="output"></div>
+        </div>
+
+        <!-- Response Structure Tab -->
+        <div id="structure" class="tab-content">
+            <h3>📊 Expected Response Structure</h3>
+            <div class="output" style="max-height: 600px;">
+{
+  "success": boolean,
+  "analysis_date": "YYYY-MM-DD",
+  "hybrid_analysis": {
+    "short_term_insights": {
+      "trend_strength": number,
+      "volatility": number,
+      "momentum": number
+    },
+    "long_term_stability": {
+      "consistency_score": number,
+      "reliability_index": number
+    },
+    "forward_validation": {
+      "confidence_score": number,
+      "validation_period": number
+    }
+  },
+  "intelligent_selections": {
+    "optimal_numbers": [number, number, ...],
+    "method_contributions": [
+      {
+        "method_name": string,
+        "contribution": number,
+        "confidence": number
+      }
+    ],
+    "selection_strategy": {
+      "approach": string,
+      "weight_distribution": string,
+      "risk_tolerance": string
+    }
+  },
+  "optimal_methods": {
+    "day_1": [
+      {
+        "method_name": string,
+        "hybrid_score": number,
+        "expected_hit_rate": number,
+        "confidence": number,
+        "predicted_numbers": [number, number, ...]
+      }
+    ],
+    "day_2": [...],
+    "day_3": [...],
+    "summary": {
+      "total_qualified_methods": number,
+      "target_hit_rate": number,
+      "avg_expected_hit_rate": number
+    }
+  },
+  "performance_prediction": {
+    "expected_hit_rate": number,
+    "confidence_level": string,
+    "overall_confidence_score": number,
+    "risk_assessment": {
+      "level": string,
+      "score": number,
+      "description": string
+    },
+    "performance_breakdown": {
+      "confidence_factors": {
+        "data_quality": number,
+        "method_consistency": number,
+        "historical_accuracy": number
+      },
+      "risk_factors": [string, string, ...]
+    }
+  }
+}
+
+🔍 CRITICAL FIELDS FOR FRONTEND:
+- success: Must be true for processing
+- analysis_date: Used for display formatting  
+- intelligent_selections.optimal_numbers: Used in live comparison
+- optimal_methods.day_1/2/3: Used for method tables
+- performance_prediction: Used for performance cards
+
+⚠️ COMMON ISSUES:
+- API returns HTML error page instead of JSON
+- Missing required fields (null/undefined)
+- Wrong data types (string instead of number)
+- Empty arrays when data expected
+- CORS issues (cross-origin requests)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let outputElement = document.getElementById('output');
+        let statusElement = document.getElementById('status');
+
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}\n`;
+            
+            if (type === 'error') {
+                outputElement.textContent += `❌ ${logMessage}`;
+            } else if (type === 'success') {
+                outputElement.textContent += `✅ ${logMessage}`;
+            } else if (type === 'warning') {
+                outputElement.textContent += `⚠️ ${logMessage}`;
+            } else {
+                outputElement.textContent += `ℹ️ ${logMessage}`;
+            }
+            
+            outputElement.scrollTop = outputElement.scrollHeight;
+        }
+
+        function setStatus(message, type = 'info') {
+            statusElement.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function clearOutput() {
+            outputElement.textContent = '';
+            statusElement.innerHTML = '';
+        }
+
+        async function testAPI() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const testDate = document.getElementById('testDate').value;
+            const limit = document.getElementById('limit').value;
+            
+            if (!baseUrl || !testDate) {
+                setStatus('❌ Please provide base URL and test date', 'error');
+                return;
+            }
+            
+            const apiUrl = `${baseUrl}/pre-lokhung/api/method-analysis-v2/?analysis_date=${testDate}&limit=${limit}`;
+            
+            log(`🚀 Starting API test`, 'info');
+            log(`📅 Test date: ${testDate}`);
+            log(`🔗 API URL: ${apiUrl}`);
+            log(`📊 Limit: ${limit}`);
+            
+            setStatus('🔄 Making API request...', 'loading');
+            
+            try {
+                const startTime = performance.now();
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const endTime = performance.now();
+                const responseTime = Math.round(endTime - startTime);
+                
+                log(`📡 Response received in ${responseTime}ms`);
+                log(`📊 Status: ${response.status} ${response.statusText}`);
+                log(`📊 URL: ${response.url}`);
+                
+                const contentType = response.headers.get('content-type');
+                log(`📊 Content-Type: ${contentType}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                if (!contentType || !contentType.includes('application/json')) {
+                    log(`⚠️ Warning: Response is not JSON format`, 'warning');
+                    const textResponse = await response.text();
+                    log(`📄 Response body (first 500 chars):`);
+                    log(textResponse.substring(0, 500));
+                    setStatus('⚠️ Response is not JSON - check server logs', 'warning');
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                log(`✅ JSON response parsed successfully`, 'success');
+                setStatus('✅ API call successful - analyzing response...', 'success');
+                
+                // Analyze response
+                analyzeResponse(data);
+                
+            } catch (error) {
+                log(`❌ API request failed: ${error.message}`, 'error');
+                setStatus(`❌ API call failed: ${error.message}`, 'error');
+                
+                // Provide troubleshooting suggestions
+                if (error.message.includes('fetch')) {
+                    log(`🔧 Troubleshooting: Check if Django server is running on ${baseUrl}`, 'warning');
+                } else if (error.message.includes('404')) {
+                    log(`🔧 404 Error: Check Django URL patterns and routing`, 'warning');
+                } else if (error.message.includes('500')) {
+                    log(`🔧 500 Error: Check Django server logs for detailed error`, 'warning');
+                }
+            }
+        }
+
+        function analyzeResponse(data) {
+            log(`\n🔍 ANALYZING RESPONSE STRUCTURE`, 'info');
+            log(`${'='.repeat(50)}`);
+            
+            // Basic structure
+            log(`📋 Basic Structure:`);
+            log(`   success: ${data.success} (${typeof data.success})`);
+            log(`   analysis_date: ${data.analysis_date} (${typeof data.analysis_date})`);
+            log(`   Keys: [${Object.keys(data).join(', ')}]`);
+            
+            if (data.success) {
+                log(`\n✅ SUCCESS RESPONSE - Detailed Analysis:`, 'success');
+                
+                // Check each required section
+                const sections = [
+                    'hybrid_analysis',
+                    'intelligent_selections', 
+                    'optimal_methods',
+                    'performance_prediction'
+                ];
+                
+                sections.forEach(section => {
+                    if (data[section]) {
+                        log(`✅ ${section}: Present (${typeof data[section]})`);
+                        log(`   Keys: [${Object.keys(data[section]).join(', ')}]`);
+                        
+                        // Special checks for important fields
+                        if (section === 'intelligent_selections' && data[section].optimal_numbers) {
+                            log(`   optimal_numbers: ${data[section].optimal_numbers.length} items`);
+                            log(`   numbers: [${data[section].optimal_numbers.join(', ')}]`);
+                        }
+                        
+                        if (section === 'optimal_methods') {
+                            ['day_1', 'day_2', 'day_3'].forEach(day => {
+                                if (data[section][day]) {
+                                    log(`   ${day}: ${data[section][day].length} methods`);
+                                }
+                            });
+                        }
+                        
+                    } else {
+                        log(`❌ ${section}: MISSING`, 'error');
+                    }
+                });
+                
+                // Frontend compatibility check
+                log(`\n✅ Frontend Compatibility Check:`);
+                const checks = [
+                    ['data.success === true', data.success === true],
+                    ['data.analysis_date exists', !!data.analysis_date],
+                    ['optimal_numbers is array', Array.isArray(data.intelligent_selections?.optimal_numbers)],
+                    ['day_1 methods exist', Array.isArray(data.optimal_methods?.day_1)],
+                    ['performance_prediction exists', !!data.performance_prediction]
+                ];
+                
+                checks.forEach(([check, result]) => {
+                    log(`${result ? '✅' : '❌'} ${check}`);
+                });
+                
+            } else {
+                log(`\n❌ ERROR RESPONSE:`, 'error');
+                log(`   Error: ${data.error || 'No error message provided'}`);
+            }
+            
+            log(`\n📊 Full Response Data:`);
+            log(JSON.stringify(data, null, 2));
+        }
+
+        async function testMultipleDates() {
+            const advancedOutput = document.getElementById('advancedOutput');
+            const advancedStatus = document.getElementById('advancedStatus');
+            
+            advancedOutput.textContent = '';
+            advancedStatus.innerHTML = '<div class="status loading">🔄 Testing multiple dates...</div>';
+            
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const testDates = ['2025-01-15', '2025-01-14', '2025-01-13', '2025-01-12'];
+            
+            for (const date of testDates) {
+                advancedOutput.textContent += `\n📅 Testing date: ${date}\n`;
+                advancedOutput.textContent += '-'.repeat(40) + '\n';
+                
+                try {
+                    const apiUrl = `${baseUrl}/pre-lokhung/api/method-analysis-v2/?analysis_date=${date}&limit=15`;
+                    const response = await fetch(apiUrl);
+                    
+                    advancedOutput.textContent += `Status: ${response.status} ${response.statusText}\n`;
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        advancedOutput.textContent += `Success: ${data.success}\n`;
+                        
+                        if (data.success) {
+                            const optimalCount = data.intelligent_selections?.optimal_numbers?.length || 0;
+                            const day1Count = data.optimal_methods?.day_1?.length || 0;
+                            const day2Count = data.optimal_methods?.day_2?.length || 0;
+                            const day3Count = data.optimal_methods?.day_3?.length || 0;
+                            
+                            advancedOutput.textContent += `Optimal numbers: ${optimalCount}\n`;
+                            advancedOutput.textContent += `Methods: Day1=${day1Count}, Day2=${day2Count}, Day3=${day3Count}\n`;
+                        } else {
+                            advancedOutput.textContent += `Error: ${data.error}\n`;
+                        }
+                    } else {
+                        advancedOutput.textContent += `HTTP Error: ${response.status}\n`;
+                    }
+                    
+                } catch (error) {
+                    advancedOutput.textContent += `Request failed: ${error.message}\n`;
+                }
+                
+                advancedOutput.textContent += '\n';
+                advancedOutput.scrollTop = advancedOutput.scrollHeight;
+                
+                // Delay between requests
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            advancedStatus.innerHTML = '<div class="status success">✅ Multiple date testing completed</div>';
+        }
+
+        async function testErrorScenarios() {
+            const advancedOutput = document.getElementById('advancedOutput');
+            const advancedStatus = document.getElementById('advancedStatus');
+            
+            advancedOutput.textContent = '';
+            advancedStatus.innerHTML = '<div class="status loading">🔄 Testing error scenarios...</div>';
+            
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            
+            const errorTests = [
+                { name: 'Invalid Date Format', date: '2025-13-45' },
+                { name: 'Empty Date', date: '' },
+                { name: 'Future Date', date: '2030-01-01' },
+                { name: 'Past Date (very old)', date: '2020-01-01' },
+                { name: 'Invalid Limit', date: '2025-01-15', limit: -1 },
+                { name: 'Large Limit', date: '2025-01-15', limit: 1000 }
+            ];
+            
+            for (const test of errorTests) {
+                advancedOutput.textContent += `\n🧪 Testing: ${test.name}\n`;
+                advancedOutput.textContent += '-'.repeat(40) + '\n';
+                
+                try {
+                    const limit = test.limit || 15;
+                    const apiUrl = `${baseUrl}/pre-lokhung/api/method-analysis-v2/?analysis_date=${test.date}&limit=${limit}`;
+                    
+                    advancedOutput.textContent += `URL: ${apiUrl}\n`;
+                    
+                    const response = await fetch(apiUrl);
+                    advancedOutput.textContent += `Status: ${response.status} ${response.statusText}\n`;
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        advancedOutput.textContent += `Success: ${data.success}\n`;
+                        if (!data.success) {
+                            advancedOutput.textContent += `Error: ${data.error}\n`;
+                        }
+                    } else {
+                        advancedOutput.textContent += `HTTP Error: ${response.status}\n`;
+                    }
+                    
+                } catch (error) {
+                    advancedOutput.textContent += `Request failed: ${error.message}\n`;
+                }
+                
+                advancedOutput.scrollTop = advancedOutput.scrollHeight;
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            advancedStatus.innerHTML = '<div class="status success">✅ Error scenario testing completed</div>';
+        }
+
+        function validateResponseStructure() {
+            const advancedOutput = document.getElementById('advancedOutput');
+            const advancedStatus = document.getElementById('advancedStatus');
+            
+            advancedOutput.textContent = '';
+            advancedStatus.innerHTML = '<div class="status loading">🔄 Validating response structure...</div>';
+            
+            // This would ideally use a real API response, but for demo we'll use the expected structure
+            advancedOutput.textContent = `
+🔍 RESPONSE STRUCTURE VALIDATION CHECKLIST
+
+✅ Required Top-Level Fields:
+   - success (boolean)
+   - analysis_date (string, YYYY-MM-DD format)
+
+✅ Required Sections:
+   - hybrid_analysis (object)
+   - intelligent_selections (object)
+   - optimal_methods (object)
+   - performance_prediction (object)
+
+✅ intelligent_selections Must Have:
+   - optimal_numbers (array of numbers)
+   - method_contributions (array of objects)
+   - selection_strategy (object)
+
+✅ optimal_methods Must Have:
+   - day_1 (array of method objects)
+   - day_2 (array of method objects)
+   - day_3 (array of method objects)
+   - summary (object with totals)
+
+✅ Each Method Object Must Have:
+   - method_name (string)
+   - hybrid_score (number)
+   - expected_hit_rate (number)
+   - confidence (number)
+   - predicted_numbers (array of numbers)
+
+✅ performance_prediction Must Have:
+   - expected_hit_rate (number)
+   - confidence_level (string)
+   - overall_confidence_score (number)
+   - risk_assessment (object)
+   - performance_breakdown (object)
+
+⚠️ Common Validation Issues:
+   - Null values where objects expected
+   - String numbers instead of actual numbers
+   - Empty arrays when data should be present
+   - Missing required nested fields
+   - Incorrect date formats
+
+🔧 To validate your actual API response:
+   1. Run the Basic Test with a valid date
+   2. Check that all required fields are present
+   3. Verify data types match expectations
+   4. Ensure arrays contain expected objects
+            `;
+            
+            advancedStatus.innerHTML = '<div class="status success">✅ Structure validation guide displayed</div>';
+        }
+
+        // Set default date to today
+        document.getElementById('testDate').valueAsDate = new Date();
+    </script>
+</body>
+</html>

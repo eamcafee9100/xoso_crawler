@@ -1,0 +1,531 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+{% block title %}Thống kê xổ số{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+<style>
+  .stats-card {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  .stats-card:hover {
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  .method-card {
+    border-left: 4px solid #28a745;
+  }
+  .month-card {
+    border-left: 4px solid #007bff;
+  }
+  .special-card {
+    border-left: 4px solid #dc3545;
+  }
+  .success-rate-high {
+    color: #28a745;
+    font-weight: bold;
+  }
+  .success-rate-medium {
+    color: #ffc107;
+    font-weight: bold;
+  }
+  .success-rate-low {
+    color: #dc3545;
+    font-weight: bold;
+  }
+  .chart-container {
+    height: 300px;
+    margin-bottom: 30px;
+  }
+  .content {
+    padding: 20px;
+  }
+  .table th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content">
+  <div class="container-fluid">
+    <h1 class="my-4">Thống kê dự đoán xổ số</h1>
+    {% if not has_data %}
+    <div class="alert alert-warning">
+      <h4>Không có dữ liệu thống kê</h4>
+      <p>Hiện chưa có dữ liệu dự đoán nào được ghi nhận. Vui lòng tạo dự đoán trước khi xem thống kê.</p>
+    </div>
+    {% endif %}
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+      <div class="col-md-4">
+        <div class="card stats-card method-card">
+          <div class="card-body">
+            <h5 class="card-title">Tổng số phương pháp</h5>
+            <p class="card-text display-4">{{ method_stats|length }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card stats-card month-card">
+          <div class="card-body">
+            <h5 class="card-title">Tổng số dự đoán</h5>
+            {% with total_predictions=0 %}
+              {% for stat in method_stats %}
+                {% with total_predictions=total_predictions|add:stat.total_predictions %}{% endwith %}
+              {% endfor %}
+              <p class="card-text display-4">{{ total_predictions }}</p>
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-4">
+        <div class="card stats-card special-card">
+          <div class="card-body">
+            <h5 class="card-title">Tổng số trúng</h5>
+            {% with total_hits=0 %}
+              {% for stat in method_stats %}
+                {% with total_hits=total_hits|add:stat.total_hits %}{% endwith %}
+              {% endfor %}
+              <p class="card-text display-4">{{ total_hits }}</p>
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Method Statistics -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card stats-card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Thống kê theo phương pháp</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="methodChart"></canvas>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Phương pháp</th>
+                    <th>Mã</th>
+                    <th>Tổng dự đoán</th>
+                    <th>Tổng trúng</th>
+                    <th>Tỷ lệ thành công</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for stat in method_stats %}
+                  <tr>
+                    <td>{{ stat.name }}</td>
+                    <td><code>{{ stat.code }}</code></td>
+                    <td>{{ stat.total_predictions }}</td>
+                    <td>{{ stat.total_hits }}</td>
+                    <td class="{% if stat.success_rate >= 20 %}success-rate-high{% elif stat.success_rate >= 10 %}success-rate-medium{% else %}success-rate-low{% endif %}">
+                      {{ stat.success_rate|floatformat:2 }}%
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Monthly Statistics -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card stats-card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Thống kê theo tháng</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Tháng</th>
+                    <th>Tổng dự đoán</th>
+                    <th>Tổng trúng</th>
+                    <th>Tỷ lệ thành công</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for stat in monthly_stats %}
+                  <tr>
+                    <td>{{ stat.month|date:"m/Y" }}</td>
+                    <td>{{ stat.total_predictions }}</td>
+                    <td>{{ stat.total_hits }}</td>
+                    <td class="{% if stat.success_rate >= 20 %}success-rate-high{% elif stat.success_rate >= 10 %}success-rate-medium{% else %}success-rate-low{% endif %}">
+                      {{ stat.success_rate|floatformat:2 }}%
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Special Prize Statistics -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card stats-card">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">Thống kê dự đoán giải đặc biệt</h5>
+          </div>
+          <div class="card-body">
+            <div class="chart-container">
+              <canvas id="specialChart"></canvas>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Phương pháp</th>
+                    <th>Tổng dự đoán</th>
+                    <th>Tổng trúng</th>
+                    <th>Tỷ lệ thành công</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for stat in special_stats %}
+                  <tr>
+                    <td>{{ stat.method__name }}</td>
+                    <td>{{ stat.total_predictions }}</td>
+                    <td>{{ stat.total_hits }}</td>
+                    <td class="{% if stat.success_rate >= 20 %}success-rate-high{% elif stat.success_rate >= 10 %}success-rate-medium{% else %}success-rate-low{% endif %}">
+                      {{ stat.success_rate|floatformat:2 }}%
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Statistics about 2-digit and 3-digit numbers -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Thống kê số có thể đánh</h5>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="stats-box text-center p-3 border rounded">
+          <h4>{{ total_two_digit_numbers }}</h4>
+          <p class="mb-0">Số 2 chữ số có thể đánh mỗi ngày</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="stats-box text-center p-3 border rounded">
+          <h4>{{ total_three_digit_numbers }}</h4>
+          <p class="mb-0">Số 3 chữ số có thể đánh mỗi ngày</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Method Statistics -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Báo cáo số trúng theo tháng của các phương pháp</h5>
+  </div>
+  <div class="card-body">
+    {% if monthly_method_stats %}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Tháng</th>
+              <th>Phương pháp</th>
+              <th>Tổng dự đoán</th>
+              <th>Tổng trúng</th>
+              <th>Tỷ lệ thành công (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for stat in monthly_method_stats %}
+              <tr>
+                <td>{{ stat.month|date:"m/Y" }}</td>
+                <td>{{ stat.method__name }}</td>
+                <td>{{ stat.total_predictions }}</td>
+                <td>{{ stat.total_hits }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                      <div class="progress-bar bg-success" role="progressbar" 
+                           style="width: {{ stat.success_rate }}%;" 
+                           aria-valuenow="{{ stat.success_rate }}" 
+                           aria-valuemin="0" 
+                           aria-valuemax="100">
+                      </div>
+                    </div>
+                    <span>{{ stat.success_rate|floatformat:2 }}%</span>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-info">
+        Chưa có dữ liệu thống kê theo tháng và phương pháp.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- You can also add a visualization for the monthly method statistics -->
+<div class="card mb-4">
+  <div class="card-header">
+    <h5 class="mb-0">Biểu đồ tỷ lệ trúng theo tháng và phương pháp</h5>
+  </div>
+  <div class="card-body">
+    {% if monthly_method_stats %}
+      <div id="monthlyMethodChart" style="height: 400px;"></div>
+      
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Group data by month
+          const monthlyData = {};
+          
+          {% for stat in monthly_method_stats %}
+            const month = '{{ stat.month|date:"m/Y" }}';
+            const method = '{{ stat.method__name }}';
+            const rate = {{ stat.success_rate|floatformat:2 }};
+            
+            if (!monthlyData[month]) {
+              monthlyData[month] = [];
+            }
+            
+            monthlyData[month].push({
+              method: method,
+              rate: rate
+            });
+          {% endfor %}
+          
+          // Prepare chart data
+          const months = Object.keys(monthlyData).sort().reverse();
+          const datasets = [];
+          const methods = [...new Set({% for stat in monthly_method_stats %}'{{ stat.method__name }}',{% endfor %})];
+          
+          // Create a color palette
+          const colors = [
+            '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
+            '#5a5c69', '#858796', '#6610f2', '#fd7e14', '#20c9a6'
+          ];
+          
+          // Create datasets for each method
+          methods.forEach((method, index) => {
+            const data = months.map(month => {
+              const methodData = monthlyData[month].find(item => item.method === method);
+              return methodData ? methodData.rate : 0;
+            });
+            
+            datasets.push({
+              label: method,
+              data: data,
+              backgroundColor: colors[index % colors.length],
+              borderColor: colors[index % colors.length],
+              borderWidth: 1
+            });
+          });
+          
+          // Create chart
+          const ctx = document.getElementById('monthlyMethodChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: months,
+              datasets: datasets
+            },
+            options: {
+              responsive: true,
+              scales: {
+                x: {
+                  stacked: false
+                },
+                y: {
+                  stacked: false,
+                  beginAtZero: true,
+                  max: 100,
+                  title: {
+                    display: true,
+                    text: 'Tỷ lệ thành công (%)'
+                  }
+                }
+              },
+              plugins: {
+                legend: {
+                  position: 'top',
+                },
+                title: {
+                  display: true,
+                  text: 'Tỷ lệ trúng theo tháng và phương pháp'
+                },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      return `${context.dataset.label}: ${context.raw.toFixed(2)}%`;
+                    }
+                  }
+                }
+              }
+            }
+          });
+        });
+      </script>
+    {% else %}
+      <div class="alert alert-info">
+        Chưa có đủ dữ liệu để hiển thị biểu đồ.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Method Chart
+    const methodCtx = document.getElementById('methodChart').getContext('2d');
+    const methodChart = new Chart(methodCtx, {
+      type: 'bar',
+      data: {
+        labels: [{% for stat in method_stats %}'{{ stat.name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Tỷ lệ thành công (%)',
+          data: [{% for stat in method_stats %}{{ stat.success_rate|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+          backgroundColor: [{% for stat in method_stats %}
+            '{% if stat.success_rate >= 20 %}rgba(40, 167, 69, 0.7){% elif stat.success_rate >= 10 %}rgba(255, 193, 7, 0.7){% else %}rgba(220, 53, 69, 0.7){% endif %}'{% if not forloop.last %}, {% endif %}
+          {% endfor %}],
+          borderColor: [{% for stat in method_stats %}
+            '{% if stat.success_rate >= 20 %}rgba(40, 167, 69, 1){% elif stat.success_rate >= 10 %}rgba(255, 193, 7, 1){% else %}rgba(220, 53, 69, 1){% endif %}'{% if not forloop.last %}, {% endif %}
+          {% endfor %}],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Tỷ lệ thành công (%)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Monthly Chart
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    const monthlyChart = new Chart(monthlyCtx, {
+      type: 'line',
+      data: {
+        labels: [{% for stat in monthly_stats %}'{{ stat.month|date:"m/Y" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+          label: 'Tỷ lệ thành công (%)',
+          data: [{% for stat in monthly_stats %}{{ stat.success_rate|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+          backgroundColor: 'rgba(0, 123, 255, 0.2)',
+          borderColor: 'rgba(0, 123, 255, 1)',
+          borderWidth: 2,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Tỷ lệ thành công (%)'
+            }
+          }
+        }
+      }
+    });
+    
+    // Special Chart
+    const specialCtx = document.getElementById('specialChart').getContext('2d');
+    const specialChart = new Chart(specialCtx, {
+      type: 'pie',
+      data: {
+        labels: [{% for stat in special_stats %}'{{ stat.method__name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+          data: [{% for stat in special_stats %}{{ stat.success_rate|floatformat:2 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+          backgroundColor: [
+            'rgba(220, 53, 69, 0.7)',
+            'rgba(255, 193, 7, 0.7)',
+            'rgba(40, 167, 69, 0.7)',
+            'rgba(0, 123, 255, 0.7)',
+            'rgba(111, 66, 193, 0.7)',
+            'rgba(23, 162, 184, 0.7)',
+            'rgba(248, 249, 250, 0.7)',
+            'rgba(52, 58, 64, 0.7)',
+            'rgba(255, 99, 132, 0.7)',
+            'rgba(54, 162, 235, 0.7)'
+          ],
+          borderColor: [
+            'rgba(220, 53, 69, 1)',
+            'rgba(255, 193, 7, 1)',
+            'rgba(40, 167, 69, 1)',
+            'rgba(0, 123, 255, 1)',
+            'rgba(111, 66, 193, 1)',
+            'rgba(23, 162, 184, 1)',
+            'rgba(248, 249, 250, 1)',
+            'rgba(52, 58, 64, 1)',
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return `${context.label}: ${context.raw}%`;
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

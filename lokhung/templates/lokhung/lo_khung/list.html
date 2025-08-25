@@ -1,0 +1,428 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Danh sách lô khung{% endblock %}
+
+{% block page_title %}Quản lý lô khung{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'lokhung:lo_khung_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Tạo lô khung
+    </a>
+    <button class="btn btn-outline-info" onclick="showActiveFrames()">
+        <i class="fas fa-play me-2"></i>Lô khung hoạt động
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card card-custom border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-play-circle fa-2x text-success mb-2"></i>
+                <h4 class="text-success" id="active-frames">{{ page_obj.paginator.count }}</h4>
+                <small class="text-muted">Đang hoạt động</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-custom border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x text-primary mb-2"></i>
+                <h4 class="text-primary" id="completed-frames">0</h4>
+                <small class="text-muted">Hoàn thành</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-custom border-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x text-warning mb-2"></i>
+                <h4 class="text-warning" id="expiring-frames">0</h4>
+                <small class="text-muted">Sắp hết hạn</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card card-custom border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-percentage fa-2x text-info mb-2"></i>
+                <h4 class="text-info" id="success-rate">0%</h4>
+                <small class="text-muted">Tỷ lệ thành công</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Bộ lọc
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="trang_thai" class="form-label">Trạng thái</label>
+                <select class="form-select" id="trang_thai" name="trang_thai">
+                    <option value="">Tất cả</option>
+                    {% for value, label in trang_thai_choices %}
+                    <option value="{{ value }}" {% if current_filters.trang_thai == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="hien_tai" name="hien_tai" value="true"
+                           {% if current_filters.hien_tai == 'true' %}checked{% endif %}>
+                    <label class="form-check-label" for="hien_tai">
+                        Chỉ hiển thị lô khung hiện tại
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label for="ngay_tu" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="ngay_tu" name="ngay_tu">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Frame Cards -->
+<div class="row">
+    {% for lo_khung in page_obj %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100 lo-khung-card 
+            {% if lo_khung.trang_thai == 'active' %}border-success
+            {% elif lo_khung.trang_thai == 'completed' %}border-primary
+            {% elif lo_khung.trang_thai == 'expired' %}border-danger
+            {% else %}border-secondary{% endif %}">
+            
+            <!-- Card Header -->
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0 text-truncate" title="{{ lo_khung.ten_lo_khung }}">
+                    {{ lo_khung.ten_lo_khung|truncatechars:25 }}
+                </h6>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lokhung:lo_khung_detail' lo_khung.pk %}">
+                            <i class="fas fa-eye me-2"></i>Xem chi tiết
+                        </a></li>
+                        <li><a class="dropdown-item" href="{% url 'lokhung:lo_khung_edit' lo_khung.pk %}">
+                            <i class="fas fa-edit me-2"></i>Chỉnh sửa
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-success" href="#" onclick="checkFrameResults({{ lo_khung.pk }})">
+                            <i class="fas fa-sync me-2"></i>Kiểm tra kết quả
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body">
+                <!-- Status Badge -->
+                <div class="mb-3">
+                    <span class="badge 
+                        {% if lo_khung.trang_thai == 'active' %}bg-success
+                        {% elif lo_khung.trang_thai == 'completed' %}bg-primary
+                        {% elif lo_khung.trang_thai == 'expired' %}bg-danger
+                        {% else %}bg-secondary{% endif %} fs-6">
+                        {{ lo_khung.get_trang_thai_display }}
+                    </span>
+                    
+                    {% if lo_khung.so_ngay_con_lai > 0 %}
+                        <span class="badge bg-warning ms-2">
+                            <i class="fas fa-clock me-1"></i>{{ lo_khung.so_ngay_con_lai }} ngày
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <!-- Date Range -->
+                <div class="mb-3">
+                    <small class="text-muted">Thời gian:</small><br>
+                    <strong>{{ lo_khung.ngay_bat_dau|date:"d/m" }} - {{ lo_khung.ngay_ket_thuc|date:"d/m/Y" }}</strong>
+                </div>
+                
+                <!-- Numbers -->
+                <div class="mb-3">
+                    <small class="text-muted">Các số trong lô khung:</small><br>
+                    <div class="numbers-container">
+                        {% for so in lo_khung.danh_sach_so %}
+                            <span class="badge bg-primary me-1 mb-1 number-badge" 
+                                  data-number="{{ so }}" data-frame="{{ lo_khung.pk }}">{{ so }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Confidence -->
+                <div class="mb-3">
+                    <small class="text-muted">Tin cậy tổng:</small>
+                    <div class="progress mt-1" style="height: 20px;">
+                        <div class="progress-bar 
+                            {% if lo_khung.diem_tin_cay_tong >= 70 %}bg-success
+                            {% elif lo_khung.diem_tin_cay_tong >= 40 %}bg-warning
+                            {% else %}bg-danger{% endif %}" 
+                            style="width: {{ lo_khung.diem_tin_cay_tong }}%">
+                            {{ lo_khung.diem_tin_cay_tong }}%
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Best Day -->
+                <div class="mb-3">
+                    <small class="text-muted">Ngày có khả năng cao nhất:</small><br>
+                    <strong class="text-primary">{{ lo_khung.ngay_co_kha_nang_cao_nhat|date:"d/m/Y" }}</strong>
+                </div>
+                
+                <!-- Method -->
+                <div class="mb-3">
+                    <small class="text-muted">Phương pháp chính:</small><br>
+                    <a href="{% url 'lokhung:phuong_phap_detail' lo_khung.phuong_phap_chinh.pk %}" 
+                       class="text-decoration-none">
+                        {{ lo_khung.phuong_phap_chinh.ten_phuong_phap|truncatechars:30 }}
+                    </a>
+                </div>
+                
+                <!-- Results by Day -->
+                {% if lo_khung.ket_qua_theo_ngay %}
+                <div class="results-timeline">
+                    <small class="text-muted">Kết quả theo ngày:</small>
+                    <div class="mt-2">
+                        {% for ngay, ket_qua in lo_khung.ket_qua_theo_ngay.items %}
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small>{{ ngay }}</small>
+                            <div>
+                                {% if ket_qua.so_trung %}
+                                    {% for so in ket_qua.so_trung %}
+                                        <span class="badge prediction-correct number-highlight me-1">{{ so }}</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="badge bg-light text-dark">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Card Footer -->
+            <div class="card-footer bg-transparent">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="{% url 'lokhung:lo_khung_detail' lo_khung.pk %}" 
+                           class="btn btn-sm btn-outline-primary w-100">
+                            <i class="fas fa-eye me-1"></i>Chi tiết
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        {% if lo_khung.trang_thai == 'active' %}
+                        <button class="btn btn-sm btn-outline-success w-100" 
+                                onclick="checkFrameResults({{ lo_khung.pk }})">
+                            <i class="fas fa-sync me-1"></i>Kiểm tra
+                        </button>
+                        {% else %}
+                        <a href="{% url 'lokhung:lo_khung_edit' lo_khung.pk %}" 
+                           class="btn btn-sm btn-outline-warning w-100">
+                            <i class="fas fa-edit me-1"></i>Sửa
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Empty State -->
+{% if not page_obj %}
+<div class="text-center py-5">
+    <i class="fas fa-th-large fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">Chưa có lô khung nào</h4>
+    <p class="text-muted">Hãy tạo lô khung đầu tiên để bắt đầu theo dõi.</p>
+    <a href="{% url 'lokhung:lo_khung_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Tạo lô khung đầu tiên
+    </a>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+            </li>
+            {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    loadFrameStats();
+    checkWinningNumbers();
+});
+
+function loadFrameStats() {
+    // Calculate stats from visible frames
+    let activeCount = 0;
+    let completedCount = 0;
+    let expiringCount = 0;
+    let totalSuccess = 0;
+    let totalFrames = 0;
+    
+    $('.lo-khung-card').each(function() {
+        totalFrames++;
+        const status = $(this).find('.badge').first().text().trim();
+        
+        if (status.includes('Đang hoạt động')) {
+            activeCount++;
+            
+            // Check if expiring (less than 2 days)
+            const daysLeft = $(this).find('.badge.bg-warning').text().match(/\d+/);
+            if (daysLeft && parseInt(daysLeft[0]) <= 1) {
+                expiringCount++;
+            }
+        } else if (status.includes('Hoàn thành')) {
+            completedCount++;
+            totalSuccess++;
+        }
+    });
+    
+    $('#active-frames').text(activeCount);
+    $('#completed-frames').text(completedCount);
+    $('#expiring-frames').text(expiringCount);
+    $('#success-rate').text(totalFrames > 0 ? Math.round(totalSuccess / totalFrames * 100) + '%' : '0%');
+}
+
+function checkWinningNumbers() {
+    $('.number-badge').each(function() {
+        const number = $(this).data('number');
+        const frameId = $(this).data('frame');
+        const $badge = $(this);
+        
+        // Check if this number appeared in recent draws
+        // This would need actual API calls to lottery results
+        // For demo purposes, randomly highlight some numbers
+        if (Math.random() < 0.1) { // 10% chance to highlight
+            $badge.removeClass('bg-primary')
+                  .addClass('prediction-correct number-highlight');
+        }
+    });
+}
+
+function checkFrameResults(frameId) {
+    if (confirm('Kiểm tra kết quả cho lô khung này?')) {
+        // This would be an API call to check frame results
+        const $card = $(`[data-frame="${frameId}"]`).closest('.card');
+        
+        // Show loading
+        $card.append('<div class="overlay"><div class="spinner-border text-primary"></div></div>');
+        
+        // Simulate API call
+        setTimeout(() => {
+            $('.overlay').remove();
+            
+            // Simulate some winning numbers
+            const numbers = ['12', '34', '56'];
+            let hasWin = false;
+            
+            $card.find('.number-badge').each(function() {
+                const number = $(this).data('number');
+                if (numbers.includes(number)) {
+                    $(this).removeClass('bg-primary')
+                           .addClass('prediction-correct number-highlight');
+                    hasWin = true;
+                }
+            });
+            
+            if (hasWin) {
+                $card.find('.card-header').append(
+                    '<span class="badge bg-success ms-2">CÓ TRÚNG!</span>'
+                );
+            }
+            
+            // Update status
+            loadFrameStats();
+        }, 2000);
+    }
+}
+
+function showActiveFrames() {
+    window.location.href = '?hien_tai=true&trang_thai=active';
+}
+
+// Add overlay CSS
+$('<style>')
+    .prop('type', 'text/css')
+    .html(`
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+        }
+        .lo-khung-card {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .lo-khung-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .numbers-container {
+            max-height: 100px;
+            overflow-y: auto;
+        }
+    `)
+    .appendTo('head');
+</script>
+{% endblock %}

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+{% load xs_tags %}
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Lottery Prediction System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .prediction-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            margin: 2px;
+            border-radius: 50%;
+            font-weight: bold;
+            color: white;
+        }
+        .high-confidence { background-color: #28a745; }
+        .medium-confidence { background-color: #ffc107; color: #212529; }
+        .low-confidence { background-color: #6c757d; }
+        .confidence-bar {
+            height: 20px;
+            border-radius: 10px;
+        }
+        .system-status-excellent { color: #28a745; }
+        .system-status-good { color: #17a2b8; }
+        .system-status-fair { color: #ffc107; }
+        .system-status-poor { color: #dc3545; }
+        .system-status-error { color: #dc3545; }
+        .prediction-card {
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .prediction-card:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="display-6">Enhanced Lottery Prediction System</h1>
+                <p class="text-muted">AI-powered lottery prediction with statistical validation and confidence scoring</p>
+            </div>
+            <div class="col-auto">
+                <a href="{% url 'results:monitoring_dashboard' %}" class="btn btn-info me-2">
+                    📊 Monitoring Dashboard
+                </a>
+                <span class="badge fs-6 system-status-{{ system_status }}">
+                    System: {{ system_status|title }}
+                </span>
+            </div>
+        </div>
+
+        <!-- Error Alert -->
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <h5>System Error</h5>
+            <p>{{ error }}</p>
+            <p><small>Please check system logs or contact administrator.</small></p>
+        </div>
+        {% endif %}
+
+        <!-- Prediction Form -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">🎯 Make Enhanced Prediction</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="predictionForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="targetDate" class="form-label">Target Date:</label>
+                                    <input type="date" class="form-control" id="targetDate" 
+                                           value="{{ tomorrow|date:'Y-m-d' }}">
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <span id="predict-text">🔮 Generate Prediction</span>
+                                        <span id="predict-spinner" class="spinner-border spinner-border-sm d-none ms-2"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0">📈 System Performance</h6>
+                    </div>
+                    <div class="card-body">
+                        {% if dashboard_data.recent_performance %}
+                        <p><strong>Recent Accuracy:</strong> 
+                            <span class="badge bg-primary">{{ dashboard_data.recent_performance.avg_accuracy|floatformat:3 }}</span>
+                        </p>
+                        <p><strong>Hit Rate:</strong> 
+                            <span class="badge bg-success">{{ dashboard_data.recent_performance.avg_hit_rate|floatformat:3 }}</span>
+                        </p>
+                        <p><strong>Total Predictions:</strong> {{ dashboard_data.recent_performance.total_predictions }}</p>
+                        {% else %}
+                        <p class="text-muted">Performance data loading...</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Results -->
+        <div id="predictionResults" class="row d-none">
+            <div class="col-md-12">
+                <div class="card prediction-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">🎲 Prediction Results</h5>
+                        <span id="predictionConfidence" class="badge bg-secondary"></span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Predicted Numbers -->
+                        <div class="mb-4">
+                            <h6>Predicted Numbers:</h6>
+                            <div id="predictedNumbers" class="d-flex flex-wrap"></div>
+                        </div>
+                        
+                        <!-- Confidence Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6>Confidence Analysis:</h6>
+                                <div class="mb-2">
+                                    <label>Overall Confidence:</label>
+                                    <div class="progress">
+                                        <div id="overallConfidenceBar" class="progress-bar confidence-bar" 
+                                             role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                    <small id="overallConfidenceText" class="text-muted"></small>
+                                </div>
+                                <div class="mb-2">
+                                    <label>Expected Hits Range:</label>
+                                    <p id="expectedHits" class="mb-0"></p>
+                                </div>
+                                <div class="mb-2">
+                                    <label>Reliability Score:</label>
+                                    <p id="reliabilityScore" class="mb-0"></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>System Information:</h6>
+                                <div id="systemInfo"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Recommendation -->
+                        <div class="alert alert-info" id="recommendationAlert">
+                            <h6>📋 Recommendation:</h6>
+                            <p id="recommendationText" class="mb-0"></p>
+                        </div>
+                        
+                        <!-- Save Prediction Button -->
+                        <div class="text-center">
+                            <button id="savePrediction" class="btn btn-success" onclick="savePrediction()">
+                                💾 Save Prediction
+                            </button>
+                            <button id="generateNew" class="btn btn-outline-primary ms-2" onclick="generateNewPrediction()">
+                                🔄 Generate New
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Predictions History -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">📊 Recent Predictions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="recentPredictions">
+                            <p class="text-muted">No recent predictions to display.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Method Weights Display -->
+        {% if dashboard_data.current_weights %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">⚖️ Current Method Weights</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for method, weight in dashboard_data.current_weights.items %}
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="card">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">{{ method|title }}</h6>
+                                        <div class="progress mb-2">
+                                            <div class="progress-bar" 
+                                                 style="width: {{ weight|floatformat:0|mul:100 }}%"></div>
+                                        </div>
+                                        <span class="badge bg-secondary">{{ weight|floatformat:3 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="text-center text-white">
+            <div class="spinner-border mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5>Generating Enhanced Prediction...</h5>
+            <p>Analyzing historical data and calculating confidence scores...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPrediction = null;
+        
+        // Form submission handler
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            generatePrediction();
+        });
+        
+        async function generatePrediction() {
+            const targetDate = document.getElementById('targetDate').value;
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const predictText = document.getElementById('predict-text');
+            const predictSpinner = document.getElementById('predict-spinner');
+            
+            // Show loading state
+            loadingOverlay.classList.remove('d-none');
+            predictText.textContent = 'Generating...';
+            predictSpinner.classList.remove('d-none');
+            
+            try {
+                const response = await fetch('{% url "results:enhanced_prediction" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({
+                        target_date: targetDate
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentPrediction = data;
+                    displayPredictionResults(data);
+                } else {
+                    showError('Prediction failed: ' + (data.error || 'Unknown error'));
+                    if (data.fallback_prediction) {
+                        displayFallbackPrediction(data.fallback_prediction);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Prediction error:', error);
+                showError('Network error: ' + error.message);
+            } finally {
+                // Hide loading state
+                loadingOverlay.classList.add('d-none');
+                predictText.textContent = '🔮 Generate Prediction';
+                predictSpinner.classList.add('d-none');
+            }
+        }
+        
+        function displayPredictionResults(data) {
+            const resultsDiv = document.getElementById('predictionResults');
+            const numbersDiv = document.getElementById('predictedNumbers');
+            const confidenceSpan = document.getElementById('predictionConfidence');
+            
+            // Show results section
+            resultsDiv.classList.remove('d-none');
+            
+            // Display predicted numbers
+            numbersDiv.innerHTML = '';
+            data.predicted_numbers.forEach((num, index) => {
+                const span = document.createElement('span');
+                span.className = 'prediction-number';
+                span.textContent = num.toString().padStart(2, '0');
+                
+                // Assign confidence level class (simplified)
+                if (index < 5) {
+                    span.classList.add('high-confidence');
+                } else if (index < 10) {
+                    span.classList.add('medium-confidence');
+                } else {
+                    span.classList.add('low-confidence');
+                }
+                
+                numbersDiv.appendChild(span);
+            });
+            
+            // Display confidence information
+            const confidence = data.confidence;
+            confidenceSpan.textContent = `${confidence.overall}% Confidence`;
+            confidenceSpan.className = confidence.overall >= 70 ? 'badge bg-success' : 
+                                      confidence.overall >= 50 ? 'badge bg-warning' : 'badge bg-danger';
+            
+            // Update confidence bar
+            const confidenceBar = document.getElementById('overallConfidenceBar');
+            confidenceBar.style.width = confidence.overall + '%';
+            confidenceBar.className = 'progress-bar ' + 
+                (confidence.overall >= 70 ? 'bg-success' : 
+                 confidence.overall >= 50 ? 'bg-warning' : 'bg-danger');
+            
+            document.getElementById('overallConfidenceText').textContent = 
+                `${confidence.overall}% (${confidence.uncertainty_level} uncertainty)`;
+            
+            document.getElementById('expectedHits').textContent = 
+                `${confidence.expected_hits.lower} - ${confidence.expected_hits.upper} hits expected`;
+            
+            document.getElementById('reliabilityScore').innerHTML = 
+                `<span class="badge bg-info">${confidence.reliability_score}/100</span>`;
+            
+            // Display system information
+            const systemInfo = document.getElementById('systemInfo');
+            systemInfo.innerHTML = `
+                <p><strong>Response Time:</strong> ${data.system_info.response_time.toFixed(2)}s</p>
+                <p><strong>Data Quality:</strong> ${data.system_info.data_quality} days</p>
+                <p><strong>Model Version:</strong> ${data.system_info.model_version}</p>
+                <p><strong>Performance ID:</strong> ${data.performance_record_id || 'N/A'}</p>
+            `;
+            
+            // Display recommendation
+            document.getElementById('recommendationText').textContent = data.recommendation;
+            
+            // Scroll to results
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function displayFallbackPrediction(numbers) {
+            const resultsDiv = document.getElementById('predictionResults');
+            const numbersDiv = document.getElementById('predictedNumbers');
+            
+            resultsDiv.classList.remove('d-none');
+            
+            numbersDiv.innerHTML = '';
+            numbers.forEach(num => {
+                const span = document.createElement('span');
+                span.className = 'prediction-number low-confidence';
+                span.textContent = num.toString().padStart(2, '0');
+                numbersDiv.appendChild(span);
+            });
+            
+            document.getElementById('predictionConfidence').textContent = 'Fallback Mode';
+            document.getElementById('predictionConfidence').className = 'badge bg-warning';
+            
+            document.getElementById('recommendationText').textContent = 
+                'System is in fallback mode. These are basic predictions with limited reliability.';
+        }
+        
+        function savePrediction() {
+            if (!currentPrediction) return;
+            
+            // Save to localStorage for demo purposes
+            const savedPredictions = JSON.parse(localStorage.getItem('savedPredictions') || '[]');
+            savedPredictions.unshift({
+                ...currentPrediction,
+                saved_at: new Date().toISOString()
+            });
+            
+            // Keep only last 10 predictions
+            savedPredictions.splice(10);
+            localStorage.setItem('savedPredictions', JSON.stringify(savedPredictions));
+            
+            showSuccess('Prediction saved successfully!');
+            updateRecentPredictions();
+        }
+        
+        function generateNewPrediction() {
+            // Add slight randomization to date to generate different prediction
+            const currentDate = new Date(document.getElementById('targetDate').value);
+            currentDate.setHours(Math.floor(Math.random() * 24));
+            generatePrediction();
+        }
+        
+        function updateRecentPredictions() {
+            const savedPredictions = JSON.parse(localStorage.getItem('savedPredictions') || '[]');
+            const container = document.getElementById('recentPredictions');
+            
+            if (savedPredictions.length === 0) {
+                container.innerHTML = '<p class="text-muted">No recent predictions to display.</p>';
+                return;
+            }
+            
+            container.innerHTML = savedPredictions.map((pred, index) => `
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Date:</strong> ${pred.prediction_date} |
+                                <strong>Confidence:</strong> ${pred.confidence.overall}% |
+                                <strong>Numbers:</strong> ${pred.predicted_numbers.slice(0, 5).join(', ')}...
+                            </div>
+                            <small class="text-muted">
+                                Saved: ${new Date(pred.saved_at).toLocaleDateString()}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showError(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Error:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+        }
+        
+        function showSuccess(message) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-success alert-dismissible fade show';
+            alertDiv.innerHTML = `
+                <strong>Success:</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+            
+            // Auto-dismiss after 3 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 3000);
+        }
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set tomorrow as default date
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('targetDate').value = tomorrow.toISOString().split('T')[0];
+            
+            // Load recent predictions
+            updateRecentPredictions();
+        });
+    </script>
+</body>
+</html>

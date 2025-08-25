@@ -1,0 +1,589 @@
+{% extends "predictions_tracker/base.html" %}
+{% load static %}
+{% load pre_xs_tags %}
+
+{% block title %}Real-time Monitoring Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+<style>
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        transition: transform 0.2s;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .alert-card {
+        border-left: 4px solid #dc3545;
+        background: #fff5f5;
+    }
+    
+    .alert-card.warning {
+        border-left-color: #ffc107;
+        background: #fff8e1;
+    }
+    
+    .alert-card.success {
+        border-left-color: #28a745;
+        background: #f0fff4;
+    }
+    
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+    }
+    
+    .status-healthy { background: #28a745; }
+    .status-warning { background: #ffc107; }
+    .status-critical { background: #dc3545; }
+    
+    .trend-chart {
+        height: 200px;
+    }
+    
+    .auto-refresh-indicator {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(0,0,0,0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 1000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    
+    <!-- Auto Refresh Indicator -->
+    <div id="refreshIndicator" class="auto-refresh-indicator" style="display: none;">
+        <i class="fas fa-sync-alt fa-spin"></i> Updating...
+    </div>
+    
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-tachometer-alt"></i>
+                    Real-time Monitoring Dashboard
+                </h2>
+                
+                <div class="d-flex gap-2">
+                    <div class="btn-group" role="group">
+                        <input type="checkbox" class="btn-check" id="autoRefresh" checked>
+                        <label class="btn btn-outline-primary btn-sm" for="autoRefresh">
+                            <i class="fas fa-sync-alt"></i> Auto Refresh
+                        </label>
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary btn-sm" id="refreshNow">
+                        <i class="fas fa-refresh"></i> Refresh Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Health Overview -->
+    <div class="row mb-4" id="healthOverview">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <span class="status-indicator status-healthy" id="systemStatusIndicator"></span>
+                        System Health: <span id="systemHealthStatus">Loading...</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="metricsCards">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Trends -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> Accuracy Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="accuracyChart" class="trend-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-clock"></i> Response Time Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="responseTimeChart" class="trend-chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerts and Method Performance -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Recent Alerts</h5>
+                    <span class="badge bg-danger" id="alertCount">0</span>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    <div id="alertsList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cogs"></i> Method Performance</h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    <div id="methodPerformance">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- A/B Testing and Optimization Status -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-flask"></i> A/B Testing Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="abTestStatus">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-cog"></i> Optimization Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="optimizationStatus">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+// Global variables
+let accuracyChart = null;
+let responseTimeChart = null;
+let refreshInterval = null;
+
+$(document).ready(function() {
+    initializeCharts();
+    loadDashboardData();
+    setupAutoRefresh();
+    
+    // Event listeners
+    $('#refreshNow').on('click', loadDashboardData);
+    $('#autoRefresh').on('change', setupAutoRefresh);
+});
+
+function initializeCharts() {
+    // Accuracy trend chart
+    const accuracyCtx = document.getElementById('accuracyChart').getContext('2d');
+    accuracyChart = new Chart(accuracyCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Accuracy (%)',
+                data: [],
+                borderColor: '#28a745',
+                backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Response time trend chart
+    const responseCtx = document.getElementById('responseTimeChart').getContext('2d');
+    responseTimeChart = new Chart(responseCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Response Time (ms)',
+                data: [],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value + 'ms';
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function loadDashboardData() {
+    showRefreshIndicator();
+    
+    $.ajax({
+        url: '{% url "api_monitoring_dashboard" %}',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                updateDashboard(response.dashboard_data);
+            } else {
+                showError('Failed to load dashboard data');
+            }
+        },
+        error: function(xhr, status, error) {
+            showError('Error loading dashboard data: ' + error);
+        },
+        complete: function() {
+            hideRefreshIndicator();
+        }
+    });
+}
+
+function updateDashboard(data) {
+    // Update system health
+    updateSystemHealth(data.current_metrics);
+    
+    // Update metrics cards
+    updateMetricsCards(data.current_metrics);
+    
+    // Update performance trends
+    updatePerformanceTrends(data.performance_trends);
+    
+    // Update alerts
+    updateAlerts(data.recent_alerts);
+    
+    // Update method performance
+    updateMethodPerformance(data.method_performance);
+    
+    // Update A/B test status
+    updateABTestStatus(data.ab_test_status);
+    
+    // Update optimization status
+    updateOptimizationStatus(data.optimization_status);
+}
+
+function updateSystemHealth(metrics) {
+    const status = getSystemHealthStatus(metrics);
+    $('#systemHealthStatus').text(status.text);
+    
+    const indicator = $('#systemStatusIndicator');
+    indicator.removeClass('status-healthy status-warning status-critical');
+    indicator.addClass(`status-${status.class}`);
+}
+
+function getSystemHealthStatus(metrics) {
+    if (!metrics.database_connection_status) {
+        return {text: 'Critical - Database Offline', class: 'critical'};
+    }
+    
+    if (metrics.prediction_accuracy < 0.1) {
+        return {text: 'Degraded - Low Accuracy', class: 'warning'};
+    }
+    
+    if (metrics.api_response_time_ms > 5000) {
+        return {text: 'Slow - High Response Time', class: 'warning'};
+    }
+    
+    return {text: 'Healthy', class: 'healthy'};
+}
+
+function updateMetricsCards(metrics) {
+    const cards = `
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card text-center">
+                <div class="card-body">
+                    <h4>${(metrics.prediction_accuracy * 100).toFixed(1)}%</h4>
+                    <p class="mb-0">Prediction Accuracy</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card text-center">
+                <div class="card-body">
+                    <h4>${metrics.api_response_time_ms.toFixed(0)}ms</h4>
+                    <p class="mb-0">Response Time</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card text-center">
+                <div class="card-body">
+                    <h4>${metrics.active_methods_count}</h4>
+                    <p class="mb-0">Active Methods</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card metric-card text-center">
+                <div class="card-body">
+                    <h4>${metrics.memory_usage_mb.toFixed(0)}MB</h4>
+                    <p class="mb-0">Memory Usage</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#metricsCards').html(cards);
+}
+
+function updatePerformanceTrends(trends) {
+    // Update accuracy chart
+    if (trends.accuracy && trends.accuracy.length > 0) {
+        const labels = trends.accuracy.map((_, index) => `Point ${index + 1}`);
+        const accuracyData = trends.accuracy.map(val => (val * 100).toFixed(1));
+        
+        accuracyChart.data.labels = labels;
+        accuracyChart.data.datasets[0].data = accuracyData;
+        accuracyChart.update();
+    }
+    
+    // Update response time chart
+    if (trends.response_time && trends.response_time.length > 0) {
+        const labels = trends.response_time.map((_, index) => `Point ${index + 1}`);
+        
+        responseTimeChart.data.labels = labels;
+        responseTimeChart.data.datasets[0].data = trends.response_time;
+        responseTimeChart.update();
+    }
+}
+
+function updateAlerts(alerts) {
+    $('#alertCount').text(alerts.length);
+    
+    if (alerts.length === 0) {
+        $('#alertsList').html('<div class="text-muted text-center py-3">No recent alerts</div>');
+        return;
+    }
+    
+    let alertsHtml = '';
+    alerts.forEach(alert => {
+        const severityClass = alert.severity === 'critical' ? 'danger' : 
+                             alert.severity === 'high' ? 'danger' :
+                             alert.severity === 'medium' ? 'warning' : 'info';
+        
+        alertsHtml += `
+            <div class="alert-card alert alert-${severityClass} alert-dismissible mb-2">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <strong>${alert.alert_type.replace('_', ' ').toUpperCase()}</strong><br>
+                        <small>${alert.message}</small><br>
+                        <small class="text-muted">${new Date(alert.timestamp).toLocaleString()}</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" 
+                            onclick="resolveAlert('${alert.alert_id}')">
+                        Resolve
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#alertsList').html(alertsHtml);
+}
+
+function updateMethodPerformance(methodPerformance) {
+    if (Object.keys(methodPerformance).length === 0) {
+        $('#methodPerformance').html('<div class="text-muted text-center py-3">No method performance data</div>');
+        return;
+    }
+    
+    let html = '';
+    Object.entries(methodPerformance).forEach(([methodName, perf]) => {
+        const accuracyClass = perf.avg_accuracy >= 0.3 ? 'success' : 
+                             perf.avg_accuracy >= 0.1 ? 'warning' : 'danger';
+        
+        html += `
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <strong>${methodName}</strong>
+                    <span class="badge bg-${accuracyClass}">${(perf.avg_accuracy * 100).toFixed(1)}%</span>
+                </div>
+                <div class="progress" style="height: 8px;">
+                    <div class="progress-bar bg-${accuracyClass}" 
+                         style="width: ${(perf.avg_accuracy * 100)}%"></div>
+                </div>
+                <small class="text-muted">${perf.total_evaluations} evaluations</small>
+            </div>
+        `;
+    });
+    
+    $('#methodPerformance').html(html);
+}
+
+function updateABTestStatus(abTestStatus) {
+    if (abTestStatus.error) {
+        $('#abTestStatus').html(`<div class="alert alert-danger">Error: ${abTestStatus.error}</div>`);
+        return;
+    }
+    
+    const statusClass = abTestStatus.status === 'healthy' ? 'success' : 
+                       abTestStatus.status === 'no_active_tests' ? 'warning' : 'danger';
+    
+    const html = `
+        <div class="row">
+            <div class="col-6">
+                <div class="text-center">
+                    <h4 class="text-${statusClass}">${abTestStatus.active_tests_count}</h4>
+                    <small>Active Tests</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center">
+                    <h4>${(abTestStatus.recent_avg_accuracy * 100).toFixed(1)}%</h4>
+                    <small>Avg Accuracy</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <span class="badge bg-${statusClass}">${abTestStatus.status.replace('_', ' ')}</span>
+        </div>
+    `;
+    
+    $('#abTestStatus').html(html);
+}
+
+function updateOptimizationStatus(optimizationStatus) {
+    if (optimizationStatus.error) {
+        $('#optimizationStatus').html(`<div class="alert alert-danger">Error: ${optimizationStatus.error}</div>`);
+        return;
+    }
+    
+    const statusClass = optimizationStatus.status === 'healthy' ? 'success' : 'warning';
+    
+    const html = `
+        <div class="row">
+            <div class="col-6">
+                <div class="text-center">
+                    <h4>${optimizationStatus.total_optimizations}</h4>
+                    <small>Total Runs</small>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="text-center">
+                    <h4>${(optimizationStatus.success_rate * 100).toFixed(0)}%</h4>
+                    <small>Success Rate</small>
+                </div>
+            </div>
+        </div>
+        <div class="mt-2">
+            <span class="badge bg-${statusClass}">${optimizationStatus.status.replace('_', ' ')}</span>
+        </div>
+    `;
+    
+    $('#optimizationStatus').html(html);
+}
+
+function resolveAlert(alertId) {
+    $.ajax({
+        url: '{% url "api_resolve_alert" %}',
+        method: 'POST',
+        data: {
+            alert_id: alertId,
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                loadDashboardData(); // Refresh dashboard
+                showSuccess('Alert resolved successfully');
+            } else {
+                showError('Failed to resolve alert: ' + response.message);
+            }
+        },
+        error: function() {
+            showError('Error resolving alert');
+        }
+    });
+}
+
+function setupAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+    
+    if ($('#autoRefresh').is(':checked')) {
+        refreshInterval = setInterval(loadDashboardData, 30000); // Refresh every 30 seconds
+    }
+}
+
+function showRefreshIndicator() {
+    $('#refreshIndicator').show();
+}
+
+function hideRefreshIndicator() {
+    $('#refreshIndicator').hide();
+}
+
+function showError(message) {
+    // Simple error display - you can enhance this
+    console.error(message);
+}
+
+function showSuccess(message) {
+    // Simple success display - you can enhance this  
+    console.log(message);
+}
+</script>
+{% endblock %}

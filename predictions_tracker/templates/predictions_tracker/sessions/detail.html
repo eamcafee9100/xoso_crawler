@@ -1,0 +1,429 @@
+{% extends 'predictions_tracker/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Chi tiết phiên - {{ session.session_id }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'predictions_tracker:run_evaluation' session.id %}" class="btn btn-success btn-custom">
+    <i class="bi bi-play-circle me-2"></i>Chạy đánh giá
+</a>
+<button onclick="updateTrackingStatus()" class="btn btn-info btn-custom">
+    <i class="bi bi-arrow-clockwise me-2"></i>Cập nhật trạng thái
+</button>
+<a href="{% url 'predictions_tracker:cycle_detail' session.cycle.id %}" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-2"></i>Quay lại chu kỳ
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Session Info Header -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Thông tin phiên
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Session ID</h6>
+                        <p><code>{{ session.session_id }}</code></p>
+                        
+                        <h6>Chu kỳ</h6>
+                        <p>
+                            <a href="{% url 'predictions_tracker:cycle_detail' session.cycle.id %}">
+                                {{ session.cycle.cycle_name }}
+                            </a>
+                        </p>
+                        
+                        <h6>Ngày dự đoán</h6>
+                        <p><i class="bi bi-calendar me-1"></i>{{ session.prediction_date }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Trạng thái</h6>
+                        <p>
+                            {% if session.status == 'completed' %}
+                                <span class="status-badge bg-success text-white">Hoàn thành</span>
+                            {% elif session.status == 'tracking' %}
+                                <span class="status-badge bg-warning text-dark">Đang theo dõi</span>
+                            {% elif session.status == 'created' %}
+                                <span class="status-badge bg-info text-white">Đã tạo</span>
+                            {% else %}
+                                <span class="status-badge bg-secondary text-white">{{ session.get_status_display }}</span>
+                            {% endif %}
+                        </p>
+                        
+                        <h6>Ngày theo dõi hiện tại</h6>
+                        <p>{{ session.current_tracking_day }}/{{ session.cycle.tracking_days }}</p>
+                        
+                        <h6>Tiến độ theo dõi</h6>
+                        <div class="progress progress-custom mb-2">
+                            <div class="progress-bar bg-info" 
+                                 style="width: {{ session.current_tracking_day|mul:100|div:session.cycle.tracking_days }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ session.current_tracking_day|mul:100|div:session.cycle.tracking_days|floatformat:1 }}%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bullseye me-2"></i>Kết quả thực tế
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if actual_numbers %}
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for number in actual_numbers %}
+                            <span class="badge bg-primary fs-6">{{ number }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-3">
+                        <i class="bi bi-clock text-muted"></i>
+                        <p class="text-muted mb-0">Chưa có kết quả</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Biểu đồ hiệu suất phương pháp
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="methodPerformanceChart" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Confidence Score
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="confidenceChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Method Results -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card table-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>Kết quả từng phương pháp
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if method_results %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th>Confidence</th>
+                                    <th>Hit Rate</th>
+                                    <th>Wilson Score</th>
+                                    <th>Dự đoán</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for stat in method_stats %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ stat.result.method.name }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ stat.result.method.description|truncatechars:50 }}</small>
+                                    </td>
+                                    <td>
+                                        <div class="progress progress-custom" style="width: 80px;">
+                                            <div class="progress-bar bg-primary" 
+                                                style="width: {{ stat.result.overall_confidence|mul:100 }}%"></div>
+                                        </div>
+                                        <small>{{ stat.result.overall_confidence|floatformat:3 }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">{{ stat.avg_hit_rate|default:0|floatformat:2 }}%</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ stat.avg_wilson|default:0|floatformat:4 }}</span>
+                                    </td>
+                                    <td>
+                                        {% if stat.result.predicted_numbers %}
+                                            <div class="d-flex flex-wrap gap-1">
+                                                {% for number in stat.result.predicted_numbers|slice:":5" %}
+                                                    <span class="badge bg-outline-primary">{{ number }}</span>
+                                                {% endfor %}
+                                                {% if stat.result.predicted_numbers|length > 5 %}
+                                                    <span class="text-muted">...</span>
+                                                {% endif %}
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">N/A</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if stat.result.has_actual_results %}
+                                            <span class="badge bg-success">Có kết quả</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Chờ kết quả</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-gear display-1 text-muted"></i>
+                        <h5 class="text-muted mt-3">Chưa có kết quả phương pháp</h5>
+                        <p class="text-muted">Hệ thống đang xử lý dữ liệu</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ensemble Analysis -->
+{% if ensemble_data.recommendations %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Ensemble Recommendations
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h6>Top Recommendations</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for rec in ensemble_data.recommendations %}
+                                <span class="badge bg-primary fs-6">{{ rec }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h6>Analysis Summary</h6>
+                        {% if ensemble_data.cycle_analysis %}
+                            <div class="mb-2">
+                                <strong>Cycle Analysis:</strong>
+                                <span class="text-muted">{{ ensemble_data.cycle_analysis|truncatechars:100 }}</span>
+                            </div>
+                        {% endif %}
+                        {% if ensemble_data.gap_analysis %}
+                            <div class="mb-2">
+                                <strong>Gap Analysis:</strong>
+                                <span class="text-muted">{{ ensemble_data.gap_analysis|truncatechars:100 }}</span>
+                            </div>
+                        {% endif %}
+                        {% if ensemble_data.pattern_mining %}
+                            <div class="mb-2">
+                                <strong>Pattern Mining:</strong>
+                                <span class="text-muted">{{ ensemble_data.pattern_mining|truncatechars:100 }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Evaluations -->
+<div class="row">
+    <div class="col-12">
+        <div class="card table-custom">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-clipboard-check me-2"></i>Đánh giá
+                </h5>
+                <a href="{% url 'predictions_tracker:run_evaluation' session.id %}" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus-circle me-1"></i>Thêm đánh giá
+                </a>
+            </div>
+            <div class="card-body p-0">
+                {% if evaluations %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th>Ngày đánh giá</th>
+                                    <th>Hit Rate</th>
+                                    <th>Wilson Score</th>
+                                    <th>Hits</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for evaluation in evaluations %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ evaluation.method_result.method.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar me-1"></i>{{ evaluation.evaluation_date }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ evaluation.hit_rate }}%</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ evaluation.wilson_score|floatformat:4 }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">{{ evaluation.hits_count }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="text-muted">{{ evaluation.total_predictions }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-clipboard-x display-1 text-muted"></i>
+                        <h5 class="text-muted mt-3">Chưa có đánh giá nào</h5>
+                        <p class="text-muted">Hãy chạy đánh giá để xem hiệu suất</p>
+                        <a href="{% url 'predictions_tracker:run_evaluation' session.id %}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-play-circle me-2"></i>Chạy đánh giá
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Update tracking status function
+function updateTrackingStatus() {
+    const btn = event.target;
+    showLoading(btn);
+    
+    makeAjaxRequest('{% url "predictions_tracker:api_update_tracking_status" %}', 'POST', {
+        'session_id': {{ session.id }}
+    })
+    .then(response => {
+        if (response.success) {
+            location.reload();
+        } else {
+            alert('Lỗi: ' + response.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi cập nhật trạng thái');
+    })
+    .finally(() => {
+        hideLoading(btn, '<i class="bi bi-arrow-clockwise me-2"></i>Cập nhật trạng thái');
+    });
+}
+
+// Method Performance Chart
+const chartData = {{ chart_data|safe }};
+const methodPerformanceCtx = document.getElementById('methodPerformanceChart').getContext('2d');
+new Chart(methodPerformanceCtx, {
+    type: 'bar',
+    data: {
+        labels: chartData.methods,
+        datasets: [{
+            label: 'Hit Rate (%)',
+            data: chartData.hit_rates,
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1,
+            yAxisID: 'y'
+        }, {
+            label: 'Wilson Score',
+            data: chartData.wilson_scores,
+            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                beginAtZero: true,
+                max: 100
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                beginAtZero: true,
+                max: 1,
+                grid: {
+                    drawOnChartArea: false,
+                }
+            }
+        }
+    }
+});
+
+// Confidence Chart
+const confidenceCtx = document.getElementById('confidenceChart').getContext('2d');
+new Chart(confidenceCtx, {
+    type: 'doughnut',
+    data: {
+        labels: chartData.methods,
+        datasets: [{
+            data: chartData.confidence_scores,
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,597 @@
+{% extends "predictions_tracker/base.html" %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-detail-card {
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        margin-bottom: 20px;
+    }
+    
+    .metric-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        height: 100%;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .metric-value.success { color: #28a745; }
+    .metric-value.danger { color: #dc3545; }
+    .metric-value.warning { color: #ffc107; }
+    .metric-value.info { color: #17a2b8; }
+    .metric-value.primary { color: #007bff; }
+    
+    .prediction-number {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 12px;
+        margin: 2px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 14px;
+        min-width: 35px;
+        text-align: center;
+    }
+    
+    .winning-number {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    
+    .confidence-meter {
+        height: 25px;
+        background: #e9ecef;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #dc3545, #ffc107, #28a745);
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    
+    .status-badge {
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: bold;
+    }
+    
+    .status-success { background: #d4edda; color: #155724; }
+    .status-danger { background: #f8d7da; color: #721c24; }
+    .status-warning { background: #fff3cd; color: #856404; }
+    
+    .json-viewer {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+    
+    .day-result-card {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 15px;
+        margin: 10px 0;
+        background: white;
+    }
+    
+    .day-result-card.winning {
+        border-color: #28a745;
+        background: #f8fff9;
+    }
+    
+    .recommendation-item {
+        background: #f8f9fa;
+        border-left: 4px solid #007bff;
+        padding: 10px 15px;
+        margin: 8px 0;
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .nav-pills .nav-link {
+        border-radius: 25px;
+        font-weight: 500;
+    }
+    
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="report-detail-card card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h1 class="mb-2">
+                                <i class="fas fa-file-chart text-primary"></i>
+                                Report Details
+                            </h1>
+                            <p class="text-muted mb-0">{{ filename }}</p>
+                        </div>
+                        <div>
+                            <a href="{% url 'predictions_tracker:kep_lech_3day_reports' %}" class="btn btn-secondary me-2">
+                                <i class="fas fa-arrow-left"></i>
+                                Back to Reports
+                            </a>
+                            <button class="btn btn-primary" onclick="downloadReport()">
+                                <i class="fas fa-download"></i>
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if report_data %}
+    
+    <!-- Report Type Indicator -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Report Type:</strong> 
+                {% if report_type == 'comprehensive' %}
+                    Comprehensive Multi-Session Analysis
+                {% else %}
+                    Single Session Analysis
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-pills mb-4" id="reportTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button">
+                <i class="fas fa-chart-line"></i> Overview
+            </button>
+        </li>
+        {% if report_type == 'comprehensive' %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="sessions-tab" data-bs-toggle="pill" data-bs-target="#sessions" type="button">
+                <i class="fas fa-list"></i> Sessions
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="analysis-tab" data-bs-toggle="pill" data-bs-target="#analysis" type="button">
+                <i class="fas fa-chart-bar"></i> Analysis
+            </button>
+        </li>
+        {% endif %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="raw-tab" data-bs-toggle="pill" data-bs-target="#raw" type="button">
+                <i class="fas fa-code"></i> Raw Data
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="reportTabsContent">
+        
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            
+            {% if report_type == 'comprehensive' and report_data.summary %}
+            <!-- Comprehensive Overview -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value primary">{{ report_data.summary.total_sessions }}</div>
+                        <div class="text-muted">Total Sessions</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value success">{{ report_data.summary.successful_sessions }}</div>
+                        <div class="text-muted">Successful Sessions</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value info">{{ report_data.summary.overall_success_rate|floatformat:2 }}%</div>
+                        <div class="text-muted">Success Rate</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="metric-card">
+                        <div class="metric-value {% if report_data.summary.average_roi_percentage > 0 %}success{% else %}danger{% endif %}">
+                            {{ report_data.summary.average_roi_percentage|floatformat:1 }}%
+                        </div>
+                        <div class="text-muted">Average ROI</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Winning Day Distribution -->
+            {% if report_data.performance_analysis.winning_day_distribution %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-day"></i>
+                                Winning Day Distribution
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                {% with dist=report_data.performance_analysis.winning_day_distribution %}
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value success">{{ dist.day1 }}</div>
+                                        <div class="text-muted">Day 1 Wins</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value info">{{ dist.day2 }}</div>
+                                        <div class="text-muted">Day 2 Wins</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value warning">{{ dist.day3 }}</div>
+                                        <div class="text-muted">Day 3 Wins</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="metric-card">
+                                        <div class="metric-value danger">{{ dist.no_win }}</div>
+                                        <div class="text-muted">No Wins</div>
+                                    </div>
+                                </div>
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% else %}
+            <!-- Single Session Overview -->
+            {% for session in report_data.detailed_sessions %}
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                Session Information
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><strong>Session ID:</strong> {{ session.session_id }}</li>
+                                <li><strong>Analysis Date:</strong> {{ session.analysis_date }}</li>
+                                <li><strong>Start Date:</strong> {{ session.start_date }}</li>
+                                <li><strong>Confidence Score:</strong></li>
+                                <li>
+                                    <div class="confidence-meter mt-2">
+                                        <div class="confidence-fill" style="width: {{ session.confidence_score|floatformat:2|mul:100 }}%">
+                                            {{ session.confidence_score|floatformat:3 }}
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-dice"></i>
+                                Predicted Numbers
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                {% for number in session.predicted_numbers %}
+                                <span class="prediction-number">{{ number }}</span>
+                                {% endfor %}
+                            </div>
+                            <small class="text-muted">
+                                Strategy: {{ session.strategy_analysis.method }}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Session Results -->
+            {% if session.day1_result or session.day2_result or session.day3_result %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar"></i>
+                                Session Results
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <span class="status-badge {% if session.session_success %}status-success{% else %}status-danger{% endif %}">
+                                            {% if session.session_success %}SUCCESS{% else %}FAILED{% endif %}
+                                        </span>
+                                        <br><small class="text-muted">Overall Result</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="text-info">{{ session.winning_day|default:"None" }}</h4>
+                                        <small class="text-muted">Winning Day</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="text-warning">{{ session.win_rate|floatformat:2|mul:100 }}%</h4>
+                                        <small class="text-muted">Win Rate</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="text-center">
+                                        <h4 class="{% if session.roi_percentage > 0 %}text-success{% else %}text-danger{% endif %}">
+                                            {{ session.roi_percentage|floatformat:1 }}%
+                                        </h4>
+                                        <small class="text-muted">ROI</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Daily Results -->
+                            {% for day_result in session.day1_result,session.day2_result,session.day3_result %}
+                            {% if day_result %}
+                            <div class="day-result-card {% if day_result.is_winning_day %}winning{% endif %}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-2">
+                                        <strong>Day {{ forloop.counter }}</strong><br>
+                                        <small class="text-muted">{{ day_result.date }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small><strong>Giải ĐB:</strong> {{ day_result.actual_giai_db }}</small><br>
+                                        <small><strong>Giải 7:</strong> {{ day_result.actual_giai_7|join:", " }}</small>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>Winning Numbers:</strong><br>
+                                        {% if day_result.winning_numbers %}
+                                            {% for num in day_result.winning_numbers %}
+                                            <span class="prediction-number winning-number">{{ num }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-muted">No hits</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-2">
+                                        <strong>{{ day_result.hit_count }} hits</strong><br>
+                                        <small class="text-muted">{{ day_result.hit_rate|floatformat:2|mul:100 }}%</small>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <span class="status-badge {% if day_result.is_winning_day %}status-success{% else %}status-danger{% endif %}">
+                                            {% if day_result.is_winning_day %}WIN{% else %}LOSE{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+
+            <!-- Recommendations -->
+            {% if report_data.recommendations %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-lightbulb"></i>
+                                Recommendations
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% for recommendation in report_data.recommendations %}
+                            <div class="recommendation-item">
+                                {{ recommendation }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if report_type == 'comprehensive' %}
+        <!-- Sessions Tab -->
+        <div class="tab-pane fade" id="sessions" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-list"></i>
+                                Session Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Session ID</th>
+                                            <th>Analysis Date</th>
+                                            <th>Predicted Numbers</th>
+                                            <th>Confidence</th>
+                                            <th>Result</th>
+                                            <th>Winning Day</th>
+                                            <th>ROI</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for session in report_data.detailed_sessions %}
+                                        <tr>
+                                            <td>{{ session.session_id }}</td>
+                                            <td>{{ session.analysis_date }}</td>
+                                            <td>
+                                                {% for number in session.predicted_numbers|slice:":5" %}
+                                                <span class="badge bg-primary me-1">{{ number }}</span>
+                                                {% endfor %}
+                                                {% if session.predicted_numbers|length > 5 %}
+                                                <small class="text-muted">+{{ session.predicted_numbers|length|add:"-5" }} more</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="confidence-meter">
+                                                    <div class="confidence-fill" style="width: {{ session.confidence_score|floatformat:2|mul:100 }}%">
+                                                        {{ session.confidence_score|floatformat:3 }}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="status-badge {% if session.session_success %}status-success{% else %}status-danger{% endif %}">
+                                                    {% if session.session_success %}WIN{% else %}LOSE{% endif %}
+                                                </span>
+                                            </td>
+                                            <td>{{ session.winning_day|default:"-" }}</td>
+                                            <td class="{% if session.roi_percentage > 0 %}text-success{% else %}text-danger{% endif %}">
+                                                {{ session.roi_percentage|floatformat:1 }}%
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Tab -->
+        <div class="tab-pane fade" id="analysis" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-chart-bar"></i>
+                                Performance Analysis
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            {% if report_data.performance_analysis %}
+                            <pre class="json-viewer">{{ report_data.performance_analysis|pprint }}</pre>
+                            {% else %}
+                            <p class="text-muted">No performance analysis data available.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Raw Data Tab -->
+        <div class="tab-pane fade" id="raw" role="tabpanel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="report-detail-card card">
+                        <div class="card-header">
+                            <h5 class="mb-0">
+                                <i class="fas fa-code"></i>
+                                Raw Report Data
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="json-viewer">
+                                <pre>{{ report_data|pprint }}</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Error State -->
+    <div class="row">
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <h5><i class="fas fa-exclamation-circle"></i> Error</h5>
+                <p>Unable to load report data. The file may be corrupted or in an invalid format.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadReport() {
+    const filename = '{{ filename }}';
+    const link = document.createElement('a');
+    link.href = `/static/reports/${filename}`;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

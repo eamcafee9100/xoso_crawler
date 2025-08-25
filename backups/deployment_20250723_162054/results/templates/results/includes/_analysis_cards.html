@@ -1,0 +1,131 @@
+{% for days, data in predictions.items %}
+<div class="card mb-4">
+    <div class="card-header {% cycle 'bg-primary' 'bg-warning' 'bg-danger' %} text-white">
+        <h4 class="mb-0">
+            Phân tích {{ days }} ngày
+            <small class="float-right">{{ data.analysis_period }}</small>
+        </h4>
+    </div>
+    
+    <div class="card-body">
+        {% if data.error %}
+        <div class="alert alert-danger">{{ data.error }}</div>
+        {% else %}
+        <div class="row">
+            <!-- Cột 1: Top số dự đoán -->
+            <div class="col-md-4 mb-3 mb-md-0">
+                <h5><i class="fas fa-star"></i> Top dự đoán</h5>
+                <div class="number-grid">
+                    {% for num, score in data.top_numbers|slice:":15" %}
+                    <div class="number-item 
+                         {% if num in data.hits %}hit{% endif %}
+                         {% if num in common_predictions.all_three %}common-all{% endif %}"
+                         title="Độ tin cậy: {{ score|floatformat:1 }}%">
+                        {{ num }}
+                        <div class="prediction-accuracy">
+                            {{ score|floatformat:1 }}%
+                            {% if num in data.hits %}
+                            <i class="fas fa-check text-success ml-1"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if data.hit_count %}
+                <div class="mt-2 text-center text-success">
+                    <small>Trúng <strong>{{ data.hit_count }}</strong>/{{ data.top_numbers|length }} số</small>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Cột 2: Số nóng/nguội -->
+            <div class="col-md-4 mb-3 mb-md-0">
+                <div class="mb-4">
+                    <h5><i class="fas fa-fire"></i> Số nóng</h5>
+                    <div class="hot-numbers">
+                        {% for num in data.hot_numbers|slice:":10" %}
+                        <span class="badge bg-danger text-white mb-1">{{ num }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div>
+                    <h5><i class="fas fa-snowflake"></i> Số nguội</h5>
+                    <div class="cold-numbers">
+                        {% for num in data.cold_numbers|slice:":10" %}
+                        <span class="badge bg-secondary text-white mb-1">{{ num }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cột 3: Xiên đề xuất -->
+            <div class="col-md-4">
+                <h5><i class="fas fa-link"></i> Xiên 2 tốt</h5>
+                <div class="list-group mb-3">
+                    {% for pair, count in data.pair_stats|slice:":3" %}
+                    <div class="list-group-item py-2">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ pair.0 }} - {{ pair.1 }}</span>
+                            <span class="badge bg-primary">{{ count }} lần</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <h5><i class="fas fa-project-diagram"></i> Xiên 3 tốt</h5>
+                <div class="list-group">
+                    {% for triple, count in data.triple_stats|slice:":2" %}
+                    <div class="list-group-item py-2">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ triple.0 }} - {{ triple.1 }} - {{ triple.2 }}</span>
+                            <span class="badge bg-primary">{{ count }} lần</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .number-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .number-item {
+        padding: 8px;
+        text-align: center;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        font-weight: bold;
+        position: relative;
+    }
+    
+    .number-item.hit {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .number-item.common-all {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+    }
+    
+    .prediction-accuracy {
+        font-size: 0.7em;
+        color: #6c757d;
+        margin-top: 3px;
+    }
+    
+    .hot-numbers, .cold-numbers {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+</style>

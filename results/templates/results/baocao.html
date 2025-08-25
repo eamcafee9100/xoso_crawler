@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Báo cáo dự đoán XSMB</h2>
+<div class="stats">
+    <p>Tổng số dự đoán: {{ tong_du_doan }}</p>
+    <p>Số lần trúng: {{ tong_trung }}</p>
+    <p>Tỉ lệ trúng: {{ ti_le_trung }}%</p>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ngày dự đoán</th>
+            <th>Số dự đoán</th>
+            <th>Ngày kiểm tra</th>
+            <th>Kết quả thực tế</th>
+            <th>Trúng thưởng</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for du_doan in du_doans %}
+        <tr>
+            <td>{{ du_doan.ngay_du_doan.ngay|date:"d/m/Y" }}</td>
+            <td>{{ du_doan.so_du_doan_1 }} hoặc {{ du_doan.so_du_doan_2 }}</td>
+            <td>{{ du_doan.ngay_kiem_tra|date:"d/m/Y" }}</td>
+            <td>{{ du_doan.so_thuc_te|default:"Chưa cập nhật" }}</td>
+            <td>
+                {% if du_doan.trung_thuong %}
+                <span class="text-success">✔</span>
+                {% elif du_doan.so_thuc_te %}
+                <span class="text-danger">✘</span>
+                {% else %}
+                <span class="text-muted">...</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

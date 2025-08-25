@@ -1,0 +1,112 @@
+{
+  "summary": {
+    "total_sessions": 1,
+    "successful_sessions": 0,
+    "overall_success_rate": 0.0,
+    "average_win_rate": 0.0,
+    "average_roi_percentage": 0.0,
+    "total_profit_loss": 0,
+    "total_investment": 0
+  },
+  "performance_analysis": {
+    "winning_day_distribution": {
+      "day1": 0,
+      "day2": 0,
+      "day3": 0,
+      "no_win": 1
+    },
+    "confidence_vs_success": [
+      {
+        "confidence": 0.6255639097744361,
+        "success": false,
+        "roi": 0.0
+      }
+    ],
+    "strategy_performance": {
+      "combined_giai_db_giai_7": {
+        "count": 1,
+        "success": 0,
+        "total_roi": 0.0,
+        "success_rate": 0.0,
+        "average_roi": 0.0
+      }
+    }
+  },
+  "detailed_sessions": [
+    {
+      "session_id": "session_20250809",
+      "start_date": "2025-08-10",
+      "analysis_date": "2025-08-09",
+      "predicted_numbers": [
+        "19",
+        "40",
+        "68",
+        "70",
+        "06",
+        "60",
+        "48",
+        "75",
+        "42",
+        "73"
+      ],
+      "confidence_score": 0.6255639097744361,
+      "strategy_analysis": {
+        "method": "combined_giai_db_giai_7",
+        "top_candidates": {
+          "19": 2.0,
+          "40": 1.5999999999999999,
+          "68": 1.2999999999999998,
+          "70": 1.0,
+          "06": 1.0,
+          "60": 0.8999999999999999,
+          "48": 0.8999999999999999,
+          "75": 0.8999999999999999,
+          "42": 0.8999999999999999,
+          "73": 0.7
+        },
+        "confidence_factors": [
+          {
+            "factor": "data_completeness",
+            "score": 1.0,
+            "description": "Found 38 kep candidates"
+          },
+          {
+            "factor": "pattern_consistency",
+            "score": 0.5714285714285714,
+            "description": "Pattern consistency: 0.43"
+          },
+          {
+            "factor": "frequency_distribution",
+            "score": 0.30526315789473685,
+            "description": "Frequency balance: 0.31"
+          }
+        ],
+        "analysis_summary": {
+          "giai_db_kep_count": 10,
+          "giai_7_kep_count": 54,
+          "total_candidates": 38
+        }
+      },
+      "day1_result": null,
+      "day2_result": null,
+      "day3_result": null,
+      "total_hit_count": 0,
+      "total_numbers_played": 0,
+      "win_rate": 0.0,
+      "winning_day": null,
+      "session_success": false,
+      "roi_percentage": 0.0,
+      "profit_loss": 0,
+      "stopped_early": false
+    }
+  ],
+  "recommendations": [
+    "⚠️ Tỷ lệ thành công thấp (<30%). Cần xem xét lại chiến lược."
+  ],
+  "risk_analysis": {
+    "max_losing_streak": 1,
+    "average_losing_streak": 1.0,
+    "total_losing_streaks": 1,
+    "risk_level": "LOW"
+  }
+}

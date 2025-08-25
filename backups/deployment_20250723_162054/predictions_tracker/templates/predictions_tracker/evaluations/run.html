@@ -1,0 +1,176 @@
+{% extends 'predictions_tracker/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-play-circle me-2"></i>Chạy đánh giá cho phiên
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Session Info -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle me-2"></i>Thông tin phiên</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Session ID:</strong> <code>{{ session.session_id }}</code></p>
+                            <p class="mb-1"><strong>Chu kỳ:</strong> {{ session.cycle.cycle_name }}</p>
+                            <p class="mb-0"><strong>Ngày dự đoán:</strong> {{ session.prediction_date }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Trạng thái:</strong> 
+                                {% if session.status == 'completed' %}
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                {% elif session.status == 'tracking' %}
+                                    <span class="badge bg-warning">Đang theo dõi</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ session.get_status_display }}</span>
+                                {% endif %}
+                            </p>
+                            <p class="mb-1"><strong>Ngày theo dõi:</strong> {{ session.current_tracking_day }}/{{ session.cycle.tracking_days }}</p>
+                            <p class="mb-0"><strong>Phương pháp:</strong> {{ session.method_results.count }} methods</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" id="evaluationForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ngày đánh giá <span class="text-danger">*</span></label>
+                        <input type="date" name="evaluation_date" class="form-control" required>
+                        <div class="form-text">Chọn ngày để đánh giá hiệu suất dự đoán</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Quy trình đánh giá</label>
+                        <div class="alert alert-warning">
+                            <h6>Hệ thống sẽ thực hiện:</h6>
+                            <ol class="mb-0">
+                                <li>Lấy kết quả thực tế từ ngày đã chọn</li>
+                                <li>So sánh với dự đoán của từng phương pháp</li>
+                                <li>Tính toán hit rate và Wilson score</li>
+                                <li>Lưu kết quả đánh giá vào database</li>
+                                <li>Cập nhật thống kê tổng thể</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Lưu ý quan trọng</label>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <li><strong>Ngày đánh giá</strong> phải có kết quả xổ số thực tế</li>
+                                <li>Đánh giá chỉ nên chạy <strong>sau</strong> ngày có kết quả</li>
+                                <li>Mỗi session có thể chạy đánh giá <strong>nhiều lần</strong> với các ngày khác nhau</li>
+                                <li>Kết quả đánh giá sẽ <strong>ghi đè</strong> nếu chạy lại cùng ngày</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'predictions_tracker:session_detail' session.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-success btn-custom" id="runBtn">
+                            <i class="bi bi-play-circle me-2"></i>Chạy đánh giá
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Progress Card (initially hidden) -->
+        <div class="card mt-4" id="progressCard" style="display: none;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-gear-fill me-2"></i>Đang xử lý...
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 0%" id="progressBar"></div>
+                </div>
+                <div id="progressText">Đang khởi tạo...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    const dateInput = document.querySelector('input[name="evaluation_date"]');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    // Set reasonable date range
+    const predictionDate = new Date('{{ session.prediction_date }}');
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + 7); // Allow up to 7 days from now
+    
+    dateInput.min = '{{ session.prediction_date }}';
+    dateInput.max = maxDate.toISOString().split('T')[0];
+    
+    // Form submission with progress
+    const form = document.getElementById('evaluationForm');
+    const progressCard = document.getElementById('progressCard');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const runBtn = document.getElementById('runBtn');
+    
+    form.addEventListener('submit', function(e) {
+        // Show progress card
+        progressCard.style.display = 'block';
+        runBtn.disabled = true;
+        
+        // Simulate progress (since we don't have real-time updates)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 90) progress = 90;
+            
+            progressBar.style.width = progress + '%';
+            
+            if (progress < 30) {
+                progressText.textContent = 'Đang lấy kết quả thực tế...';
+            } else if (progress < 60) {
+                progressText.textContent = 'Đang so sánh với dự đoán...';
+            } else if (progress < 90) {
+                progressText.textContent = 'Đang tính toán điểm số...';
+            } else {
+                progressText.textContent = 'Đang hoàn thiện...';
+            }
+        }, 500);
+        
+        // Clear interval after form submission
+        setTimeout(() => {
+            clearInterval(progressInterval);
+        }, 100);
+    });
+    
+    // Date validation
+    dateInput.addEventListener('change', function() {
+        const selectedDate = new Date(this.value);
+        const predDate = new Date('{{ session.prediction_date }}');
+        const today = new Date();
+        
+        if (selectedDate < predDate) {
+            alert('Ngày đánh giá không thể trước ngày dự đoán');
+            this.value = '{{ session.prediction_date }}';
+        } else if (selectedDate > today) {
+            if (!confirm('Bạn đang chọn ngày tương lai. Có chắc chắn muốn tiếp tục?')) {
+                this.value = today.toISOString().split('T')[0];
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

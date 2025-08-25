@@ -1,0 +1,26 @@
+{
+  "frequency_based_90d": {
+    "accuracy": 0.27666666666666667,
+    "avg_correct_per_day": 2.7666666666666666,
+    "total_days_evaluated": 60,
+    "total_correct_predictions": 166
+  },
+  "frequency_based_180d": {
+    "accuracy": 0.27666666666666667,
+    "avg_correct_per_day": 2.7666666666666666,
+    "total_days_evaluated": 60,
+    "total_correct_predictions": 166
+  },
+  "day_of_week": {
+    "accuracy": 0.335,
+    "avg_correct_per_day": 3.35,
+    "total_days_evaluated": 60,
+    "total_correct_predictions": 201
+  },
+  "cyclical": {
+    "accuracy": 0.22166666666666668,
+    "avg_correct_per_day": 2.216666666666667,
+    "total_days_evaluated": 60,
+    "total_correct_predictions": 133
+  }
+}

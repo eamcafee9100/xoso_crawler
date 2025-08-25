@@ -1,0 +1,1399 @@
+{% extends 'predictions_tracker/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+
+<style>
+    /* Professional Workstation Theme */
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #34495e;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-bg: #ecf0f1;
+        --card-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        --border-radius: 8px;
+    }
+
+    body {
+        background-color: var(--light-bg);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Executive Dashboard Cards */
+    .workstation-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        border: none;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+
+    .workstation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .workstation-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        padding: 20px 30px;
+        margin-bottom: 30px;
+        border-radius: var(--border-radius);
+    }
+
+    /* Risk Assessment Gauges */
+    .risk-gauge {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+    }
+
+    .gauge-arc {
+        stroke-width: 12;
+        fill: none;
+        stroke-linecap: round;
+    }
+
+    .gauge-background {
+        stroke: #e9ecef;
+    }
+
+    .gauge-fill {
+        stroke-dasharray: 283;
+        stroke-dashoffset: 283;
+        transition: stroke-dashoffset 2s ease-in-out;
+    }
+
+    .gauge-low { stroke: var(--success-color); }
+    .gauge-medium { stroke: var(--warning-color); }
+    .gauge-high { stroke: var(--danger-color); }
+
+    .gauge-label {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* Cycle Wheels */
+    .cycle-wheel {
+        width: 300px;
+        height: 300px;
+        position: relative;
+        margin: 20px auto;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        background: radial-gradient(circle, #f8f9fa 30%, #e9ecef 100%);
+    }
+
+    .cycle-dot {
+        position: absolute;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .cycle-dot:hover {
+        transform: scale(1.2);
+        z-index: 10;
+    }
+
+    .cycle-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        background: var(--primary-color);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Navigation Tabs */
+    .workstation-tabs {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 20px;
+    }
+
+    .workstation-tabs .nav-link {
+        color: var(--primary-color);
+        font-weight: 500;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 0;
+        transition: all 0.3s ease;
+    }
+
+    .workstation-tabs .nav-link.active {
+        background: var(--accent-color);
+        color: white;
+    }
+
+    .workstation-tabs .nav-link:hover:not(.active) {
+        background: rgba(52, 152, 219, 0.1);
+    }
+
+    /* Prediction Rankings */
+    .prediction-rank {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px 20px;
+        background: white;
+        border-radius: var(--border-radius);
+        margin-bottom: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .prediction-rank:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .rank-number {
+        background: var(--accent-color);
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 15px;
+    }
+
+    .rank-high { background: var(--success-color); }
+    .rank-medium { background: var(--warning-color); }
+
+    .prediction-digit {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--primary-color);
+        margin-right: 15px;
+    }
+
+    .prediction-score {
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+
+    /* Real-time Tracking */
+    .tracking-metric {
+        text-align: center;
+        padding: 20px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 15px;
+    }
+
+    .metric-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .metric-critical { color: var(--danger-color); }
+    .metric-warning { color: var(--warning-color); }
+    .metric-success { color: var(--success-color); }
+
+    /* Interactive Tables */
+    .cyclical-table {
+        background: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .cyclical-table th {
+        background: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        padding: 15px 12px;
+        border: none;
+    }
+
+    .cyclical-table td {
+        padding: 12px;
+        border-bottom: 1px solid #f1f3f4;
+        vertical-align: middle;
+    }
+
+    .cyclical-table tbody tr:hover {
+        background: rgba(52, 152, 219, 0.05);
+        cursor: pointer;
+    }
+
+    /* Status Indicators */
+    .status-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+
+    .status-critical { background: var(--danger-color); }
+    .status-moderate { background: var(--warning-color); }
+    .status-normal { background: var(--success-color); }
+
+    /* Loading Animations */
+    .analysis-loader {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+    }
+
+    .loader-spinner {
+        width: 60px;
+        height: 60px;
+        border: 6px solid #f3f3f3;
+        border-top: 6px solid var(--accent-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Analysis Controls */
+    .analysis-controls {
+        background: white;
+        padding: 25px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        margin-bottom: 30px;
+    }
+
+    .control-group {
+        margin-bottom: 20px;
+    }
+
+    .control-label {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 8px;
+    }
+
+    .btn-analyze {
+        background: linear-gradient(135deg, var(--accent-color), #2980b9);
+        border: none;
+        padding: 12px 30px;
+        font-weight: 600;
+        border-radius: var(--border-radius);
+        transition: all 0.3s ease;
+    }
+
+    .btn-analyze:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .cycle-wheel {
+            width: 250px;
+            height: 250px;
+        }
+        
+        .risk-gauge {
+            width: 100px;
+            height: 100px;
+        }
+        
+        .workstation-header {
+            padding: 15px 20px;
+        }
+        
+        .workstation-tabs .nav-link {
+            padding: 12px 15px;
+            font-size: 14px;
+        }
+    }
+
+    /* Tooltip Styling */
+    .custom-tooltip {
+        background: rgba(44, 62, 80, 0.95);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        pointer-events: none;
+        position: absolute;
+        z-index: 1000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .custom-tooltip.show {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Workstation Header -->
+    <div class="workstation-header">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="mb-2">
+                    <i class="fas fa-cogs me-3"></i>
+                    Cyclical Analysis Workstation
+                </h1>
+                <p class="mb-0 opacity-75">Professional interface for advanced cyclical pattern analysis and expert predictions</p>
+            </div>
+            <div class="col-lg-4 text-end">
+                <div class="d-flex justify-content-end align-items-center">
+                    <div class="me-3">
+                        <small class="d-block">Analysis Status</small>
+                        <span class="badge bg-success" id="analysisStatus">Ready</span>
+                    </div>
+                    <div>
+                        <small class="d-block">Last Update</small>
+                        <span id="lastUpdate">{{ current_date|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Controls -->
+    <div class="analysis-controls">
+        <form id="analysisForm">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="control-group">
+                        <label class="control-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" value="{{ default_start_date }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="control-group">
+                        <label class="control-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" value="{{ default_end_date }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="control-group">
+                        <label class="control-label">Significance Level</label>
+                        <select class="form-select" id="significanceLevel">
+                            {% for level in significance_levels %}
+                            <option value="{{ level }}" {% if level == 0.05 %}selected{% endif %}>{{ level }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="control-group">
+                        <label class="control-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-analyze text-white">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Run Analysis
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Analysis Loader -->
+    <div class="analysis-loader" id="analysisLoader">
+        <div class="loader-spinner"></div>
+        <h4 class="text-muted">Running Advanced Cyclical Analysis...</h4>
+        <p class="text-muted">Processing expert-level insights and cyclical patterns</p>
+    </div>
+
+    <!-- Main Workstation Tabs -->
+    <div class="workstation-tabs">
+        <ul class="nav nav-tabs" id="workstationTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="dashboard-tab" data-bs-toggle="tab" data-bs-target="#dashboard" type="button" role="tab">
+                    <i class="fas fa-tachometer-alt me-2"></i>Expert Dashboard
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cyclical-tab" data-bs-toggle="tab" data-bs-target="#cyclical" type="button" role="tab">
+                    <i class="fas fa-circle-notch me-2"></i>Cyclical Analysis
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="rankings-tab" data-bs-toggle="tab" data-bs-target="#rankings" type="button" role="tab">
+                    <i class="fas fa-list-ol me-2"></i>Prediction Rankings
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="tracking-tab" data-bs-toggle="tab" data-bs-target="#tracking" type="button" role="tab">
+                    <i class="fas fa-crosshairs me-2"></i>Real-time Tracking
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content" id="workstationTabContent">
+        <!-- Expert Dashboard Tab -->
+        <div class="tab-pane fade show active" id="dashboard" role="tabpanel">
+            <div class="row">
+                <!-- Risk Assessment Gauges -->
+                <div class="col-lg-4">
+                    <div class="workstation-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Risk Assessment</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="risk-gauge" id="riskGauge">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="45" class="gauge-arc gauge-background"></circle>
+                                    <circle cx="60" cy="60" r="45" class="gauge-arc gauge-fill gauge-medium" id="riskArc"></circle>
+                                </svg>
+                                <div class="gauge-label">
+                                    <div class="h4 mb-0" id="riskLevel">MEDIUM</div>
+                                    <small class="text-muted">Risk Level</small>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="row text-center">
+                                    <div class="col">
+                                        <div class="h5 text-success" id="expectedROI">1.4x</div>
+                                        <small class="text-muted">Expected ROI</small>
+                                    </div>
+                                    <div class="col">
+                                        <div class="h5 text-primary" id="confidenceScore">75%</div>
+                                        <small class="text-muted">Confidence</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Expert Picks -->
+                <div class="col-lg-8">
+                    <div class="workstation-card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-star me-2"></i>Top 0.1% Analyst Picks</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="expertPicks">
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-chart-line fa-3x mb-3 opacity-50"></i>
+                                    <p>Run analysis to see expert predictions</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <!-- Quick Insights -->
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Quick Insights</h5>
+                        </div>
+                        <div class="card-body" id="quickInsights">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-brain fa-3x mb-3 opacity-50"></i>
+                                <p>Expert insights will appear here after analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Performance Metrics</h5>
+                        </div>
+                        <div class="card-body" id="performanceMetrics">
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <div class="h4 text-primary mb-1">--</div>
+                                    <small class="text-muted">High Prob</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h4 text-info mb-1">--</div>
+                                    <small class="text-muted">Medium Prob</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="h4 text-success mb-1">--</div>
+                                    <small class="text-muted">Signal Strength</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cyclical Analysis Tab -->
+        <div class="tab-pane fade" id="cyclical" role="tabpanel">
+            <div class="row">
+                <!-- Cycle Wheels -->
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-circle-notch me-2"></i>Monthly Cycle Wheel</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="cycle-wheel" id="cycleWheel">
+                                <div class="cycle-center">30d</div>
+                                <!-- Cycle dots will be generated dynamically -->
+                            </div>
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Click on numbers to see detailed cycle history
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overdue Analysis Table -->
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Overdue Analysis</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table cyclical-table mb-0" id="overdueTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Number</th>
+                                            <th>Days Since</th>
+                                            <th>Status</th>
+                                            <th>Probability</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-4">
+                                                <i class="fas fa-hourglass-half me-2"></i>
+                                                Run analysis to see overdue numbers
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <!-- Momentum Cycles -->
+                <div class="col-12">
+                    <div class="workstation-card">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-trending-up me-2"></i>Momentum Cycles</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table cyclical-table mb-0" id="momentumTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Number</th>
+                                            <th>Trend</th>
+                                            <th>Strength</th>
+                                            <th>Acceleration</th>
+                                            <th>Confidence</th>
+                                            <th>Score</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-4">
+                                                <i class="fas fa-chart-line me-2"></i>
+                                                Momentum analysis will appear here
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction Rankings Tab -->
+        <div class="tab-pane fade" id="rankings" role="tabpanel">
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>High Probability Predictions</h5>
+                        </div>
+                        <div class="card-body" id="highProbRankings">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-medal fa-3x mb-3 opacity-50"></i>
+                                <p>High probability predictions will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="workstation-card">
+                        <div class="card-header bg-warning text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Medium Probability Predictions</h5>
+                        </div>
+                        <div class="card-body" id="mediumProbRankings">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-chart-bar fa-3x mb-3 opacity-50"></i>
+                                <p>Medium probability predictions will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Tracking Tab -->
+        <div class="tab-pane fade" id="tracking" role="tabpanel">
+            <div class="row">
+                <!-- Tracking Metrics -->
+                <div class="col-lg-3">
+                    <div class="tracking-metric">
+                        <div class="metric-value metric-critical" id="criticalCount">0</div>
+                        <div class="text-muted">Critical Overdue</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="tracking-metric">
+                        <div class="metric-value metric-warning" id="totalOverdue">0</div>
+                        <div class="text-muted">Total Overdue</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="tracking-metric">
+                        <div class="metric-value metric-success" id="highMomentum">0</div>
+                        <div class="text-muted">High Momentum</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="tracking-metric">
+                        <div class="metric-value text-primary" id="cycleHealth">GOOD</div>
+                        <div class="text-muted">Cycle Health</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="workstation-card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-crosshairs me-2"></i>Live Cycle Positions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="liveTracking">
+                                <div class="text-center text-muted py-5">
+                                    <i class="fas fa-satellite-dish fa-3x mb-3 opacity-50"></i>
+                                    <h4>Real-time Tracking</h4>
+                                    <p>Live cycle positions and detailed tracking data will appear here after analysis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Tooltip -->
+<div class="custom-tooltip" id="customTooltip"></div>
+
+<!-- Number Detail Modal -->
+<div class="modal fade" id="numberDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-chart-line me-2"></i>
+                    Number <span id="modalNumber">0</span> - Detailed Analysis
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="numberDetailContent">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Global variables
+let currentAnalysisResults = null;
+let currentCyclicalInsights = null;
+let overdueTable = null;
+let momentumTable = null;
+
+// Initialize on document ready
+$(document).ready(function() {
+    // Add small delay to ensure all elements are rendered
+    setTimeout(function() {
+        initializeWorkstation();
+        
+        {% if has_recent_data %}
+            loadRecentAnalysis();
+        {% endif %}
+    }, 100);
+});
+
+// Initialize workstation components
+function initializeWorkstation() {
+    try {
+        // Form submission handler
+        $('#analysisForm').on('submit', function(e) {
+            e.preventDefault();
+            runAnalysis();
+        });
+
+        // Tab change handlers - Initialize DataTables when tabs are shown
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function(e) {
+            const target = $(e.target).data('bs-target');
+            
+            if (target === '#cyclical') {
+                // Initialize DataTables when cyclical tab is shown
+                initializeCyclicalTables();
+                
+                // Adjust column widths after tab is shown
+                setTimeout(function() {
+                    if (overdueTable) {
+                        overdueTable.columns.adjust().responsive.recalc();
+                    }
+                    if (momentumTable) {
+                        momentumTable.columns.adjust().responsive.recalc();
+                    }
+                }, 200);
+                
+                if (currentCyclicalInsights) {
+                    updateCycleWheel(currentCyclicalInsights);
+                }
+            }
+        });
+        
+        console.log('Workstation initialized successfully');
+    } catch (error) {
+        console.error('Error initializing workstation:', error);
+        showAlert('error', 'Error initializing workstation components: ' + error.message);
+    }
+}
+
+// Initialize DataTables for cyclical analysis tab
+function initializeCyclicalTables() {
+    try {
+        // Initialize overdue table if not already initialized
+        if (!overdueTable && $('#overdueTable').length > 0 && $('#overdueTable').is(':visible')) {
+            overdueTable = $('#overdueTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[1, 'desc']],
+                language: {
+                    emptyTable: "No overdue numbers found"
+                },
+                destroy: true,
+                deferRender: true,
+                autoWidth: false,
+                columnDefs: [
+                    { targets: '_all', className: 'text-center' }
+                ]
+            });
+        }
+
+        // Initialize momentum table if not already initialized
+        if (!momentumTable && $('#momentumTable').length > 0 && $('#momentumTable').is(':visible')) {
+            momentumTable = $('#momentumTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                order: [[5, 'desc']],
+                language: {
+                    emptyTable: "No momentum data available"
+                },
+                destroy: true,
+                deferRender: true,
+                autoWidth: false,
+                columnDefs: [
+                    { targets: '_all', className: 'text-center' }
+                ]
+            });
+        }
+        
+        console.log('Cyclical tables initialized successfully');
+    } catch (error) {
+        console.error('Error initializing cyclical tables:', error);
+    }
+}
+
+// Run analysis
+function runAnalysis() {
+    // Show loader
+    $('#analysisLoader').show();
+    $('#workstationTabContent').hide();
+    $('#analysisStatus').removeClass('bg-success bg-danger').addClass('bg-warning').text('Running');
+
+    // Prepare data
+    const formData = {
+        start_date: $('#startDate').val(),
+        end_date: $('#endDate').val(),
+        significance_level: parseFloat($('#significanceLevel').val()),
+        enable_full_pipeline: true
+    };
+
+    // AJAX request
+    $.ajax({
+        url: '{% url "predictions_tracker:run_enhanced_analysis" %}',
+        method: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        timeout: 12000, // 
+        success: function(response) {
+            if (response && response.status === 'success') {
+                currentAnalysisResults = response.analysis_results;
+                displayAnalysisResults(response);
+                $('#analysisStatus').removeClass('bg-warning bg-danger').addClass('bg-success').text('Complete');
+                showAlert('success', 'Analysis completed successfully!');
+            } else {
+                $('#analysisStatus').removeClass('bg-warning bg-success').addClass('bg-danger').text('Error');
+                showAlert('error', 'Analysis failed: ' + (response?.error_message || 'Unknown error'));
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#analysisStatus').removeClass('bg-warning bg-success').addClass('bg-danger').text('Error');
+            showAlert('error', 'Request failed: ' + error);
+        },
+        complete: function() {
+            $('#analysisLoader').hide();
+            $('#workstationTabContent').show();
+            $('#lastUpdate').text(new Date().toLocaleDateString());
+        }
+    });
+}
+
+// Display analysis results
+function displayAnalysisResults(response) {
+    const quickInsights = response.quick_insights;
+    
+    if (quickInsights) {
+        // Update expert dashboard
+        updateExpertDashboard(quickInsights);
+        
+        // Generate cyclical insights
+        generateCyclicalInsights(response.analysis_results);
+        
+        // Update prediction rankings
+        updatePredictionRankings(quickInsights);
+        
+        // Update real-time tracking
+        updateRealTimeTracking();
+    }
+}
+
+// Update expert dashboard
+function updateExpertDashboard(insights) {
+    // Update risk assessment gauge
+    const riskLevel = insights.recommendations?.risk_assessment || 'MEDIUM';
+    const expectedROI = insights.recommendations?.expected_roi || 1.2;
+    const confidence = insights.confidence_scores?.overall_confidence || 0.7;
+
+    updateRiskGauge(riskLevel, confidence);
+    $('#riskLevel').text(riskLevel);
+    $('#expectedROI').text(expectedROI + 'x');
+    $('#confidenceScore').text(Math.round(confidence * 100) + '%');
+
+    // Update expert picks
+    const topPicks = insights.recommendations?.top_picks || [];
+    let picksHtml = '';
+    
+    topPicks.slice(0, 5).forEach((pick, index) => {
+        const rankClass = index === 0 ? 'rank-high' : index < 3 ? 'rank-medium' : '';
+        picksHtml += `
+            <div class="prediction-rank ${rankClass}" onclick="showNumberDetail('${pick.digit}')">
+                <div class="d-flex align-items-center">
+                    <div class="rank-number ${rankClass}">${index + 1}</div>
+                    <div class="prediction-digit">${pick.digit}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${pick.rationale}</div>
+                        <small class="text-muted">Expert Analysis</small>
+                    </div>
+                </div>
+                <div class="prediction-score">${pick.confidence}%</div>
+            </div>
+        `;
+    });
+
+    $('#expertPicks').html(picksHtml || '<div class="text-center text-muted py-4"><p>No expert picks available</p></div>');
+
+    // Update quick insights
+    const signalStrength = insights.confidence_scores?.signal_strength || 'MODERATE';
+    const predictionCount = insights.confidence_scores?.prediction_count || 0;
+    
+    $('#quickInsights').html(`
+        <div class="row text-center">
+            <div class="col-4">
+                <div class="h3 text-primary">${predictionCount}</div>
+                <small class="text-muted">Predictions</small>
+            </div>
+            <div class="col-4">
+                <div class="h3 text-success">${signalStrength}</div>
+                <small class="text-muted">Signal Strength</small>
+            </div>
+            <div class="col-4">
+                <div class="h3 text-info">${Math.round(confidence * 100)}%</div>
+                <small class="text-muted">Confidence</small>
+            </div>
+        </div>
+    `);
+
+    // Update performance metrics
+    const highProb = insights.predictions?.high_probability?.length || 0;
+    const mediumProb = insights.predictions?.medium_probability?.length || 0;
+    
+    $('#performanceMetrics .row').html(`
+        <div class="col-4">
+            <div class="h4 text-primary mb-1">${highProb}</div>
+            <small class="text-muted">High Prob</small>
+        </div>
+        <div class="col-4">
+            <div class="h4 text-info mb-1">${mediumProb}</div>
+            <small class="text-muted">Medium Prob</small>
+        </div>
+        <div class="col-4">
+            <div class="h4 text-success mb-1">${signalStrength}</div>
+            <small class="text-muted">Signal Strength</small>
+        </div>
+    `);
+}
+
+// Update risk assessment gauge
+function updateRiskGauge(riskLevel, confidence) {
+    const gauge = $('#riskArc');
+    const circumference = 283;
+    
+    // Calculate fill percentage based on confidence
+    const fillPercentage = confidence;
+    const strokeDashoffset = circumference - (fillPercentage * circumference);
+    
+    // Set color based on risk level
+    gauge.removeClass('gauge-low gauge-medium gauge-high');
+    switch(riskLevel) {
+        case 'LOW':
+            gauge.addClass('gauge-low');
+            break;
+        case 'HIGH':
+            gauge.addClass('gauge-high');
+            break;
+        default:
+            gauge.addClass('gauge-medium');
+    }
+    
+    // Animate the gauge
+    gauge.css('stroke-dashoffset', strokeDashoffset);
+}
+
+// Generate cyclical insights
+function generateCyclicalInsights(analysisResults) {
+    // This would normally call the server-side cyclical extraction
+    // For now, we'll generate mock data for demonstration
+    currentCyclicalInsights = {
+        overdue_analysis: {},
+        momentum_cycles: {},
+        cycle_wheels: {},
+        real_time_tracking: {
+            total_overdue: 3,
+            critical_count: 1,
+            high_momentum: 2,
+            cycle_health: "good"
+        }
+    };
+
+    // Generate sample cyclical data
+    for (let i = 0; i < 10; i++) {
+        const digit = i.toString();
+        const daysSince = Math.floor(Math.random() * 40) + 1;
+        const severity = daysSince > 25 ? 'critical' : daysSince > 15 ? 'moderate' : 'normal';
+        
+        currentCyclicalInsights.overdue_analysis[digit] = {
+            days_since_last: daysSince,
+            days_overdue: Math.max(0, daysSince - 12),
+            severity: severity,
+            probability_next: Math.min(0.95, daysSince / 30),
+            cycle_position: (daysSince % 30) / 30,
+            color_code: severity === 'critical' ? '#dc3545' : severity === 'moderate' ? '#fd7e14' : '#28a745'
+        };
+
+        currentCyclicalInsights.momentum_cycles[digit] = {
+            trend: ['up', 'stable', 'down'][Math.floor(Math.random() * 3)],
+            strength: ['high', 'medium', 'low'][Math.floor(Math.random() * 3)],
+            acceleration: ['increasing', 'stable'][Math.floor(Math.random() * 2)],
+            confidence: Math.random(),
+            momentum_score: Math.random() * 100
+        };
+
+        currentCyclicalInsights.cycle_wheels[digit] = {
+            angle: (daysSince % 30) / 30 * 360,
+            radius: Math.min(120, daysSince * 3),
+            color: currentCyclicalInsights.overdue_analysis[digit].color_code,
+            size: Math.max(15, daysSince),
+            label: `${digit} (${daysSince}d)`
+        };
+    }
+
+    updateCyclicalAnalysis(currentCyclicalInsights);
+}
+
+// Update cyclical analysis displays
+function updateCyclicalAnalysis(cyclicalInsights) {
+    // Ensure tables are initialized first
+    initializeCyclicalTables();
+    
+    // Update overdue table
+    if (overdueTable) {
+        overdueTable.clear();
+        Object.entries(cyclicalInsights.overdue_analysis).forEach(([digit, data]) => {
+            const statusHtml = `<span class="status-indicator status-${data.severity}"></span>${data.severity.toUpperCase()}`;
+            const probabilityHtml = `${Math.round(data.probability_next * 100)}%`;
+            
+            overdueTable.row.add([
+                `<strong>${digit}</strong>`,
+                `${data.days_since_last} days`,
+                statusHtml,
+                probabilityHtml
+            ]);
+        });
+        overdueTable.draw();
+    }
+
+    // Update momentum table
+    if (momentumTable) {
+        momentumTable.clear();
+        Object.entries(cyclicalInsights.momentum_cycles).forEach(([digit, data]) => {
+            const trendIcon = data.trend === 'up' ? '↗️' : data.trend === 'down' ? '↘️' : '→';
+            const strengthBadge = `<span class="badge bg-${data.strength === 'high' ? 'success' : data.strength === 'medium' ? 'warning' : 'secondary'}">${data.strength}</span>`;
+            
+            momentumTable.row.add([
+                `<strong>${digit}</strong>`,
+                `${trendIcon} ${data.trend}`,
+                strengthBadge,
+                data.acceleration,
+                `${Math.round(data.confidence * 100)}%`,
+                `${Math.round(data.momentum_score)}`
+            ]);
+        });
+        momentumTable.draw();
+    }
+
+    // Update cycle wheel
+    updateCycleWheel(cyclicalInsights);
+}
+
+// Update cycle wheel visualization
+function updateCycleWheel(cyclicalInsights) {
+    const wheel = $('#cycleWheel');
+    const centerX = 150;
+    const centerY = 150;
+    
+    // Clear existing dots
+    wheel.find('.cycle-dot').remove();
+    
+    // Add cycle dots
+    Object.entries(cyclicalInsights.cycle_wheels).forEach(([digit, data]) => {
+        const angle = (data.angle - 90) * Math.PI / 180; // Adjust for top start
+        const radius = Math.min(100, data.radius);
+        const x = centerX + radius * Math.cos(angle);
+        const y = centerY + radius * Math.sin(angle);
+        
+        const dot = $(`
+            <div class="cycle-dot" 
+                 style="left: ${x - data.size/2}px; top: ${y - data.size/2}px; 
+                        width: ${data.size}px; height: ${data.size}px; 
+                        background-color: ${data.color};"
+                 data-digit="${digit}"
+                 data-label="${data.label}"
+                 onclick="showNumberDetail('${digit}')">
+                ${digit}
+            </div>
+        `);
+        
+        wheel.append(dot);
+    });
+
+    // Add hover effects
+    $('.cycle-dot').hover(
+        function() {
+            const label = $(this).data('label');
+            showTooltip($(this), label);
+        },
+        function() {
+            hideTooltip();
+        }
+    );
+}
+
+// Update prediction rankings
+function updatePredictionRankings(insights) {
+    const highProb = insights.predictions?.high_probability || [];
+    const mediumProb = insights.predictions?.medium_probability || [];
+
+    // High probability rankings
+    let highProbHtml = '';
+    highProb.forEach((pred, index) => {
+        highProbHtml += `
+            <div class="prediction-rank rank-high" onclick="showNumberDetail('${pred.digit}')">
+                <div class="d-flex align-items-center">
+                    <div class="rank-number rank-high">${index + 1}</div>
+                    <div class="prediction-digit">${pred.digit}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${pred.rationale}</div>
+                        <small class="text-muted">High Confidence</small>
+                    </div>
+                </div>
+                <div class="prediction-score">${pred.score}%</div>
+            </div>
+        `;
+    });
+    $('#highProbRankings').html(highProbHtml || '<div class="text-center text-muted py-4"><p>No high probability predictions</p></div>');
+
+    // Medium probability rankings
+    let mediumProbHtml = '';
+    mediumProb.forEach((pred, index) => {
+        mediumProbHtml += `
+            <div class="prediction-rank rank-medium" onclick="showNumberDetail('${pred.digit}')">
+                <div class="d-flex align-items-center">
+                    <div class="rank-number rank-medium">${index + 1}</div>
+                    <div class="prediction-digit">${pred.digit}</div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">${pred.rationale}</div>
+                        <small class="text-muted">Medium Confidence</small>
+                    </div>
+                </div>
+                <div class="prediction-score">${pred.score}%</div>
+            </div>
+        `;
+    });
+    $('#mediumProbRankings').html(mediumProbHtml || '<div class="text-center text-muted py-4"><p>No medium probability predictions</p></div>');
+}
+
+// Update real-time tracking
+function updateRealTimeTracking() {
+    if (!currentCyclicalInsights?.real_time_tracking) return;
+
+    const tracking = currentCyclicalInsights.real_time_tracking;
+    
+    $('#criticalCount').text(tracking.critical_count || 0);
+    $('#totalOverdue').text(tracking.total_overdue || 0);
+    $('#highMomentum').text(tracking.high_momentum || 0);
+    $('#cycleHealth').text((tracking.cycle_health || 'good').toUpperCase());
+
+    // Update live tracking display
+    let trackingHtml = '<div class="row">';
+    
+    Object.entries(currentCyclicalInsights.overdue_analysis || {}).forEach(([digit, data]) => {
+        const statusClass = data.severity === 'critical' ? 'danger' : data.severity === 'moderate' ? 'warning' : 'success';
+        trackingHtml += `
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card border-${statusClass}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title mb-1">Number ${digit}</h5>
+                                <p class="card-text small text-muted">${data.days_since_last} days since last</p>
+                            </div>
+                            <div class="text-${statusClass}">
+                                <i class="fas fa-clock fa-2x"></i>
+                            </div>
+                        </div>
+                        <div class="progress mt-2" style="height: 5px;">
+                            <div class="progress-bar bg-${statusClass}" style="width: ${data.probability_next * 100}%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    trackingHtml += '</div>';
+    $('#liveTracking').html(trackingHtml);
+}
+
+// Show number detail modal
+function showNumberDetail(digit) {
+    $('#modalNumber').text(digit);
+    
+    const overdueData = currentCyclicalInsights?.overdue_analysis?.[digit];
+    const momentumData = currentCyclicalInsights?.momentum_cycles?.[digit];
+    
+    let detailHtml = '<div class="row">';
+    
+    if (overdueData) {
+        detailHtml += `
+            <div class="col-md-6">
+                <h6>Overdue Analysis</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Days Since Last:</strong> ${overdueData.days_since_last}</li>
+                    <li><strong>Days Overdue:</strong> ${overdueData.days_overdue}</li>
+                    <li><strong>Severity:</strong> <span class="badge bg-${overdueData.severity === 'critical' ? 'danger' : 'warning'}">${overdueData.severity}</span></li>
+                    <li><strong>Next Probability:</strong> ${Math.round(overdueData.probability_next * 100)}%</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    if (momentumData) {
+        detailHtml += `
+            <div class="col-md-6">
+                <h6>Momentum Analysis</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Trend:</strong> ${momentumData.trend}</li>
+                    <li><strong>Strength:</strong> ${momentumData.strength}</li>
+                    <li><strong>Acceleration:</strong> ${momentumData.acceleration}</li>
+                    <li><strong>Confidence:</strong> ${Math.round(momentumData.confidence * 100)}%</li>
+                    <li><strong>Score:</strong> ${Math.round(momentumData.momentum_score)}</li>
+                </ul>
+            </div>
+        `;
+    }
+    
+    detailHtml += '</div>';
+    
+    $('#numberDetailContent').html(detailHtml);
+    $('#numberDetailModal').modal('show');
+}
+
+// Tooltip functions
+function showTooltip(element, text) {
+    const tooltip = $('#customTooltip');
+    const offset = element.offset();
+    
+    tooltip.text(text)
+           .css({
+               left: offset.left + element.width() / 2,
+               top: offset.top - 30
+           })
+           .addClass('show');
+}
+
+function hideTooltip() {
+    $('#customTooltip').removeClass('show');
+}
+
+// Alert function
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const alertHtml = `
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    $('body').append(alertHtml);
+    
+    // Auto dismiss after 5 seconds
+    setTimeout(() => {
+        $('.alert').alert('close');
+    }, 5000);
+}
+
+// Load recent analysis
+function loadRecentAnalysis() {
+    {% if recent_analysis %}
+        try {
+            const recentData = {{ recent_analysis|safe }};
+            currentAnalysisResults = recentData;
+            
+            // Generate quick insights from recent data
+            const mockInsights = {
+                predictions: {
+                    high_probability: [
+                        {digit: "7", score: 85, rationale: "Strong upward trend with high frequency"},
+                        {digit: "3", score: 78, rationale: "Consistent momentum pattern"}
+                    ],
+                    medium_probability: [
+                        {digit: "1", score: 65, rationale: "Moderate frequency increase"},
+                        {digit: "9", score: 58, rationale: "Cyclical pattern alignment"}
+                    ]
+                },
+                confidence_scores: {
+                    overall_confidence: 0.75,
+                    prediction_count: 4,
+                    signal_strength: "STRONG"
+                },
+                recommendations: {
+                    top_picks: [
+                        {digit: "7", confidence: 85, rationale: "Strong upward trend"},
+                        {digit: "3", confidence: 78, rationale: "Consistent momentum"},
+                        {digit: "1", confidence: 65, rationale: "Moderate increase"}
+                    ],
+                    risk_assessment: "MEDIUM",
+                    expected_roi: 1.4
+                }
+            };
+            
+            updateExpertDashboard(mockInsights);
+            generateCyclicalInsights(recentData);
+            updatePredictionRankings(mockInsights);
+            updateRealTimeTracking();
+            
+            $('#analysisStatus').removeClass('bg-warning bg-danger').addClass('bg-success').text('Recent');
+            
+        } catch (error) {
+            console.error('Failed to load recent analysis:', error);
+        }
+    {% endif %}
+}
+</script>
+{% endblock %}

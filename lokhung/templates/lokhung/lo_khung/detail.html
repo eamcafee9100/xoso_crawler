@@ -1,0 +1,705 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}{{ lo_khung.ten_lo_khung }} - Chi tiết lô khung{% endblock %}
+
+{% block page_title %}Chi tiết lô khung{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'lokhung:lo_khung_edit' lo_khung.pk %}" class="btn btn-warning">
+        <i class="fas fa-edit me-2"></i>Chỉnh sửa
+    </a>
+    {% if lo_khung.trang_thai == 'active' %}
+    <button class="btn btn-success" onclick="checkAllResults()">
+        <i class="fas fa-sync me-2"></i>Kiểm tra tất cả kết quả
+    </button>
+    {% endif %}
+    <button class="btn btn-info" onclick="exportFrame()">
+        <i class="fas fa-download me-2"></i>Xuất báo cáo
+    </button>
+    <a href="{% url 'lokhung:lo_khung_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Frame Info -->
+        <div class="card card-custom mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-th-large text-primary me-2"></i>
+                    {{ lo_khung.ten_lo_khung }}
+                </h5>
+                <span class="badge 
+                    {% if lo_khung.trang_thai == 'active' %}bg-success
+                    {% elif lo_khung.trang_thai == 'completed' %}bg-primary
+                    {% elif lo_khung.trang_thai == 'expired' %}bg-danger
+                    {% else %}bg-secondary{% endif %} fs-6">
+                    {{ lo_khung.get_trang_thai_display }}
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Thời gian hiệu lực</label>
+                            <div>
+                                <strong>{{ lo_khung.ngay_bat_dau|date:"d/m/Y" }} - {{ lo_khung.ngay_ket_thuc|date:"d/m/Y" }}</strong>
+                                <br>
+                                <small class="text-muted">
+                                    ({{ lo_khung.ngay_bat_dau|timesince:lo_khung.ngay_ket_thuc }} )
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Ngày có khả năng cao nhất</label>
+                            <div>
+                                <span class="badge bg-warning fs-6">
+                                    <i class="fas fa-star me-1"></i>
+                                    {{ lo_khung.ngay_co_kha_nang_cao_nhat|date:"d/m/Y" }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Số ngày còn lại</label>
+                            <div>
+                                {% if lo_khung.so_ngay_con_lai > 0 %}
+                                    <span class="badge bg-info fs-6">
+                                        <i class="fas fa-clock me-1"></i>
+                                        {{ lo_khung.so_ngay_con_lai }} ngày
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Đã hết hạn</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Phương pháp chính</label>
+                            <div>
+                                <a href="{% url 'lokhung:phuong_phap_detail' lo_khung.phuong_phap_chinh.pk %}" 
+                                   class="text-decoration-none">
+                                    <strong>{{ lo_khung.phuong_phap_chinh.ten_phuong_phap }}</strong>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        {% if lo_khung.phuong_phap_phu.exists %}
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Phương pháp phụ</label>
+                            <div>
+                                {% for pp in lo_khung.phuong_phap_phu.all %}
+                                    <span class="badge bg-secondary me-1">{{ pp.ten_phuong_phap|truncatechars:20 }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Điểm tin cậy tổng</label>
+                            <div>
+                                <div class="progress mb-2" style="height: 25px;">
+                                    <div class="progress-bar 
+                                        {% if lo_khung.diem_tin_cay_tong >= 70 %}bg-success
+                                        {% elif lo_khung.diem_tin_cay_tong >= 40 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        style="width: {{ lo_khung.diem_tin_cay_tong }}%">
+                                        <strong>{{ lo_khung.diem_tin_cay_tong }}%</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Numbers Grid -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-hashtag text-info me-2"></i>
+                    Các số trong lô khung
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="numbers-grid">
+                    {% for so in lo_khung.danh_sach_so %}
+                        <div class="number-item" data-number="{{ so }}">
+                            <span class="badge fs-4 px-3 py-2 number-badge" id="number-{{ so }}">{{ so }}</span>
+                            <div class="number-status mt-2">
+                                <small class="text-muted status-text">Chưa kiểm tra</small>
+                                <div class="winning-dates"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Timeline -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-timeline text-success me-2"></i>
+                    Kết quả theo thời gian
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="results-timeline">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Đang tải...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Đang kiểm tra kết quả...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Stats -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie text-primary me-2"></i>
+                    Thống kê nhanh
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Tổng số:</span>
+                        <span class="badge bg-primary" id="total-numbers">{{ lo_khung.danh_sach_so|length }}</span>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Đã trúng:</span>
+                        <span class="badge bg-success" id="winning-numbers">0</span>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Chưa trúng:</span>
+                        <span class="badge bg-warning" id="pending-numbers">{{ lo_khung.danh_sach_so|length }}</span>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted">Tỷ lệ trúng:</span>
+                        <span class="badge bg-info" id="hit-rate">0%</span>
+                    </div>
+                </div>
+                
+                <!-- Performance Chart -->
+                <div class="mt-4">
+                    <canvas id="framePerformanceChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Today's Highlights -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-star text-warning me-2"></i>
+                    Điểm nhấn hôm nay
+                </h6>
+            </div>
+            <div class="card-body" id="today-highlights">
+                <div class="text-center text-muted">
+                    <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                    <p>Đang kiểm tra kết quả hôm nay...</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-tools text-secondary me-2"></i>
+                    Thao tác
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" onclick="analyzeNumbers()">
+                        <i class="fas fa-chart-line me-2"></i>Phân tích số
+                    </button>
+                    <button class="btn btn-outline-success" onclick="checkSpecificDate()">
+                        <i class="fas fa-calendar-check me-2"></i>Kiểm tra ngày cụ thể
+                    </button>
+                    <button class="btn btn-outline-info" onclick="compareWithOtherFrames()">
+                        <i class="fas fa-balance-scale me-2"></i>So sánh với lô khung khác
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="optimizeFrame()">
+                        <i class="fas fa-magic me-2"></i>Tối ưu lô khung
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    loadResultsTimeline();
+    checkTodayHighlights();
+    initPerformanceChart();
+});
+
+function loadResultsTimeline() {
+    const frameNumbers = {{ lo_khung.danh_sach_so|safe }};
+    const startDate = new Date('{{ lo_khung.ngay_bat_dau|date:"Y-m-d" }}');
+    const endDate = new Date('{{ lo_khung.ngay_ket_thuc|date:"Y-m-d" }}');
+    
+    let timelineHtml = '<div class="timeline">';
+    let totalWinning = 0;
+    let totalChecked = 0;
+    
+    // Create timeline for each day
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const dayName = currentDate.toLocaleDateString('vi-VN', { weekday: 'long' });
+        const isToday = dateStr === new Date().toISOString().split('T')[0];
+        const isPast = currentDate < new Date();
+        
+        timelineHtml += `
+            <div class="timeline-item ${isToday ? 'today' : ''}" data-date="${dateStr}">
+                <div class="timeline-marker">
+                    <div class="marker-dot ${isToday ? 'bg-warning' : isPast ? 'bg-primary' : 'bg-light'}"></div>
+                </div>
+                <div class="timeline-content">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <strong>${currentDate.toLocaleDateString('vi-VN')}</strong>
+                        <small class="text-muted">${dayName}</small>
+                    </div>
+                    <div class="timeline-results" id="results-${dateStr}">
+                        ${isPast ? '<div class="spinner-border spinner-border-sm"></div>' : '<span class="text-muted">Chưa đến ngày</span>'}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        currentDate.setDate(currentDate.getDate() + 1);
+        totalChecked++;
+    }
+    
+    timelineHtml += '</div>';
+    $('#results-timeline').html(timelineHtml);
+    
+    // Load actual results for each past date
+    $('.timeline-item').each(function() {
+        const date = $(this).data('date');
+        const $resultsDiv = $(this).find('.timeline-results');
+        
+        if (new Date(date) < new Date()) {
+            loadDateResults(date, frameNumbers, $resultsDiv);
+        }
+    });
+}
+
+function loadDateResults(date, frameNumbers, $resultsDiv) {
+    $.get('/results/api/ketqua/' + date + '/')
+        .done(function(data) {
+            if (data.success && data.numbers_2d && data.numbers_2d.length > 0) {
+                const winningNumbers = frameNumbers.filter(num => data.numbers_2d.includes(num));
+                
+                if (winningNumbers.length > 0) {
+                    let resultHtml = '<div class="winning-results">';
+                    winningNumbers.forEach(num => {
+                        resultHtml += `<span class="badge prediction-correct number-highlight me-1">${num}</span>`;
+                        
+                        // Update main number badge
+                        $(`#number-${num}`).removeClass('bg-primary bg-secondary')
+                                           .addClass('prediction-correct number-highlight');
+                        $(`[data-number="${num}"] .status-text`).text('ĐÃ TRÚNG').addClass('text-success fw-bold');
+                        $(`[data-number="${num}"] .winning-dates`).append(`<small class="badge bg-success me-1">${new Date(date).toLocaleDateString('vi-VN')}</small>`);
+                    });
+                    resultHtml += `</div><small class="text-success mt-1 d-block"><i class="fas fa-check-circle me-1"></i>${winningNumbers.length} số trúng</small>`;
+                    $resultsDiv.html(resultHtml);
+                    
+                    // Update stats
+                    updateStats();
+                } else {
+                    $resultsDiv.html('<small class="text-muted"><i class="fas fa-minus-circle me-1"></i>Không trúng</small>');
+                }
+            } else {
+                $resultsDiv.html('<small class="text-muted">Chưa có kết quả</small>');
+            }
+        })
+        .fail(function() {
+            $resultsDiv.html('<small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Lỗi tải kết quả</small>');
+        });
+}
+
+function updateStats() {
+    const totalNumbers = parseInt($('#total-numbers').text());
+    const winningCount = $('.number-badge.prediction-correct').length;
+    const pendingCount = totalNumbers - winningCount;
+    const hitRate = totalNumbers > 0 ? Math.round((winningCount / totalNumbers) * 100) : 0;
+    
+    $('#winning-numbers').text(winningCount);
+    $('#pending-numbers').text(pendingCount);
+    $('#hit-rate').text(hitRate + '%');
+    
+    // Update badge colors based on performance
+    if (hitRate >= 30) {
+        $('#hit-rate').removeClass('bg-info bg-warning bg-danger').addClass('bg-success');
+    } else if (hitRate >= 15) {
+        $('#hit-rate').removeClass('bg-info bg-success bg-danger').addClass('bg-warning');
+    } else if (winningCount > 0) {
+        $('#hit-rate').removeClass('bg-info bg-success bg-warning').addClass('bg-danger');
+    }
+}
+
+function checkTodayHighlights() {
+    const today = new Date().toISOString().split('T')[0];
+    const frameNumbers = {{ lo_khung.danh_sach_so|safe }};
+    
+    $.get('/results/api/ketqua/' + today + '/')
+        .done(function(data) {
+            if (data.success && data.numbers_2d && data.numbers_2d.length > 0) {
+                const todayWinning = frameNumbers.filter(num => data.numbers_2d.includes(num));
+                
+                let highlightHtml = '';
+                if (todayWinning.length > 0) {
+                    highlightHtml = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-trophy me-2"></i>
+                            <strong>Hôm nay có ${todayWinning.length} số trúng!</strong>
+                            <div class="mt-2">
+                                ${todayWinning.map(num => `<span class="badge prediction-correct number-highlight me-1">${num}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    highlightHtml = `
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Hôm nay chưa có số nào trúng.
+                        </div>
+                    `;
+                }
+                
+                // Show all today's numbers
+                highlightHtml += `
+                    <div class="mt-3">
+                        <small class="text-muted">Kết quả hôm nay:</small><br>
+                        ${data.numbers_2d.map(num => `<span class="badge bg-primary me-1 mb-1">${num}</span>`).join('')}
+                    </div>
+                `;
+                
+                $('#today-highlights').html(highlightHtml);
+            } else {
+                $('#today-highlights').html(`
+                    <div class="text-center text-muted">
+                        <i class="fas fa-clock fa-2x mb-2"></i>
+                        <p>Chưa có kết quả hôm nay</p>
+                    </div>
+                `);
+            }
+        })
+        .fail(function() {
+            $('#today-highlights').html(`
+                <div class="text-center text-muted">
+                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                    <p>Không thể tải kết quả hôm nay</p>
+                </div>
+            `);
+        });
+}
+
+function initPerformanceChart() {
+    const ctx = document.getElementById('framePerformanceChart');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Đã trúng', 'Chưa trúng'],
+            datasets: [{
+                data: [0, {{ lo_khung.danh_sach_so|length }}],
+                backgroundColor: ['#28a745', '#ffc107'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Update chart when stats change
+    window.updateChart = function() {
+        const winningCount = $('.number-badge.prediction-correct').length;
+        const pendingCount = {{ lo_khung.danh_sach_so|length }} - winningCount;
+        
+        window.frameChart.data.datasets[0].data = [winningCount, pendingCount];
+        window.frameChart.update();
+    };
+    
+    window.frameChart = Chart.getChart(ctx);
+}
+
+function checkAllResults() {
+    if (confirm('Kiểm tra kết quả cho tất cả các ngày trong lô khung?')) {
+        $('.timeline-results').html('<div class="spinner-border spinner-border-sm"></div>');
+        
+        // Reload timeline
+        setTimeout(() => {
+            loadResultsTimeline();
+        }, 1000);
+    }
+}
+
+function analyzeNumbers() {
+    const frameNumbers = {{ lo_khung.danh_sach_so|safe }};
+    let analysisHtml = `
+        <div class="modal fade" id="analysisModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Phân tích các số trong lô khung</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Phân tích đầu số</h6>
+                                <div id="head-analysis"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Phân tích đuôi số</h6>
+                                <div id="tail-analysis"></div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h6>Phân tích tổng</h6>
+                                <div id="sum-analysis"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Phân tích chạm</h6>
+                                <div id="touch-analysis"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('body').append(analysisHtml);
+    
+    // Analyze heads
+    const heads = frameNumbers.map(num => num.charAt(0));
+    const headCounts = {};
+    heads.forEach(h => headCounts[h] = (headCounts[h] || 0) + 1);
+    $('#head-analysis').html(
+        Object.entries(headCounts).map(([h, c]) => 
+            `<span class="badge bg-info me-1">${h}: ${c}</span>`
+        ).join('')
+    );
+    
+    // Analyze tails
+    const tails = frameNumbers.map(num => num.charAt(num.length - 1));
+    const tailCounts = {};
+    tails.forEach(t => tailCounts[t] = (tailCounts[t] || 0) + 1);
+    $('#tail-analysis').html(
+        Object.entries(tailCounts).map(([t, c]) => 
+            `<span class="badge bg-warning me-1">${t}: ${c}</span>`
+        ).join('')
+    );
+    
+    // Analyze sums
+    const sums = frameNumbers.map(num => num.split('').reduce((a, b) => parseInt(a) + parseInt(b), 0));
+    const sumCounts = {};
+    sums.forEach(s => sumCounts[s] = (sumCounts[s] || 0) + 1);
+    $('#sum-analysis').html(
+        Object.entries(sumCounts).map(([s, c]) => 
+            `<span class="badge bg-success me-1">${s}: ${c}</span>`
+        ).join('')
+    );
+    
+    // Analyze touches
+    const allDigits = frameNumbers.join('').split('');
+    const digitCounts = {};
+    allDigits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
+    $('#touch-analysis').html(
+        Object.entries(digitCounts).map(([d, c]) => 
+            `<span class="badge bg-danger me-1">${d}: ${c}</span>`
+        ).join('')
+    );
+    
+    $('#analysisModal').modal('show');
+}
+
+function checkSpecificDate() {
+    const dateInput = prompt('Nhập ngày cần kiểm tra (YYYY-MM-DD):');
+    if (dateInput) {
+        const frameNumbers = {{ lo_khung.danh_sach_so|safe }};
+        
+        $.get('/results/api/ketqua/' + dateInput + '/')
+            .done(function(data) {
+                if (data.success && data.numbers_2d) {
+                    const winningNumbers = frameNumbers.filter(num => data.numbers_2d.includes(num));
+                    
+                    let message = `Kết quả ngày ${dateInput}:\n`;
+                    message += `Tất cả số ra: ${data.numbers_2d.join(', ')}\n`;
+                    message += `Số trúng trong lô khung: ${winningNumbers.length > 0 ? winningNumbers.join(', ') : 'Không có'}`;
+                    
+                    alert(message);
+                } else {
+                    alert('Không có kết quả cho ngày này.');
+                }
+            })
+            .fail(function() {
+                alert('Lỗi khi tải kết quả.');
+            });
+    }
+}
+
+function compareWithOtherFrames() {
+    alert('Tính năng so sánh với lô khung khác đang được phát triển.');
+}
+
+function optimizeFrame() {
+    alert('Tính năng tối ưu lô khung đang được phát triển.');
+}
+
+function exportFrame() {
+    const frameData = {
+        name: '{{ lo_khung.ten_lo_khung|escapejs }}',
+        startDate: '{{ lo_khung.ngay_bat_dau|date:"Y-m-d" }}',
+        endDate: '{{ lo_khung.ngay_ket_thuc|date:"Y-m-d" }}',
+        numbers: {{ lo_khung.danh_sach_so|safe }},
+        confidence: {{ lo_khung.diem_tin_cay_tong }},
+        status: '{{ lo_khung.trang_thai }}',
+        results: {}
+    };
+    
+    // Collect results
+    $('.timeline-item').each(function() {
+        const date = $(this).data('date');
+        const winningText = $(this).find('.winning-results').text();
+        if (winningText) {
+            frameData.results[date] = winningText;
+        }
+    });
+    
+    const dataStr = JSON.stringify(frameData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'lo_khung_{{ lo_khung.pk }}_report.json';
+    link.click();
+}
+
+// Auto-update every 5 minutes
+setInterval(() => {
+    checkTodayHighlights();
+}, 5 * 60 * 1000);
+</script>
+
+<style>
+.numbers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 20px;
+    padding: 10px;
+}
+
+.number-item {
+    text-align: center;
+    padding: 15px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.number-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    display: flex;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 30px;
+    bottom: -30px;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-marker {
+    position: relative;
+    margin-right: 20px;
+}
+
+.marker-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 3px #dee2e6;
+}
+
+.timeline-item.today .marker-dot {
+    animation: pulse 2s infinite;
+}
+
+.timeline-content {
+    flex: 1;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.winning-results {
+    margin-top: 10px;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 3px #ffc107; }
+    50% { box-shadow: 0 0 0 8px rgba(255, 193, 7, 0.5); }
+    100% { box-shadow: 0 0 0 3px #ffc107; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,526 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block title %}Báo cáo Tháng {{ month }}/{{ year }} - Chamde Xs{% endblock %}
+
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Báo cáo Tháng</li>
+{% endblock %}
+
+{% block head_extra %}
+  {{ block.super }}
+  <style>
+    .month-nav {
+      background: linear-gradient(45deg, #007bff, #0056b3);
+      color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 15px;
+      color: white;
+      transition: transform 0.3s;
+      border: none;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .chart-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .weekly-breakdown {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid #007bff;
+    }
+    
+    .number-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .number-item {
+      background: white;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .number-item:hover {
+      border-color: #007bff;
+      box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+    }
+    
+    .gan-item {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      color: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      transition: transform 0.3s;
+    }
+    
+    .gan-item:hover {
+      transform: translateX(5px);
+    }
+    
+    .progress-custom {
+      height: 8px;
+      border-radius: 4px;
+    }
+    
+    .cham-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .cham-cell {
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      border: 2px solid transparent;
+      transition: all 0.3s;
+    }
+    
+    .cham-cell:hover {
+      border-color: #007bff;
+      transform: scale(1.05);
+    }
+  </style>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Header Navigation -->
+  <div class="month-nav text-center">
+    <h2 class="mb-3">
+      <i class="fas fa-calendar-alt me-2"></i>
+      Báo cáo Tháng {{ month }}/{{ year }}
+    </h2>
+    <div class="d-flex justify-content-center align-items-center">
+      {% if month == 1 %}
+        <a href="?year={{ year|add:-1 }}&month=12" class="btn btn-light btn-sm me-2">
+          <i class="fas fa-chevron-left"></i> Tháng trước
+        </a>
+      {% else %}
+        <a href="?year={{ year }}&month={{ month|add:-1 }}" class="btn btn-light btn-sm me-2">
+          <i class="fas fa-chevron-left"></i> Tháng trước
+        </a>
+      {% endif %}
+      
+      <span class="mx-3 fs-5">
+        Tháng {{ month }}/{{ year }}
+      </span>
+      
+      {% if month == 12 %}
+        <a href="?year={{ year|add:1 }}&month=1" class="btn btn-light btn-sm ms-2">
+          Tháng sau <i class="fas fa-chevron-right"></i>
+        </a>
+      {% else %}
+        <a href="?year={{ year }}&month={{ month|add:1 }}" class="btn btn-light btn-sm ms-2">
+          Tháng sau <i class="fas fa-chevron-right"></i>
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Thống kê tổng quan -->
+  <div class="row mb-4">
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-calendar-day fa-2x mb-3"></i>
+          <h5>Tổng số ngày</h5>
+          <h2>{{ month_analyses|length }}</h2>
+          <p class="mb-0">ngày có kết quả</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-list-ol fa-2x mb-3"></i>
+          <h5>Top số trong tháng</h5>
+          <h2>{{ top_numbers_month|length }}</h2>
+          <p class="mb-0">số theo dõi</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-fire fa-2x mb-3"></i>
+          <h5>Lô gan tháng</h5>
+          <h2>{{ gan_stats|length }}</h2>
+          <p class="mb-0">số gan cao</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+      <div class="card stat-card h-100">
+        <div class="card-body text-center">
+          <i class="fas fa-chart-line fa-2x mb-3"></i>
+          <h5>Tuần phân tích</h5>
+          <h2>{{ weekly_breakdown|length }}</h2>
+          <p class="mb-0">tuần có dữ liệu</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs" id="monthlyReportTab" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+        <i class="fas fa-chart-pie"></i> Tổng quan
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="weekly-tab" data-bs-toggle="tab" data-bs-target="#weekly" type="button" role="tab">
+        <i class="fas fa-calendar-week"></i> Theo tuần
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="numbers-tab" data-bs-toggle="tab" data-bs-target="#numbers" type="button" role="tab">
+        <i class="fas fa-sort-numeric-up"></i> Top số
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="gan-tab" data-bs-toggle="tab" data-bs-target="#gan" type="button" role="tab">
+        <i class="fas fa-fire"></i> Lô gan
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="analysis-tab" data-bs-toggle="tab" data-bs-target="#analysis" type="button" role="tab">
+        <i class="fas fa-table"></i> Chi tiết
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="monthlyReportTabContent">
+    
+    <!-- Tab Tổng quan -->
+    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+      {% if monthly_cham_stats %}
+      <div class="row">
+        <!-- Thống kê chạm đầu -->
+        <div class="col-md-6">
+          <div class="chart-container">
+            <h5 class="text-primary mb-3">
+              <i class="fas fa-crosshairs"></i> Thống kê chạm đầu
+            </h5>
+            <div class="cham-grid">
+              {% for digit, count in monthly_cham_stats.cham_dau.items %}
+              <div class="cham-cell">
+                <div class="number-badge cham-dau">{{ digit }}</div>
+                <div class="mt-2">
+                  <small class="text-muted">{{ count }} lần</small>
+                  <div class="progress progress-custom mt-1">
+                    <div class="progress-bar bg-primary" style="width: {% widthratio count 31 100 %}%"></div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Thống kê chạm đuôi -->
+        <div class="col-md-6">
+          <div class="chart-container">
+            <h5 class="text-success mb-3">
+              <i class="fas fa-crosshairs"></i> Thống kê chạm đuôi
+            </h5>
+            <div class="cham-grid">
+              {% for digit, count in monthly_cham_stats.cham_duoi.items %}
+              <div class="cham-cell">
+                <div class="number-badge cham-duoi">{{ digit }}</div>
+                <div class="mt-2">
+                  <small class="text-muted">{{ count }} lần</small>
+                  <div class="progress progress-custom mt-1">
+                    <div class="progress-bar bg-success" style="width: {% widthratio count 31 100 %}%"></div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Biểu đồ -->
+      <div class="row">
+        <div class="col-12">
+          <div class="chart-container">
+            <h5 class="mb-3"><i class="fas fa-chart-bar text-info"></i> Biểu đồ thống kê chạm tháng</h5>
+            <canvas id="chamChart" height="100"></canvas>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab Theo tuần -->
+    <div class="tab-pane fade" id="weekly" role="tabpanel">
+      {% if weekly_breakdown %}
+        {% for week_num, week_analyses in weekly_breakdown.items %}
+        <div class="weekly-breakdown">
+          <h5 class="text-primary">
+            <i class="fas fa-calendar-week"></i> Tuần {{ week_num }}
+            <small class="text-muted">({{ week_analyses|length }} ngày)</small>
+          </h5>
+          
+          <div class="row">
+            {% for analysis in week_analyses %}
+            <div class="col-md-2 mb-3">
+              <div class="card border-0 shadow-sm">
+                <div class="card-body p-2 text-center">
+                  <small class="text-muted">{{ analysis.ngay|date:"d/m" }}</small>
+                  <div class="mt-1">
+                    <span class="number-badge cham-dau">{{ analysis.db_cham_dau }}</span>
+                    <span class="number-badge cham-duoi">{{ analysis.db_cham_duoi }}</span>
+                  </div>
+                  <small class="text-muted d-block">{{ analysis.db_last2 }}</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Chưa có dữ liệu phân tích theo tuần cho tháng này.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab Top số -->
+    <div class="tab-pane fade" id="numbers" role="tabpanel">
+      {% if top_numbers_month %}
+      <div class="chart-container">
+        <h5 class="mb-3"><i class="fas fa-trophy text-warning"></i> Top 20 số về nhiều trong tháng</h5>
+        <div class="number-list">
+          {% for stat in top_numbers_month %}
+          <div class="number-item">
+            <div class="fw-bold fs-4 text-primary">{{ stat.number }}</div>
+            <small class="text-muted">{{ stat.total_appearances }} lần</small>
+            <div class="mt-1">
+              <span class="number-badge cham-dau">{{ stat.cham_dau }}</span>
+              <span class="number-badge cham-duoi">{{ stat.cham_duoi }}</span>
+            </div>
+            {% if stat.last_appearance_date %}
+            <small class="text-muted d-block">{{ stat.last_appearance_date|timesince }} trước</small>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Chưa có dữ liệu thống kê số cho tháng này.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab Lô gan -->
+    <div class="tab-pane fade" id="gan" role="tabpanel">
+      {% if gan_stats %}
+      <div class="chart-container">
+        <h5 class="mb-3"><i class="fas fa-fire text-danger"></i> Top 10 lô gan cao nhất tháng</h5>
+        <div class="row">
+          {% for gan in gan_stats %}
+          <div class="col-md-6 mb-3">
+            <div class="gan-item">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h4 class="mb-1">{{ gan.number }}</h4>
+                  <small>Gan {{ gan.current_absent_days }} ngày</small>
+                </div>
+                <div class="text-end">
+                  <div class="number-badge bg-warning text-dark">{{ gan.cham_dau }}</div>
+                  <div class="number-badge bg-light text-dark">{{ gan.cham_duoi }}</div>
+                </div>
+              </div>
+              <div class="mt-2">
+                <small>Xác suất về: {{ gan.due_probability|floatformat:1 }}%</small>
+                {% if gan.last_appearance %}
+                <br><small>Lần cuối: {{ gan.last_appearance|date:"d/m/Y" }}</small>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Chưa có dữ liệu lô gan cho tháng này.
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Tab Chi tiết -->
+    <div class="tab-pane fade" id="analysis" role="tabpanel">
+      {% if month_analyses %}
+      <div class="chart-container">
+        <h5 class="mb-3"><i class="fas fa-table text-secondary"></i> Chi tiết phân tích từng ngày</h5>
+        <div class="table-responsive">
+          <table class="table table-hover" id="analysisTable">
+            <thead class="table-dark">
+              <tr>
+                <th>Ngày</th>
+                <th>Thứ</th>
+                <th>Tuần</th>
+                <th>Giải ĐB</th>
+                <th>Chạm đầu</th>
+                <th>Chạm đuôi</th>
+                <th>2 số cuối</th>
+                <th>Tổng ĐB</th>
+                <th>Giải nhất</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for analysis in month_analyses %}
+              <tr>
+                <td>{{ analysis.ngay|date:"d/m/Y" }}</td>
+                <td>
+                  {% if analysis.is_sunday %}
+                    <span class="badge bg-warning">CN</span>
+                  {% else %}
+                    T{{ analysis.day_of_week|add:1 }}
+                  {% endif %}
+                </td>
+                <td>{{ analysis.week_number }}</td>
+                <td><strong>{{ analysis.db_full }}</strong></td>
+                <td><span class="number-badge cham-dau">{{ analysis.db_cham_dau }}</span></td>
+                <td><span class="number-badge cham-duoi">{{ analysis.db_cham_duoi }}</span></td>
+                <td><span class="badge bg-success">{{ analysis.db_last2 }}</span></td>
+                <td><span class="badge bg-primary">{{ analysis.db_total }}</span></td>
+                <td>{{ analysis.giai_nhat_full }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% else %}
+        <div class="alert alert-info">
+          <i class="fas fa-info-circle"></i> Chưa có dữ liệu phân tích cho tháng này.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Thông báo nếu không có dữ liệu -->
+  {% if not month_analyses %}
+  <div class="alert alert-warning text-center mt-4" role="alert">
+    <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+    <h4>Chưa có dữ liệu</h4>
+    <p>Dữ liệu phân tích cho tháng {{ month }}/{{ year }} chưa được tạo hoặc chưa có kết quả xổ số.</p>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block cham_scripts %}
+  <script>
+    $(document).ready(function() {
+      // Initialize DataTable
+      $('#analysisTable').DataTable({
+        "language": {
+          "url": "//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json"
+        },
+        "pageLength": 31,
+        "order": [[ 0, "desc" ]]
+      });
+      
+      // Biểu đồ thống kê chạm
+      {% if monthly_cham_stats %}
+      const ctx = document.getElementById('chamChart').getContext('2d');
+      const chamChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+          datasets: [{
+            label: 'Chạm đầu',
+            data: [
+              {% for i in "0123456789" %}
+                {{ monthly_cham_stats.cham_dau|default_if_none:"{}"|lookup:i|default:0 }},
+              {% endfor %}
+            ],
+            backgroundColor: 'rgba(0, 123, 255, 0.5)',
+            borderColor: 'rgba(0, 123, 255, 1)',
+            borderWidth: 1
+          }, {
+            label: 'Chạm đuôi',
+            data: [
+              {% for i in "0123456789" %}
+                {{ monthly_cham_stats.cham_duoi|default_if_none:"{}"|lookup:i|default:0 }},
+              {% endfor %}
+            ],
+            backgroundColor: 'rgba(40, 167, 69, 0.5)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: true,
+              text: 'Thống kê chạm đầu và chạm đuôi tháng {{ month }}/{{ year }}'
+            }
+          }
+        }
+      });
+      {% endif %}
+      
+      // Hiệu ứng loading cho navigation
+      document.querySelectorAll('a[href*="month"], a[href*="year"]').forEach(link => {
+        link.addEventListener('click', function() {
+          this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+        });
+      });
+      
+      // Auto refresh every 10 minutes
+      setTimeout(function() {
+        location.reload();
+      }, 600000);
+    });
+    
+    // Template filter cho JavaScript
+    Chart.defaults.font.family = 'Arial, sans-serif';
+  </script>
+{% endblock %}

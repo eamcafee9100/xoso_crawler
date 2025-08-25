@@ -1,0 +1,672 @@
+{% extends 'lokhung/base.html' %}
+{% load lokhung_xs_tags %}
+
+{% block title %}Danh sách cảnh báo{% endblock %}
+
+{% block page_title %}Quản lý cảnh báo hiệu quả{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button class="btn btn-primary" onclick="checkAllMethods()">
+        <i class="fas fa-sync me-2"></i>Kiểm tra tất cả
+    </button>
+    <button class="btn btn-outline-info" onclick="createCustomAlert()">
+        <i class="fas fa-plus me-2"></i>Tạo cảnh báo
+    </button>
+    <button class="btn btn-outline-success" onclick="markAllAsRead()">
+        <i class="fas fa-check-double me-2"></i>Đánh dấu tất cả
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Alert Summary -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-custom border-danger">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                <h4 class="text-danger" id="critical-alerts">0</h4>
+                <small class="text-muted">Nghiêm trọng</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-custom border-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-exclamation-circle fa-2x text-warning mb-2"></i>
+                <h4 class="text-warning" id="warning-alerts">0</h4>
+                <small class="text-muted">Cảnh báo</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-custom border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-info-circle fa-2x text-info mb-2"></i>
+                <h4 class="text-info" id="info-alerts">0</h4>
+                <small class="text-muted">Thông tin</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card card-custom border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-thumbs-up fa-2x text-success mb-2"></i>
+                <h4 class="text-success" id="success-alerts">0</h4>
+                <small class="text-muted">Thành công</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Bộ lọc
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="da_xu_ly" class="form-label">Trạng thái</label>
+                <select class="form-select" id="da_xu_ly" name="da_xu_ly">
+                    <option value="">Tất cả</option>
+                    <option value="false" {% if current_filters.da_xu_ly == 'false' %}selected{% endif %}>
+                        Chưa xử lý
+                    </option>
+                    <option value="true" {% if current_filters.da_xu_ly == 'true' %}selected{% endif %}>
+                        Đã xử lý
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="muc_do" class="form-label">Mức độ</label>
+                <select class="form-select" id="muc_do" name="muc_do">
+                    <option value="">Tất cả</option>
+                    {% for value, label in muc_do_choices %}
+                    <option value="{{ value }}" {% if current_filters.muc_do == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="loai_canh_bao" class="form-label">Loại cảnh báo</label>
+                <select class="form-select" id="loai_canh_bao" name="loai_canh_bao">
+                    <option value="">Tất cả</option>
+                    <option value="hieu_qua_thap">Hiệu quả thấp</option>
+                    <option value="khong_on_dinh">Không ổn định</option>
+                    <option value="met_moi">Mệt mỏi</option>
+                    <option value="ngung_hoat_dong">Ngừng hoạt động</option>
+                    <option value="thanh_cong_cao">Thành công cao</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="sort_by" class="form-label">Sắp xếp</label>
+                <select class="form-select" id="sort_by" name="sort_by">
+                    <option value="-ngay_canh_bao">Mới nhất</option>
+                    <option value="ngay_canh_bao">Cũ nhất</option>
+                    <option value="muc_do">Mức độ</option>
+                    <option value="-gia_tri_hien_tai">Giá trị cao</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+        </div>
+</div>
+
+<!-- Alerts List -->
+<div class="row">
+    {% for canh_bao in page_obj %}
+    <div class="col-lg-6 col-xl-4 mb-4">
+        <div class="card card-custom h-100 alert-card border-{{ canh_bao.muc_do }} 
+            {% if not canh_bao.da_xu_ly %}alert-unresolved{% endif %}"
+            data-alert-id="{{ canh_bao.pk }}" data-severity="{{ canh_bao.muc_do }}">
+            
+            <!-- Card Header -->
+            <div class="card-header bg-{{ canh_bao.muc_do }} bg-opacity-10 d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <i class="fas 
+                        {% if canh_bao.muc_do == 'critical' %}fa-exclamation-triangle
+                        {% elif canh_bao.muc_do == 'warning' %}fa-exclamation-circle
+                        {% elif canh_bao.muc_do == 'success' %}fa-thumbs-up
+                        {% else %}fa-info-circle{% endif %} 
+                        text-{{ canh_bao.muc_do }} me-2"></i>
+                    <h6 class="mb-0 text-truncate" title="{{ canh_bao.tieu_de }}">
+                        {{ canh_bao.tieu_de|truncatechars:30 }}
+                    </h6>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lokhung:canh_bao_detail' canh_bao.pk %}">
+                            <i class="fas fa-eye me-2"></i>Xem chi tiết
+                        </a></li>
+                        {% if not canh_bao.da_xu_ly %}
+                        <li><a class="dropdown-item" href="#" onclick="quickResolve({{ canh_bao.pk }})">
+                            <i class="fas fa-check me-2"></i>Đánh dấu đã xử lý
+                        </a></li>
+                        {% endif %}
+                        <li><a class="dropdown-item" href="{% url 'lokhung:phuong_phap_detail' canh_bao.phuong_phap.pk %}">
+                            <i class="fas fa-cog me-2"></i>Xem phương pháp
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="createSimilarAlert({{ canh_bao.pk }})">
+                            <i class="fas fa-copy me-2"></i>Tạo cảnh báo tương tự
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body">
+                <!-- Alert Status -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{{ canh_bao.muc_do }} fs-6">
+                            {{ canh_bao.get_muc_do_display }}
+                        </span>
+                        {% if canh_bao.da_xu_ly %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-check me-1"></i>Đã xử lý
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning">
+                            <i class="fas fa-clock me-1"></i>Chờ xử lý
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Method Info -->
+                <div class="mb-3">
+                    <small class="text-muted">Phương pháp:</small><br>
+                    <a href="{% url 'lokhung:phuong_phap_detail' canh_bao.phuong_phap.pk %}" 
+                       class="text-decoration-none">
+                        {{ canh_bao.phuong_phap.ten_phuong_phap|truncatechars:25 }}
+                    </a>
+                </div>
+                
+                <!-- Alert Content -->
+                <div class="mb-3">
+                    <small class="text-muted">Nội dung:</small>
+                    <p class="mb-0">{{ canh_bao.noi_dung|truncatechars:80 }}</p>
+                </div>
+                
+                <!-- Values -->
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Giá trị hiện tại:</small>
+                        <div class="h6 mb-0 text-{{ canh_bao.muc_do }}">{{ canh_bao.gia_tri_hien_tai }}</div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Ngưỡng:</small>
+                        <div class="h6 mb-0">{{ canh_bao.nguong_canh_bao }}</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="mb-3">
+                    <div class="progress" style="height: 15px;">
+                        <div class="progress-bar bg-{{ canh_bao.muc_do }}" 
+                             style="width: {% if canh_bao.nguong_canh_bao > 0 %}{{ canh_bao.gia_tri_hien_tai|mul:100|div:canh_bao.nguong_canh_bao }}{% else %}0{% endif %}%">
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        {{ canh_bao.gia_tri_hien_tai }} / {{ canh_bao.nguong_canh_bao }}
+                    </small>
+                </div>
+                
+                <!-- Time Info -->
+                <div class="text-muted small">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ canh_bao.ngay_canh_bao|timesince }} trước
+                    {% if canh_bao.da_xu_ly %}
+                        <br>
+                        <i class="fas fa-check-circle me-1 text-success"></i>
+                        Xử lý: {{ canh_bao.ngay_xu_ly|timesince }} trước
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Card Footer -->
+            <div class="card-footer bg-transparent">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="{% url 'lokhung:canh_bao_detail' canh_bao.pk %}" 
+                           class="btn btn-sm btn-outline-primary w-100">
+                            <i class="fas fa-eye me-1"></i>Chi tiết
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        {% if not canh_bao.da_xu_ly %}
+                        <button class="btn btn-sm btn-outline-success w-100" 
+                                onclick="quickResolve({{ canh_bao.pk }})">
+                            <i class="fas fa-check me-1"></i>Xử lý
+                        </button>
+                        {% else %}
+                        <a href="{% url 'lokhung:phuong_phap_detail' canh_bao.phuong_phap.pk %}" 
+                           class="btn btn-sm btn-outline-info w-100">
+                            <i class="fas fa-cog me-1"></i>Phương pháp
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Empty State -->
+{% if not page_obj %}
+<div class="text-center py-5">
+    <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">Không có cảnh báo nào</h4>
+    <p class="text-muted">Hệ thống đang hoạt động bình thường.</p>
+    <button class="btn btn-primary" onclick="checkAllMethods()">
+        <i class="fas fa-sync me-2"></i>Kiểm tra ngay
+    </button>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+            </li>
+            {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_num }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    {{ page_num }}
+                </a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Quick Resolve Modal -->
+<div class="modal fade" id="quickResolveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xử lý cảnh báo nhanh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quick-resolve-form">
+                    <div class="mb-3">
+                        <label for="quick-note" class="form-label">Ghi chú xử lý:</label>
+                        <select class="form-select" id="quick-note" onchange="updateQuickNote()">
+                            <option value="">Chọn ghi chú nhanh...</option>
+                            <option value="Đã điều chỉnh tham số phương pháp">Điều chỉnh tham số</option>
+                            <option value="Đã tạm dừng phương pháp để kiểm tra">Tạm dừng phương pháp</option>
+                            <option value="Đã tạo báo cáo chi tiết để phân tích">Tạo báo cáo phân tích</option>
+                            <option value="Đã cập nhật công thức tính toán">Cập nhật công thức</option>
+                            <option value="Cảnh báo không chính xác, bỏ qua">Bỏ qua cảnh báo</option>
+                            <option value="custom">Nhập tùy chỉnh...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="custom-note-section" style="display: none;">
+                        <label for="custom-note" class="form-label">Ghi chú tùy chỉnh:</label>
+                        <textarea class="form-control" id="custom-note" rows="3" 
+                                  placeholder="Nhập ghi chú chi tiết..."></textarea>
+                    </div>
+                    <input type="hidden" id="alert-id-to-resolve">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" onclick="submitQuickResolve()">
+                    <i class="fas fa-check me-2"></i>Đánh dấu đã xử lý
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div class="modal fade" id="customAlertModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo cảnh báo tùy chỉnh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="custom-alert-form">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="alert-method" class="form-label">Phương pháp:</label>
+                                <select class="form-select" id="alert-method" required>
+                                    <option value="">Chọn phương pháp...</option>
+                                    <!-- Will be populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="alert-type" class="form-label">Loại cảnh báo:</label>
+                                <select class="form-select" id="alert-type" required>
+                                    <option value="hieu_qua_thap">Hiệu quả thấp</option>
+                                    <option value="khong_on_dinh">Không ổn định</option>
+                                    <option value="met_moi">Mệt mỏi</option>
+                                    <option value="ngung_hoat_dong">Ngừng hoạt động</option>
+                                    <option value="thanh_cong_cao">Thành công cao</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="alert-severity" class="form-label">Mức độ:</label>
+                                <select class="form-select" id="alert-severity" required>
+                                    <option value="info">Thông tin</option>
+                                    <option value="warning">Cảnh báo</option>
+                                    <option value="critical">Nghiêm trọng</option>
+                                    <option value="success">Thành công</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="alert-threshold" class="form-label">Ngưỡng:</label>
+                                <input type="number" class="form-control" id="alert-threshold" 
+                                       placeholder="VD: 50" step="0.1" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="alert-title" class="form-label">Tiêu đề:</label>
+                        <input type="text" class="form-control" id="alert-title" 
+                               placeholder="Nhập tiêu đề cảnh báo..." required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="alert-content" class="form-label">Nội dung:</label>
+                        <textarea class="form-control" id="alert-content" rows="4" 
+                                  placeholder="Mô tả chi tiết cảnh báo..." required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitCustomAlert()">
+                    <i class="fas fa-plus me-2"></i>Tạo cảnh báo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    calculateAlertStats();
+    loadMethodsForCustomAlert();
+    
+    // Auto-refresh every 5 minutes
+    setInterval(function() {
+        if (confirm('Làm mới danh sách cảnh báo?')) {
+            location.reload();
+        }
+    }, 5 * 60 * 1000);
+});
+
+function calculateAlertStats() {
+    let criticalCount = 0;
+    let warningCount = 0;
+    let infoCount = 0;
+    let successCount = 0;
+    
+    $('.alert-card').each(function() {
+        const severity = $(this).data('severity');
+        
+        switch(severity) {
+            case 'critical':
+                criticalCount++;
+                break;
+            case 'warning':
+                warningCount++;
+                break;
+            case 'info':
+                infoCount++;
+                break;
+            case 'success':
+                successCount++;
+                break;
+        }
+    });
+    
+    $('#critical-alerts').text(criticalCount);
+    $('#warning-alerts').text(warningCount);
+    $('#info-alerts').text(infoCount);
+    $('#success-alerts').text(successCount);
+}
+
+function quickResolve(alertId) {
+    $('#alert-id-to-resolve').val(alertId);
+    $('#quickResolveModal').modal('show');
+}
+
+function updateQuickNote() {
+    const selectedValue = $('#quick-note').val();
+    
+    if (selectedValue === 'custom') {
+        $('#custom-note-section').show();
+        $('#custom-note').attr('required', true);
+    } else {
+        $('#custom-note-section').hide();
+        $('#custom-note').attr('required', false);
+    }
+}
+
+function submitQuickResolve() {
+    const alertId = $('#alert-id-to-resolve').val();
+    const quickNote = $('#quick-note').val();
+    const customNote = $('#custom-note').val();
+    
+    let resolveNote = '';
+    if (quickNote === 'custom') {
+        resolveNote = customNote;
+    } else {
+        resolveNote = quickNote;
+    }
+    
+    if (!resolveNote) {
+        alert('Vui lòng chọn hoặc nhập ghi chú xử lý.');
+        return;
+    }
+    
+    // Submit via AJAX
+    $.post(`/lokhung/canh-bao/${alertId}/xu-ly/`, {
+        ghi_chu: resolveNote,
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    })
+    .done(function() {
+        $('#quickResolveModal').modal('hide');
+        location.reload();
+    })
+    .fail(function() {
+        alert('Có lỗi xảy ra khi xử lý cảnh báo.');
+    });
+}
+
+function checkAllMethods() {
+    if (confirm('Kiểm tra và tạo cảnh báo cho tất cả phương pháp?')) {
+        // Show loading
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<div class="spinner-border spinner-border-sm me-2"></div>Đang kiểm tra...';
+        btn.disabled = true;
+        
+        // Simulate checking
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            location.reload();
+        }, 3000);
+    }
+}
+
+function createCustomAlert() {
+    $('#customAlertModal').modal('show');
+}
+
+function loadMethodsForCustomAlert() {
+    // This would be an AJAX call to get methods
+    // For now, simulate with static data
+    const methods = [
+        {id: 1, name: 'Phương pháp A'},
+        {id: 2, name: 'Phương pháp B'},
+        {id: 3, name: 'Phương pháp C'}
+    ];
+    
+    const select = $('#alert-method');
+    methods.forEach(method => {
+        select.append(`<option value="${method.id}">${method.name}</option>`);
+    });
+}
+
+function submitCustomAlert() {
+    const form = $('#custom-alert-form')[0];
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+    
+    const alertData = {
+        method: $('#alert-method').val(),
+        type: $('#alert-type').val(),
+        severity: $('#alert-severity').val(),
+        threshold: $('#alert-threshold').val(),
+        title: $('#alert-title').val(),
+        content: $('#alert-content').val()
+    };
+    
+    // This would be an API call
+    alert('Tạo cảnh báo tùy chỉnh thành công!\n' + 
+          'Tiêu đề: ' + alertData.title + '\n' +
+          'Mức độ: ' + alertData.severity);
+    
+    $('#customAlertModal').modal('hide');
+}
+
+function markAllAsRead() {
+    const unresolvedAlerts = $('.alert-unresolved').length;
+    
+    if (unresolvedAlerts === 0) {
+        alert('Không có cảnh báo nào cần xử lý.');
+        return;
+    }
+    
+    if (confirm(`Đánh dấu tất cả ${unresolvedAlerts} cảnh báo đã được xử lý?`)) {
+        // This would be a batch API call
+        alert('Tính năng đánh dấu hàng loạt đang được phát triển.');
+    }
+}
+
+function createSimilarAlert(alertId) {
+    alert('Tính năng tạo cảnh báo tương tự đang được phát triển.');
+}
+
+// Auto-submit form when filters change
+$('#da_xu_ly, #muc_do, #loai_canh_bao, #sort_by').change(function() {
+    $(this).closest('form').submit();
+});
+
+// Alert card hover effects
+$('.alert-card').hover(
+    function() {
+        $(this).addClass('shadow-lg');
+    },
+    function() {
+        $(this).removeClass('shadow-lg');
+    }
+);
+</script>
+
+<style>
+.alert-card {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.alert-card:hover {
+    transform: translateY(-3px);
+}
+
+.alert-unresolved {
+    animation: subtle-pulse 3s ease-in-out infinite;
+}
+
+@keyframes subtle-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.95; }
+}
+
+.alert-card.border-critical {
+    border-left-width: 4px !important;
+    border-left-color: #dc3545 !important;
+}
+
+.alert-card.border-warning {
+    border-left-width: 4px !important;
+    border-left-color: #ffc107 !important;
+}
+
+.alert-card.border-info {
+    border-left-width: 4px !important;
+    border-left-color: #0dcaf0 !important;
+}
+
+.alert-card.border-success {
+    border-left-width: 4px !important;
+    border-left-color: #198754 !important;
+}
+
+.progress {
+    transition: all 0.3s ease;
+}
+
+.modal-body .form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+</style>
+{% endblock %}

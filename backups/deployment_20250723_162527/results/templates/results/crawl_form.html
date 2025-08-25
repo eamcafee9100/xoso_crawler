@@ -1,0 +1,336 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Quản lý dữ liệu xổ số miền Bắc</h2>
+    
+    <!-- Navigation tabs -->
+    <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="crawl-tab" data-bs-toggle="tab" data-bs-target="#crawl-pane" type="button" role="tab">
+                <i class="fas fa-download me-2"></i>Tải dữ liệu
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="delete-tab" data-bs-toggle="tab" data-bs-target="#delete-pane" type="button" role="tab">
+                <i class="fas fa-trash me-2"></i>Xóa dữ liệu
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab content -->
+    <div class="tab-content" id="mainTabsContent">
+        <!-- CRAWL TAB -->
+        <div class="tab-pane fade show active" id="crawl-pane" role="tabpanel">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-download me-2"></i>Tải kết quả xổ số
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="crawl">
+                        
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="start_date">Từ ngày</label>
+                                    <input type="date" class="form-control" id="start_date" name="start_date" 
+                                           value="{{ default_start|default:'' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="end_date">Đến ngày</label>
+                                    <input type="date" class="form-control" id="end_date" name="end_date" 
+                                           value="{{ default_end|default:'' }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-download me-2"></i>Tải dữ liệu
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Lưu ý:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Thời gian tải ước tính: 0.1 giây/ngày</li>
+                                        <li>Khoảng thời gian lớn hơn 30 ngày sẽ được chia thành các đợt nhỏ</li>
+                                        <li>Tối đa 400 ngày/lần tải</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- DELETE TAB -->
+        <div class="tab-pane fade" id="delete-pane" role="tabpanel">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trash me-2"></i>Xóa dữ liệu
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="mb-4" onsubmit="return confirmDelete()">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="delete">
+                        
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="delete_start_date">Từ ngày</label>
+                                    <input type="date" class="form-control" id="delete_start_date" name="delete_start_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label for="delete_end_date">Đến ngày</label>
+                                    <input type="date" class="form-control" id="delete_end_date" name="delete_end_date" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="submit" class="btn btn-danger w-100">
+                                    <i class="fas fa-trash me-2"></i>Xóa dữ liệu
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="confirm_delete" name="confirm_delete" required>
+                                    <label class="form-check-label text-danger" for="confirm_delete">
+                                        <strong>Tôi xác nhận muốn xóa dữ liệu trong khoảng thời gian đã chọn</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <strong>Cảnh báo:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Thao tác này sẽ <strong>xóa vĩnh viễn</strong> dữ liệu và không thể khôi phục</li>
+                                        <li>Tối đa 90 ngày/lần xóa</li>
+                                        <li>Chỉ có thể xóa sau mỗi 30 giây</li>
+                                        <li>Hãy chắc chắn bạn không cần dữ liệu này nữa</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+                <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif message.tags == 'error' %}
+                <i class="fas fa-times-circle me-2"></i>
+            {% else %}
+                <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- DELETE RESULTS -->
+    {% if delete_results %}
+    <div class="mt-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Kết quả xóa dữ liệu
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if delete_results.success %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Xóa thành công!</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Số bản ghi đã xóa: <strong>{{ delete_results.deleted_count }}</strong></li>
+                        <li>Khoảng thời gian: <strong>{{ delete_results.date_range }}</strong></li>
+                    </ul>
+                </div>
+                
+                {% if delete_results.details %}
+                <div class="mt-3">
+                    <h6>Chi tiết các bản ghi đã xóa:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Giải ĐB</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for detail in delete_results.details %}
+                                <tr>
+                                    <td>{{ detail.formatted_date }}</td>
+                                    <td>{{ detail.giai_db|default:"-" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="alert alert-danger">
+                    <i class="fas fa-times-circle me-2"></i>
+                    <strong>Xóa thất bại!</strong>
+                    <p class="mb-0 mt-2">{{ delete_results.error|default:"Lỗi không xác định" }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CRAWL RESULTS -->
+    {% if results %}
+    <div class="mt-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-download me-2"></i>Kết quả tải về
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Trạng thái</th>
+                                <th>Giải ĐB</th>
+                                <th>Kiểm tra dữ liệu</th>
+                                <th>Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in results %}
+                            <tr>
+                                <td>{{ result.date|date:"d/m/Y"|default:"-" }}</td>
+                                <td>
+                                    {% if result.success %}
+                                    <span class="badge bg-success">Thành công</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Thất bại</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.prizes.dac_biet|default:"-" }}</td>
+                                <td>
+                                    {% if result.error %}
+                                    <span class="text-danger">{{ result.error|truncatechars:50 }}</span>
+                                    {% elif result.prizes %}
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="collapse" 
+                                            data-bs-target="#detail-{{ forloop.counter }}">Xem chi tiết</button>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if result.object %}
+                                    <a href="#" target="_blank" class="btn btn-sm btn-primary">Xem</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% if result.prizes %}
+                            <tr class="collapse" id="detail-{{ forloop.counter }}">
+                                <td colspan="5">
+                                    <div class="p-3 bg-light">
+                                        <table class="table table-sm table-bordered">
+                                            <tr><th>Loại vé:</th><td>{{ result.prizes.loai_ve|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải nhất:</th><td>{{ result.prizes.giai_nhat|default:"-" }}</td></tr>
+                                            <tr><th>Giải nhì:</th><td>{{ result.prizes.giai_nhi|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải ba:</th><td>{{ result.prizes.giai_ba|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải tư:</th><td>{{ result.prizes.giai_tu|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải năm:</th><td>{{ result.prizes.giai_nam|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải sáu:</th><td>{{ result.prizes.giai_sau|join:", "|default:"-" }}</td></tr>
+                                            <tr><th>Giải bảy:</th><td>{{ result.prizes.giai_bay|join:", "|default:"-" }}</td></tr>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function confirmDelete() {
+    const startDate = document.getElementById('delete_start_date').value;
+    const endDate = document.getElementById('delete_end_date').value;
+    const confirmCheck = document.getElementById('confirm_delete').checked;
+    
+    if (!startDate || !endDate) {
+        alert('Vui lòng chọn ngày bắt đầu và ngày kết thúc.');
+        return false;
+    }
+    
+    if (!confirmCheck) {
+        alert('Vui lòng xác nhận bạn muốn xóa dữ liệu.');
+        return false;
+    }
+    
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 90) {
+        alert('Chỉ có thể xóa dữ liệu trong khoảng tối đa 90 ngày.');
+        return false;
+    }
+    
+    return confirm(`Bạn có chắc chắn muốn xóa dữ liệu từ ${startDate} đến ${endDate}?\n\nThao tác này không thể hoàn tác!`);
+}
+
+// Auto-focus on active tab
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteResults = {{ delete_results|yesno:"true,false" }};
+    if (deleteResults) {
+        const deleteTab = document.getElementById('delete-tab');
+        const deletePane = document.getElementById('delete-pane');
+        
+        // Switch to delete tab if there are delete results
+        deleteTab.click();
+    }
+});
+</script>
+{% endblock %}

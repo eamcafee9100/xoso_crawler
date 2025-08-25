@@ -1,0 +1,1674 @@
+{
+  "success": true,
+  "predictions": {
+    "1": {
+      "method_name": "Method 1",
+      "day_probabilities": {
+        "day_1": 0.5368028809330105,
+        "day_2": 0.5053306732058842,
+        "day_3": 0.48927434166033196
+      },
+      "day_confidences": {
+        "day_1": 0.3979704577401915,
+        "day_2": 0.3802959552160352,
+        "day_3": 0.39082412948747225
+      },
+      "recommended_day": 1,
+      "confidence": 0.389696847481233,
+      "prediction_quality": "poor"
+    },
+    "2": {
+      "method_name": "Method 2",
+      "day_probabilities": {
+        "day_1": 0.49536641716482244,
+        "day_2": 0.503781829075466,
+        "day_3": 0.5037321655414755
+      },
+      "day_confidences": {
+        "day_1": 0.3918329250590503,
+        "day_2": 0.38141981757616616,
+        "day_3": 0.39582363768047235
+      },
+      "recommended_day": 2,
+      "confidence": 0.38969212677189624,
+      "prediction_quality": "poor"
+    },
+    "3": {
+      "method_name": "Method 3",
+      "day_probabilities": {
+        "day_1": 0.4907922902693245,
+        "day_2": 0.5084008380007876,
+        "day_3": 0.4987099071262876
+      },
+      "day_confidences": {
+        "day_1": 0.3906834322163891,
+        "day_2": 0.37595573500648133,
+        "day_3": 0.39462496613150483
+      },
+      "recommended_day": 2,
+      "confidence": 0.38708804445145845,
+      "prediction_quality": "poor"
+    },
+    "4": {
+      "method_name": "Method 4",
+      "day_probabilities": {
+        "day_1": 0.4770458847432168,
+        "day_2": 0.5038326283979481,
+        "day_3": 0.5039392397663305
+      },
+      "day_confidences": {
+        "day_1": 0.3920372348423221,
+        "day_2": 0.3706197786036094,
+        "day_3": 0.3980351157531046
+      },
+      "recommended_day": 3,
+      "confidence": 0.38689737639967864,
+      "prediction_quality": "poor"
+    },
+    "5": {
+      "method_name": "Method 5",
+      "day_probabilities": {
+        "day_1": 0.47418016677280433,
+        "day_2": 0.4960990256086546,
+        "day_3": 0.49927431303842745
+      },
+      "day_confidences": {
+        "day_1": 0.4046594787570816,
+        "day_2": 0.3861188125659052,
+        "day_3": 0.3933351121919857
+      },
+      "recommended_day": 3,
+      "confidence": 0.3947044678383242,
+      "prediction_quality": "poor"
+    },
+    "6": {
+      "method_name": "Method 6",
+      "day_probabilities": {
+        "day_1": 0.4893319498066929,
+        "day_2": 0.4948494962781828,
+        "day_3": 0.4873787474274414
+      },
+      "day_confidences": {
+        "day_1": 0.3920856355970079,
+        "day_2": 0.372839674221826,
+        "day_3": 0.40241577401913997
+      },
+      "recommended_day": 2,
+      "confidence": 0.38911369461265793,
+      "prediction_quality": "poor"
+    },
+    "7": {
+      "method_name": "Method 7",
+      "day_probabilities": {
+        "day_1": 0.509293400387977,
+        "day_2": 0.5090378506339119,
+        "day_3": 0.4923404092624743
+      },
+      "day_confidences": {
+        "day_1": 0.38835463326625164,
+        "day_2": 0.38560033622348805,
+        "day_3": 0.39481794686601834
+      },
+      "recommended_day": 1,
+      "confidence": 0.389590972118586,
+      "prediction_quality": "poor"
+    },
+    "8": {
+      "method_name": "Method 8",
+      "day_probabilities": {
+        "day_1": 0.44786865297265277,
+        "day_2": 0.5049727375376473,
+        "day_3": 0.4935296155414767
+      },
+      "day_confidences": {
+        "day_1": 0.4103520908143348,
+        "day_2": 0.3669970606434193,
+        "day_3": 0.404904474178054
+      },
+      "recommended_day": 2,
+      "confidence": 0.39408454187860276,
+      "prediction_quality": "poor"
+    },
+    "9": {
+      "method_name": "Method 9",
+      "day_probabilities": {
+        "day_1": 0.4712652637819208,
+        "day_2": 0.5014806120613529,
+        "day_3": 0.4956511203180469
+      },
+      "day_confidences": {
+        "day_1": 0.3965646476172558,
+        "day_2": 0.381922383156938,
+        "day_3": 0.3953679971398719
+      },
+      "recommended_day": 2,
+      "confidence": 0.3912850093046886,
+      "prediction_quality": "poor"
+    },
+    "10": {
+      "method_name": "Method 10",
+      "day_probabilities": {
+        "day_1": 0.4808771831628383,
+        "day_2": 0.49488646520953766,
+        "day_3": 0.5030304885844207
+      },
+      "day_confidences": {
+        "day_1": 0.39759728564067975,
+        "day_2": 0.3682685081127571,
+        "day_3": 0.3912710775702227
+      },
+      "recommended_day": 3,
+      "confidence": 0.3857122904412198,
+      "prediction_quality": "poor"
+    },
+    "11": {
+      "method_name": "Method 11",
+      "day_probabilities": {
+        "day_1": 0.47361155448751047,
+        "day_2": 0.49874498061198325,
+        "day_3": 0.4850076009675932
+      },
+      "day_confidences": {
+        "day_1": 0.40450240598331216,
+        "day_2": 0.3788452002331707,
+        "day_3": 0.3955108653292773
+      },
+      "recommended_day": 2,
+      "confidence": 0.3929528238485867,
+      "prediction_quality": "poor"
+    },
+    "12": {
+      "method_name": "Method 12",
+      "day_probabilities": {
+        "day_1": 0.500479849403899,
+        "day_2": 0.5056992598393995,
+        "day_3": 0.4898556621512451
+      },
+      "day_confidences": {
+        "day_1": 0.38495658660737003,
+        "day_2": 0.3823995276970822,
+        "day_3": 0.3942330834132249
+      },
+      "recommended_day": 2,
+      "confidence": 0.3871963992392257,
+      "prediction_quality": "poor"
+    },
+    "13": {
+      "method_name": "Method 13",
+      "day_probabilities": {
+        "day_1": 0.4592621532656567,
+        "day_2": 0.5018759287008348,
+        "day_3": 0.499436288411861
+      },
+      "day_confidences": {
+        "day_1": 0.3992212363610359,
+        "day_2": 0.3821873845522584,
+        "day_3": 0.3940893914973128
+      },
+      "recommended_day": 2,
+      "confidence": 0.39183267080353573,
+      "prediction_quality": "poor"
+    },
+    "14": {
+      "method_name": "Method 14",
+      "day_probabilities": {
+        "day_1": 0.44435647458004435,
+        "day_2": 0.5054364573773471,
+        "day_3": 0.4967966429549247
+      },
+      "day_confidences": {
+        "day_1": 0.4183848465169573,
+        "day_2": 0.3800849209849981,
+        "day_3": 0.3843804516845105
+      },
+      "recommended_day": 2,
+      "confidence": 0.3942834063954887,
+      "prediction_quality": "poor"
+    },
+    "15": {
+      "method_name": "Method 15",
+      "day_probabilities": {
+        "day_1": 0.5129268902721899,
+        "day_2": 0.49167813562713497,
+        "day_3": 0.4950942970490677
+      },
+      "day_confidences": {
+        "day_1": 0.3876014221032084,
+        "day_2": 0.3738514545713355,
+        "day_3": 0.3942501190047907
+      },
+      "recommended_day": 1,
+      "confidence": 0.3852343318931115,
+      "prediction_quality": "poor"
+    },
+    "16": {
+      "method_name": "Method 16",
+      "day_probabilities": {
+        "day_1": 0.509031122187122,
+        "day_2": 0.501024921762931,
+        "day_3": 0.49941709017177993
+      },
+      "day_confidences": {
+        "day_1": 0.38939770756859976,
+        "day_2": 0.3737789834504511,
+        "day_3": 0.39746641711016245
+      },
+      "recommended_day": 1,
+      "confidence": 0.38688103604307106,
+      "prediction_quality": "poor"
+    },
+    "17": {
+      "method_name": "Method 17",
+      "day_probabilities": {
+        "day_1": 0.44858088435786053,
+        "day_2": 0.49499227060922274,
+        "day_3": 0.48557134429191123
+      },
+      "day_confidences": {
+        "day_1": 0.4119282602905345,
+        "day_2": 0.3811842440885768,
+        "day_3": 0.39317085673434093
+      },
+      "recommended_day": 2,
+      "confidence": 0.3954277870378174,
+      "prediction_quality": "poor"
+    },
+    "18": {
+      "method_name": "Method 18",
+      "day_probabilities": {
+        "day_1": 0.49100795408626136,
+        "day_2": 0.5048755890248128,
+        "day_3": 0.4986317233917134
+      },
+      "day_confidences": {
+        "day_1": 0.39089573274535244,
+        "day_2": 0.38046494797837443,
+        "day_3": 0.40648148558520114
+      },
+      "recommended_day": 2,
+      "confidence": 0.39261405543630934,
+      "prediction_quality": "poor"
+    },
+    "19": {
+      "method_name": "Method 19",
+      "day_probabilities": {
+        "day_1": 0.49765251193503507,
+        "day_2": 0.5041183816882577,
+        "day_3": 0.4951341940395767
+      },
+      "day_confidences": {
+        "day_1": 0.3943769817710279,
+        "day_2": 0.3744056514730399,
+        "day_3": 0.3967518647171184
+      },
+      "recommended_day": 2,
+      "confidence": 0.38851149932039536,
+      "prediction_quality": "poor"
+    },
+    "20": {
+      "method_name": "Method 20",
+      "day_probabilities": {
+        "day_1": 0.5080496679825142,
+        "day_2": 0.49888089072429087,
+        "day_3": 0.493723397357191
+      },
+      "day_confidences": {
+        "day_1": 0.38950925787057095,
+        "day_2": 0.3787045685233472,
+        "day_3": 0.3920889672669245
+      },
+      "recommended_day": 1,
+      "confidence": 0.3867675978869476,
+      "prediction_quality": "poor"
+    },
+    "21": {
+      "method_name": "Method 21",
+      "day_probabilities": {
+        "day_1": 0.4735159759035459,
+        "day_2": 0.5074142400111813,
+        "day_3": 0.4973055767452994
+      },
+      "day_confidences": {
+        "day_1": 0.4005407352509839,
+        "day_2": 0.3936997062405193,
+        "day_3": 0.39172695329875423
+      },
+      "recommended_day": 2,
+      "confidence": 0.39532246493008577,
+      "prediction_quality": "poor"
+    },
+    "22": {
+      "method_name": "Method 22",
+      "day_probabilities": {
+        "day_1": 0.49753980506812906,
+        "day_2": 0.5012806029481001,
+        "day_3": 0.48649337497902223
+      },
+      "day_confidences": {
+        "day_1": 0.38757903062677024,
+        "day_2": 0.3826043850895316,
+        "day_3": 0.39681676969727353
+      },
+      "recommended_day": 2,
+      "confidence": 0.3890000618045251,
+      "prediction_quality": "poor"
+    },
+    "23": {
+      "method_name": "Method 23",
+      "day_probabilities": {
+        "day_1": 0.5013019265530849,
+        "day_2": 0.5034302236964955,
+        "day_3": 0.49063095326755096
+      },
+      "day_confidences": {
+        "day_1": 0.3888250569828558,
+        "day_2": 0.3853855104322056,
+        "day_3": 0.3960088433592448
+      },
+      "recommended_day": 2,
+      "confidence": 0.39007313692476875,
+      "prediction_quality": "poor"
+    },
+    "24": {
+      "method_name": "Method 24",
+      "day_probabilities": {
+        "day_1": 0.4952738506351115,
+        "day_2": 0.5018215782665113,
+        "day_3": 0.500816842261427
+      },
+      "day_confidences": {
+        "day_1": 0.385827031241036,
+        "day_2": 0.37633537294923286,
+        "day_3": 0.3907613273956947
+      },
+      "recommended_day": 2,
+      "confidence": 0.3843079105286545,
+      "prediction_quality": "poor"
+    },
+    "25": {
+      "method_name": "Method 25",
+      "day_probabilities": {
+        "day_1": 0.5126270338875463,
+        "day_2": 0.5023533408549935,
+        "day_3": 0.4924840551796163
+      },
+      "day_confidences": {
+        "day_1": 0.3945581433934235,
+        "day_2": 0.3850080157073113,
+        "day_3": 0.3893700262126621
+      },
+      "recommended_day": 1,
+      "confidence": 0.3896453951044656,
+      "prediction_quality": "poor"
+    },
+    "26": {
+      "method_name": "Method 26",
+      "day_probabilities": {
+        "day_1": 0.4733192238324469,
+        "day_2": 0.49785942801473676,
+        "day_3": 0.4860457551519774
+      },
+      "day_confidences": {
+        "day_1": 0.39896904974422315,
+        "day_2": 0.37788830128718565,
+        "day_3": 0.397324330634322
+      },
+      "recommended_day": 2,
+      "confidence": 0.39139389388857687,
+      "prediction_quality": "poor"
+    },
+    "27": {
+      "method_name": "Method 27",
+      "day_probabilities": {
+        "day_1": 0.4832733822473575,
+        "day_2": 0.494383662363882,
+        "day_3": 0.5041659358322199
+      },
+      "day_confidences": {
+        "day_1": 0.39591161080343973,
+        "day_2": 0.3813047399195871,
+        "day_3": 0.38410923857307655
+      },
+      "recommended_day": 3,
+      "confidence": 0.38710852976536775,
+      "prediction_quality": "poor"
+    },
+    "28": {
+      "method_name": "Method 28",
+      "day_probabilities": {
+        "day_1": 0.4807614091129212,
+        "day_2": 0.4992018302257836,
+        "day_3": 0.49829132381993596
+      },
+      "day_confidences": {
+        "day_1": 0.39683475715150013,
+        "day_2": 0.37616974625206256,
+        "day_3": 0.3921198239725116
+      },
+      "recommended_day": 2,
+      "confidence": 0.3883747757920248,
+      "prediction_quality": "poor"
+    },
+    "29": {
+      "method_name": "Method 29",
+      "day_probabilities": {
+        "day_1": 0.492548672023866,
+        "day_2": 0.5001436712518847,
+        "day_3": 0.49247271860875147
+      },
+      "day_confidences": {
+        "day_1": 0.39281037781849293,
+        "day_2": 0.3833485423438765,
+        "day_3": 0.38639647800624094
+      },
+      "recommended_day": 2,
+      "confidence": 0.38751846605620344,
+      "prediction_quality": "poor"
+    },
+    "30": {
+      "method_name": "Method 30",
+      "day_probabilities": {
+        "day_1": 0.49347830066181564,
+        "day_2": 0.49896412205471335,
+        "day_3": 0.4950407354402641
+      },
+      "day_confidences": {
+        "day_1": 0.3929959880313376,
+        "day_2": 0.3774447514107045,
+        "day_3": 0.3912511642323558
+      },
+      "recommended_day": 2,
+      "confidence": 0.3872306345581326,
+      "prediction_quality": "poor"
+    },
+    "31": {
+      "method_name": "Method 31",
+      "day_probabilities": {
+        "day_1": 0.49536898395063245,
+        "day_2": 0.49667338085972806,
+        "day_3": 0.4858270009761844
+      },
+      "day_confidences": {
+        "day_1": 0.3879119321369099,
+        "day_2": 0.38277606702470945,
+        "day_3": 0.3908460329956715
+      },
+      "recommended_day": 2,
+      "confidence": 0.38717801071909697,
+      "prediction_quality": "poor"
+    },
+    "32": {
+      "method_name": "Method 32",
+      "day_probabilities": {
+        "day_1": 0.49059360447170974,
+        "day_2": 0.4944206312952369,
+        "day_3": 0.4896906245833961
+      },
+      "day_confidences": {
+        "day_1": 0.38951753568021075,
+        "day_2": 0.38055079317251694,
+        "day_3": 0.3899288044505554
+      },
+      "recommended_day": 2,
+      "confidence": 0.3866657111010943,
+      "prediction_quality": "poor"
+    },
+    "33": {
+      "method_name": "Method 33",
+      "day_probabilities": {
+        "day_1": 0.49059360447170974,
+        "day_2": 0.5022117619623376,
+        "day_3": 0.485085033706889
+      },
+      "day_confidences": {
+        "day_1": 0.3917666060067794,
+        "day_2": 0.37851589622908766,
+        "day_3": 0.39174434659548785
+      },
+      "recommended_day": 2,
+      "confidence": 0.387342282943785,
+      "prediction_quality": "poor"
+    },
+    "34": {
+      "method_name": "Method 34",
+      "day_probabilities": {
+        "day_1": 0.47052871908799526,
+        "day_2": 0.5035340258679103,
+        "day_3": 0.49250542934357966
+      },
+      "day_confidences": {
+        "day_1": 0.40018418783878185,
+        "day_2": 0.3800601732756949,
+        "day_3": 0.39200002205601114
+      },
+      "recommended_day": 2,
+      "confidence": 0.39074812772349593,
+      "prediction_quality": "poor"
+    },
+    "35": {
+      "method_name": "Method 35",
+      "day_probabilities": {
+        "day_1": 0.509477687011452,
+        "day_2": 0.49429275072420714,
+        "day_3": 0.49304662984071046
+      },
+      "day_confidences": {
+        "day_1": 0.3848122626192505,
+        "day_2": 0.38281203945182946,
+        "day_3": 0.38411613097927005
+      },
+      "recommended_day": 1,
+      "confidence": 0.38391347768345,
+      "prediction_quality": "poor"
+    },
+    "36": {
+      "method_name": "Method 36",
+      "day_probabilities": {
+        "day_1": 0.45330543607687324,
+        "day_2": 0.49960401108399777,
+        "day_3": 0.4947507154052845
+      },
+      "day_confidences": {
+        "day_1": 0.4105184315725258,
+        "day_2": 0.3772079566768291,
+        "day_3": 0.396404954548939
+      },
+      "recommended_day": 2,
+      "confidence": 0.39471044759943136,
+      "prediction_quality": "poor"
+    },
+    "37": {
+      "method_name": "Method 37",
+      "day_probabilities": {
+        "day_1": 0.4891098746138075,
+        "day_2": 0.5025517427800383,
+        "day_3": 0.4957916614798137
+      },
+      "day_confidences": {
+        "day_1": 0.3973044349672609,
+        "day_2": 0.3808060249002097,
+        "day_3": 0.39692114307084414
+      },
+      "recommended_day": 2,
+      "confidence": 0.39167720097943826,
+      "prediction_quality": "poor"
+    },
+    "38": {
+      "method_name": "Method 38",
+      "day_probabilities": {
+        "day_1": 0.4890609867807665,
+        "day_2": 0.5034411744955929,
+        "day_3": 0.49515445753301174
+      },
+      "day_confidences": {
+        "day_1": 0.3920838438931794,
+        "day_2": 0.370282573733031,
+        "day_3": 0.3881654046438577
+      },
+      "recommended_day": 2,
+      "confidence": 0.383510607423356,
+      "prediction_quality": "poor"
+    },
+    "39": {
+      "method_name": "Method 39",
+      "day_probabilities": {
+        "day_1": 0.49666764213170755,
+        "day_2": 0.4977727022367128,
+        "day_3": 0.4942501504974644
+      },
+      "day_confidences": {
+        "day_1": 0.39061406492977296,
+        "day_2": 0.36910246287717186,
+        "day_3": 0.3927952727294466
+      },
+      "recommended_day": 2,
+      "confidence": 0.3841706001787972,
+      "prediction_quality": "poor"
+    },
+    "40": {
+      "method_name": "Method 40",
+      "day_probabilities": {
+        "day_1": 0.4958446207435776,
+        "day_2": 0.5070945545444228,
+        "day_3": 0.48521057137154744
+      },
+      "day_confidences": {
+        "day_1": 0.39293551686559014,
+        "day_2": 0.3835145869813489,
+        "day_3": 0.4054958193523275
+      },
+      "recommended_day": 2,
+      "confidence": 0.3939819743997555,
+      "prediction_quality": "poor"
+    },
+    "41": {
+      "method_name": "Method 41",
+      "day_probabilities": {
+        "day_1": 0.48222857160029875,
+        "day_2": 0.502456517304362,
+        "day_3": 0.48846337002843043
+      },
+      "day_confidences": {
+        "day_1": 0.39562566234045043,
+        "day_2": 0.38418037435585894,
+        "day_3": 0.3999762075493009
+      },
+      "recommended_day": 2,
+      "confidence": 0.3932607480818701,
+      "prediction_quality": "poor"
+    },
+    "42": {
+      "method_name": "Method 42",
+      "day_probabilities": {
+        "day_1": 0.4850549785567363,
+        "day_2": 0.4963916390997774,
+        "day_3": 0.48631502819143846
+      },
+      "day_confidences": {
+        "day_1": 0.39629576815731926,
+        "day_2": 0.3762603505823335,
+        "day_3": 0.3872041795738826
+      },
+      "recommended_day": 2,
+      "confidence": 0.38658676610451176,
+      "prediction_quality": "poor"
+    },
+    "43": {
+      "method_name": "Method 43",
+      "day_probabilities": {
+        "day_1": 0.4954099680496953,
+        "day_2": 0.4967167744880073,
+        "day_3": 0.49316779095768604
+      },
+      "day_confidences": {
+        "day_1": 0.390895757936908,
+        "day_2": 0.37960102187287853,
+        "day_3": 0.3781596133885349
+      },
+      "recommended_day": 2,
+      "confidence": 0.38288546439944043,
+      "prediction_quality": "poor"
+    },
+    "44": {
+      "method_name": "Method 44",
+      "day_probabilities": {
+        "day_1": 0.49884069509681894,
+        "day_2": 0.5104686226938302,
+        "day_3": 0.49345387558839726
+      },
+      "day_confidences": {
+        "day_1": 0.38708605846226457,
+        "day_2": 0.38097939347438614,
+        "day_3": 0.3903625645631622
+      },
+      "recommended_day": 2,
+      "confidence": 0.3861426721666043,
+      "prediction_quality": "poor"
+    },
+    "45": {
+      "method_name": "Method 45",
+      "day_probabilities": {
+        "day_1": 0.4887684736999669,
+        "day_2": 0.4985764857244839,
+        "day_3": 0.5031082929913423
+      },
+      "day_confidences": {
+        "day_1": 0.39189314418155025,
+        "day_2": 0.38293405265230007,
+        "day_3": 0.39465347834797454
+      },
+      "recommended_day": 3,
+      "confidence": 0.3898268917272749,
+      "prediction_quality": "poor"
+    },
+    "46": {
+      "method_name": "Method 46",
+      "day_probabilities": {
+        "day_1": 0.4893577536405228,
+        "day_2": 0.49789639694609167,
+        "day_3": 0.4938400208136656
+      },
+      "day_confidences": {
+        "day_1": 0.39442996422866927,
+        "day_2": 0.3788536296140217,
+        "day_3": 0.3923838540301732
+      },
+      "recommended_day": 2,
+      "confidence": 0.3885558159576214,
+      "prediction_quality": "poor"
+    },
+    "47": {
+      "method_name": "Method 47",
+      "day_probabilities": {
+        "day_1": 0.5064542305307834,
+        "day_2": 0.49719687706107607,
+        "day_3": 0.4899702151961645
+      },
+      "day_confidences": {
+        "day_1": 0.3866643012994536,
+        "day_2": 0.37748589260335486,
+        "day_3": 0.3957548437115755
+      },
+      "recommended_day": 1,
+      "confidence": 0.386635012538128,
+      "prediction_quality": "poor"
+    },
+    "48": {
+      "method_name": "Method 48",
+      "day_probabilities": {
+        "day_1": 0.4944428152599595,
+        "day_2": 0.5083036147828611,
+        "day_3": 0.4895740692898585
+      },
+      "day_confidences": {
+        "day_1": 0.39269019916808523,
+        "day_2": 0.3793892946172122,
+        "day_3": 0.39359660586493966
+      },
+      "recommended_day": 2,
+      "confidence": 0.38855869988341235,
+      "prediction_quality": "poor"
+    },
+    "49": {
+      "method_name": "Method 49",
+      "day_probabilities": {
+        "day_1": 0.4907922902693245,
+        "day_2": 0.5010831665574512,
+        "day_3": 0.49393484177201796
+      },
+      "day_confidences": {
+        "day_1": 0.3912931535920987,
+        "day_2": 0.3802788988468789,
+        "day_3": 0.40449896735110374
+      },
+      "recommended_day": 2,
+      "confidence": 0.3920236732633604,
+      "prediction_quality": "poor"
+    },
+    "50": {
+      "method_name": "Method 50",
+      "day_probabilities": {
+        "day_1": 0.4522966053644904,
+        "day_2": 0.5079919193247666,
+        "day_3": 0.4928104089180142
+      },
+      "day_confidences": {
+        "day_1": 0.4153155204564837,
+        "day_2": 0.3768038382222258,
+        "day_3": 0.3857005245239142
+      },
+      "recommended_day": 2,
+      "confidence": 0.3926066277342079,
+      "prediction_quality": "poor"
+    },
+    "51": {
+      "method_name": "Method 51",
+      "day_probabilities": {
+        "day_1": 0.46236171685904426,
+        "day_2": 0.5021836895589581,
+        "day_3": 0.48381513769342843
+      },
+      "day_confidences": {
+        "day_1": 0.4042364765094576,
+        "day_2": 0.37829911421409085,
+        "day_3": 0.38946034416592684
+      },
+      "recommended_day": 2,
+      "confidence": 0.3906653116298251,
+      "prediction_quality": "poor"
+    },
+    "52": {
+      "method_name": "Method 52",
+      "day_probabilities": {
+        "day_1": 0.49864200929920416,
+        "day_2": 0.498872861183013,
+        "day_3": 0.4866621847566144
+      },
+      "day_confidences": {
+        "day_1": 0.3847160352023076,
+        "day_2": 0.3773683926727841,
+        "day_3": 0.39218272713377117
+      },
+      "recommended_day": 2,
+      "confidence": 0.3847557183362877,
+      "prediction_quality": "poor"
+    },
+    "53": {
+      "method_name": "Method 53",
+      "day_probabilities": {
+        "day_1": 0.5086499190222332,
+        "day_2": 0.5100895925209665,
+        "day_3": 0.48913503141573467
+      },
+      "day_confidences": {
+        "day_1": 0.3908829648516159,
+        "day_2": 0.3830886307140818,
+        "day_3": 0.3989752435898663
+      },
+      "recommended_day": 2,
+      "confidence": 0.39098227971852134,
+      "prediction_quality": "poor"
+    },
+    "54": {
+      "method_name": "Method 54",
+      "day_probabilities": {
+        "day_1": 0.46858939707375424,
+        "day_2": 0.507281624085839,
+        "day_3": 0.490798549762467
+      },
+      "day_confidences": {
+        "day_1": 0.4008965169995661,
+        "day_2": 0.36834636043339236,
+        "day_3": 0.3993345411472792
+      },
+      "recommended_day": 2,
+      "confidence": 0.38952580619341254,
+      "prediction_quality": "poor"
+    },
+    "55": {
+      "method_name": "Method 55",
+      "day_probabilities": {
+        "day_1": 0.4817869269321916,
+        "day_2": 0.5013527314903231,
+        "day_3": 0.4899392247682563
+      },
+      "day_confidences": {
+        "day_1": 0.4031493083706567,
+        "day_2": 0.3790788321776501,
+        "day_3": 0.39464681578163574
+      },
+      "recommended_day": 2,
+      "confidence": 0.39229165210998085,
+      "prediction_quality": "poor"
+    },
+    "56": {
+      "method_name": "Method 56",
+      "day_probabilities": {
+        "day_1": 0.49589765574019096,
+        "day_2": 0.4974572471565227,
+        "day_3": 0.4893425292415431
+      },
+      "day_confidences": {
+        "day_1": 0.3861863700285361,
+        "day_2": 0.3639575700006893,
+        "day_3": 0.39708674889636775
+      },
+      "recommended_day": 2,
+      "confidence": 0.38241022964186433,
+      "prediction_quality": "poor"
+    },
+    "57": {
+      "method_name": "Method 57",
+      "day_probabilities": {
+        "day_1": 0.4824137936707848,
+        "day_2": 0.494383662363882,
+        "day_3": 0.4982332152651332
+      },
+      "day_confidences": {
+        "day_1": 0.38902533865313815,
+        "day_2": 0.37841551363499,
+        "day_3": 0.3897930739886089
+      },
+      "recommended_day": 3,
+      "confidence": 0.3857446420922457,
+      "prediction_quality": "poor"
+    },
+    "58": {
+      "method_name": "Method 58",
+      "day_probabilities": {
+        "day_1": 0.5209752950996842,
+        "day_2": 0.4974572471565227,
+        "day_3": 0.4968544796833418
+      },
+      "day_confidences": {
+        "day_1": 0.3883792174599585,
+        "day_2": 0.3726649608040179,
+        "day_3": 0.3890614743350694
+      },
+      "recommended_day": 1,
+      "confidence": 0.38336855086634863,
+      "prediction_quality": "poor"
+    },
+    "59": {
+      "method_name": "Method 59",
+      "day_probabilities": {
+        "day_1": 0.502537777384272,
+        "day_2": 0.5037398226511433,
+        "day_3": 0.48947525319292706
+      },
+      "day_confidences": {
+        "day_1": 0.3866703524600662,
+        "day_2": 0.37648039581008597,
+        "day_3": 0.3943938787774772
+      },
+      "recommended_day": 2,
+      "confidence": 0.3858482090158765,
+      "prediction_quality": "poor"
+    },
+    "60": {
+      "method_name": "Method 60",
+      "day_probabilities": {
+        "day_1": 0.4845692796607222,
+        "day_2": 0.4986113990523319,
+        "day_3": 0.49691626585300597
+      },
+      "day_confidences": {
+        "day_1": 0.3996568129507512,
+        "day_2": 0.38050593568351765,
+        "day_3": 0.39281464675921846
+      },
+      "recommended_day": 2,
+      "confidence": 0.3909924651311624,
+      "prediction_quality": "poor"
+    },
+    "61": {
+      "method_name": "Method 61",
+      "day_probabilities": {
+        "day_1": 0.49034572544499455,
+        "day_2": 0.4975072444071092,
+        "day_3": 0.490798549762467
+      },
+      "day_confidences": {
+        "day_1": 0.38836326217912437,
+        "day_2": 0.3723016247919233,
+        "day_3": 0.402073540830204
+      },
+      "recommended_day": 2,
+      "confidence": 0.3875794759337506,
+      "prediction_quality": "poor"
+    },
+    "62": {
+      "method_name": "Method 62",
+      "day_probabilities": {
+        "day_1": 0.49000787620219205,
+        "day_2": 0.494329719655562,
+        "day_3": 0.49028558884600765
+      },
+      "day_confidences": {
+        "day_1": 0.3880181664616037,
+        "day_2": 0.38309688905737,
+        "day_3": 0.3962606673351952
+      },
+      "recommended_day": 2,
+      "confidence": 0.3891252409513896,
+      "prediction_quality": "poor"
+    },
+    "63": {
+      "method_name": "Method 63",
+      "day_probabilities": {
+        "day_1": 0.479776731122085,
+        "day_2": 0.4975628150352016,
+        "day_3": 0.5013019068119384
+      },
+      "day_confidences": {
+        "day_1": 0.4005815018243858,
+        "day_2": 0.3703808786579994,
+        "day_3": 0.3862446651645229
+      },
+      "recommended_day": 3,
+      "confidence": 0.38573568188230273,
+      "prediction_quality": "poor"
+    },
+    "64": {
+      "method_name": "Method 64",
+      "day_probabilities": {
+        "day_1": 0.502537777384272,
+        "day_2": 0.5037398226511433,
+        "day_3": 0.48947525319292706
+      },
+      "day_confidences": {
+        "day_1": 0.3866703524600662,
+        "day_2": 0.37648039581008597,
+        "day_3": 0.3943938787774772
+      },
+      "recommended_day": 2,
+      "confidence": 0.3858482090158765,
+      "prediction_quality": "poor"
+    },
+    "65": {
+      "method_name": "Method 65",
+      "day_probabilities": {
+        "day_1": 0.49908857412353413,
+        "day_2": 0.502156523160993,
+        "day_3": 0.5042354024688762
+      },
+      "day_confidences": {
+        "day_1": 0.3853181728901254,
+        "day_2": 0.3807691868282573,
+        "day_3": 0.38997379487751366
+      },
+      "recommended_day": 3,
+      "confidence": 0.3853537181986321,
+      "prediction_quality": "poor"
+    },
+    "66": {
+      "method_name": "Method 66",
+      "day_probabilities": {
+        "day_1": 0.4997468665284406,
+        "day_2": 0.5062754086588852,
+        "day_3": 0.50068481544736
+      },
+      "day_confidences": {
+        "day_1": 0.3977035850125555,
+        "day_2": 0.3817349576821428,
+        "day_3": 0.39902508840857026
+      },
+      "recommended_day": 2,
+      "confidence": 0.3928212103677562,
+      "prediction_quality": "poor"
+    },
+    "67": {
+      "method_name": "Method 67",
+      "day_probabilities": {
+        "day_1": 0.4949332607570625,
+        "day_2": 0.49813733593491494,
+        "day_3": 0.48671943506609067
+      },
+      "day_confidences": {
+        "day_1": 0.39135981448037227,
+        "day_2": 0.37363963620776297,
+        "day_3": 0.4050046586189987
+      },
+      "recommended_day": 2,
+      "confidence": 0.3900013697690447,
+      "prediction_quality": "poor"
+    },
+    "68": {
+      "method_name": "Method 68",
+      "day_probabilities": {
+        "day_1": 0.4832600577777816,
+        "day_2": 0.4953119560759812,
+        "day_3": 0.49844115504774256
+      },
+      "day_confidences": {
+        "day_1": 0.39522545100695594,
+        "day_2": 0.38362623034099785,
+        "day_3": 0.39207310623667846
+      },
+      "recommended_day": 3,
+      "confidence": 0.39030826252821077,
+      "prediction_quality": "poor"
+    },
+    "69": {
+      "method_name": "Method 69",
+      "day_probabilities": {
+        "day_1": 0.4674141391376928,
+        "day_2": 0.4968316651342167,
+        "day_3": 0.48737189821331384
+      },
+      "day_confidences": {
+        "day_1": 0.40713487246944047,
+        "day_2": 0.3723207920635791,
+        "day_3": 0.3978968880540379
+      },
+      "recommended_day": 2,
+      "confidence": 0.3924508508623525,
+      "prediction_quality": "poor"
+    },
+    "70": {
+      "method_name": "Method 70",
+      "day_probabilities": {
+        "day_1": 0.5129623503101368,
+        "day_2": 0.49587782320646917,
+        "day_3": 0.49727496157009454
+      },
+      "day_confidences": {
+        "day_1": 0.3874391634246655,
+        "day_2": 0.38736083417037454,
+        "day_3": 0.3936146664181489
+      },
+      "recommended_day": 1,
+      "confidence": 0.389471554671063,
+      "prediction_quality": "poor"
+    },
+    "71": {
+      "method_name": "Method 71",
+      "day_probabilities": {
+        "day_1": 0.49303173583748583,
+        "day_2": 0.49587782320646917,
+        "day_3": 0.4943947361894797
+      },
+      "day_confidences": {
+        "day_1": 0.4005168645641608,
+        "day_2": 0.38308718052202256,
+        "day_3": 0.3974817623037235
+      },
+      "recommended_day": 2,
+      "confidence": 0.39369526912996894,
+      "prediction_quality": "poor"
+    },
+    "72": {
+      "method_name": "Method 72",
+      "day_probabilities": {
+        "day_1": 0.4887546526963276,
+        "day_2": 0.5066138268701118,
+        "day_3": 0.49227699366197764
+      },
+      "day_confidences": {
+        "day_1": 0.39978960407860725,
+        "day_2": 0.3857806974033112,
+        "day_3": 0.38919204047725603
+      },
+      "recommended_day": 2,
+      "confidence": 0.3915874473197248,
+      "prediction_quality": "poor"
+    },
+    "73": {
+      "method_name": "Method 73",
+      "day_probabilities": {
+        "day_1": 0.5045228611439874,
+        "day_2": 0.5090378506339119,
+        "day_3": 0.50281024585249
+      },
+      "day_confidences": {
+        "day_1": 0.3887887591793844,
+        "day_2": 0.3839999737206256,
+        "day_3": 0.39191295957111993
+      },
+      "recommended_day": 2,
+      "confidence": 0.3882338974903767,
+      "prediction_quality": "poor"
+    },
+    "74": {
+      "method_name": "Method 74",
+      "day_probabilities": {
+        "day_1": 0.48579880306295464,
+        "day_2": 0.501996055701699,
+        "day_3": 0.4969238164769843
+      },
+      "day_confidences": {
+        "day_1": 0.3949133719089021,
+        "day_2": 0.38093649423347337,
+        "day_3": 0.3930883941977792
+      },
+      "recommended_day": 2,
+      "confidence": 0.3896460867800515,
+      "prediction_quality": "poor"
+    },
+    "75": {
+      "method_name": "Method 75",
+      "day_probabilities": {
+        "day_1": 0.4799870859970142,
+        "day_2": 0.5135828959965528,
+        "day_3": 0.49341797301370893
+      },
+      "day_confidences": {
+        "day_1": 0.39537897275705236,
+        "day_2": 0.3840085139647104,
+        "day_3": 0.39882970611473667
+      },
+      "recommended_day": 2,
+      "confidence": 0.3927390642788331,
+      "prediction_quality": "poor"
+    },
+    "76": {
+      "method_name": "Method 76",
+      "day_probabilities": {
+        "day_1": 0.5237240277762902,
+        "day_2": 0.4977918263832914,
+        "day_3": 0.4862958299513574
+      },
+      "day_confidences": {
+        "day_1": 0.3939122316885593,
+        "day_2": 0.37676358225682927,
+        "day_3": 0.3912940596729774
+      },
+      "recommended_day": 1,
+      "confidence": 0.387323291206122,
+      "prediction_quality": "poor"
+    },
+    "77": {
+      "method_name": "Method 77",
+      "day_probabilities": {
+        "day_1": 0.5035997152877683,
+        "day_2": 0.49759815604678415,
+        "day_3": 0.48793677807879404
+      },
+      "day_confidences": {
+        "day_1": 0.3907654194379519,
+        "day_2": 0.3746680997006524,
+        "day_3": 0.3902217886704353
+      },
+      "recommended_day": 1,
+      "confidence": 0.3852184359363466,
+      "prediction_quality": "poor"
+    },
+    "78": {
+      "method_name": "Method 78",
+      "day_probabilities": {
+        "day_1": 0.48266031833371537,
+        "day_2": 0.5080520909674926,
+        "day_3": 0.49482588087205165
+      },
+      "day_confidences": {
+        "day_1": 0.3987286034432114,
+        "day_2": 0.3890871969594942,
+        "day_3": 0.38614031636869867
+      },
+      "recommended_day": 2,
+      "confidence": 0.3913187055904681,
+      "prediction_quality": "poor"
+    },
+    "79": {
+      "method_name": "Method 79",
+      "day_probabilities": {
+        "day_1": 0.491339451012953,
+        "day_2": 0.5014500614038717,
+        "day_3": 0.48451012652964087
+      },
+      "day_confidences": {
+        "day_1": 0.39668389436955415,
+        "day_2": 0.37469924514719916,
+        "day_3": 0.3956532344615182
+      },
+      "recommended_day": 2,
+      "confidence": 0.3890121246594238,
+      "prediction_quality": "poor"
+    },
+    "80": {
+      "method_name": "Method 80",
+      "day_probabilities": {
+        "day_1": 0.492102107199536,
+        "day_2": 0.5021760632375115,
+        "day_3": 0.4965093149324497
+      },
+      "day_confidences": {
+        "day_1": 0.39639920733677453,
+        "day_2": 0.3770432167269661,
+        "day_3": 0.39453286077041894
+      },
+      "recommended_day": 2,
+      "confidence": 0.38932509494471984,
+      "prediction_quality": "poor"
+    },
+    "81": {
+      "method_name": "Method 81",
+      "day_probabilities": {
+        "day_1": 0.5134089151344668,
+        "day_2": 0.4980833932265949,
+        "day_3": 0.4866621847566144
+      },
+      "day_confidences": {
+        "day_1": 0.3781075826033232,
+        "day_2": 0.37089133047919276,
+        "day_3": 0.3904038524149161
+      },
+      "recommended_day": 1,
+      "confidence": 0.3798009218324774,
+      "prediction_quality": "poor"
+    },
+    "82": {
+      "method_name": "Method 82",
+      "day_probabilities": {
+        "day_1": 0.5141430052578524,
+        "day_2": 0.4953249843952129,
+        "day_3": 0.49924939209252656
+      },
+      "day_confidences": {
+        "day_1": 0.3913398814697598,
+        "day_2": 0.3846162198568443,
+        "day_3": 0.39825951377900487
+      },
+      "recommended_day": 1,
+      "confidence": 0.391405205035203,
+      "prediction_quality": "poor"
+    },
+    "83": {
+      "method_name": "Method 83",
+      "day_probabilities": {
+        "day_1": 0.5067333334524387,
+        "day_2": 0.5016928892853507,
+        "day_3": 0.4815464528651874
+      },
+      "day_confidences": {
+        "day_1": 0.3889496613380909,
+        "day_2": 0.3737959406355576,
+        "day_3": 0.3932792755240077
+      },
+      "recommended_day": 1,
+      "confidence": 0.3853416258325521,
+      "prediction_quality": "poor"
+    },
+    "84": {
+      "method_name": "Method 84",
+      "day_probabilities": {
+        "day_1": 0.47948421804128544,
+        "day_2": 0.5002345828915596,
+        "day_3": 0.4968287028142172
+      },
+      "day_confidences": {
+        "day_1": 0.39641648705220733,
+        "day_2": 0.38682537968485803,
+        "day_3": 0.39734271166898577
+      },
+      "recommended_day": 2,
+      "confidence": 0.39352819280201706,
+      "prediction_quality": "poor"
+    },
+    "85": {
+      "method_name": "Method 85",
+      "day_probabilities": {
+        "day_1": 0.47980771952976203,
+        "day_2": 0.5038433553538071,
+        "day_3": 0.4968287028142172
+      },
+      "day_confidences": {
+        "day_1": 0.40884167823094786,
+        "day_2": 0.3788543817765002,
+        "day_3": 0.39914693406871726
+      },
+      "recommended_day": 2,
+      "confidence": 0.39561433135872176,
+      "prediction_quality": "poor"
+    },
+    "86": {
+      "method_name": "Method 86",
+      "day_probabilities": {
+        "day_1": 0.4986849286249443,
+        "day_2": 0.5102765888014698,
+        "day_3": 0.49266348206519467
+      },
+      "day_confidences": {
+        "day_1": 0.3871431481843975,
+        "day_2": 0.38128544612147186,
+        "day_3": 0.39009452917346055
+      },
+      "recommended_day": 2,
+      "confidence": 0.38617437449310993,
+      "prediction_quality": "poor"
+    },
+    "87": {
+      "method_name": "Method 87",
+      "day_probabilities": {
+        "day_1": 0.47022669701132425,
+        "day_2": 0.5107913449154947,
+        "day_3": 0.4876480204669025
+      },
+      "day_confidences": {
+        "day_1": 0.41115073054588136,
+        "day_2": 0.38888897819254864,
+        "day_3": 0.38321865146882894
+      },
+      "recommended_day": 2,
+      "confidence": 0.3944194534024197,
+      "prediction_quality": "poor"
+    },
+    "88": {
+      "method_name": "Method 88",
+      "day_probabilities": {
+        "day_1": 0.4594778192975897,
+        "day_2": 0.5017441853926783,
+        "day_3": 0.5023848133320109
+      },
+      "day_confidences": {
+        "day_1": 0.41628627152453845,
+        "day_2": 0.38186667929915197,
+        "day_3": 0.39703462625930336
+      },
+      "recommended_day": 3,
+      "confidence": 0.3983958590276646,
+      "prediction_quality": "poor"
+    },
+    "89": {
+      "method_name": "Method 89",
+      "day_probabilities": {
+        "day_1": 0.5065801739877362,
+        "day_2": 0.5009495849978,
+        "day_3": 0.4927373129175702
+      },
+      "day_confidences": {
+        "day_1": 0.3913180661820955,
+        "day_2": 0.37994112779581174,
+        "day_3": 0.3853895051142786
+      },
+      "recommended_day": 1,
+      "confidence": 0.38554956636406196,
+      "prediction_quality": "poor"
+    },
+    "90": {
+      "method_name": "Method 90",
+      "day_probabilities": {
+        "day_1": 0.47945841420745566,
+        "day_2": 0.49810976620532393,
+        "day_3": 0.49471514360506796
+      },
+      "day_confidences": {
+        "day_1": 0.3958305835427461,
+        "day_2": 0.377077507288704,
+        "day_3": 0.3817422505604053
+      },
+      "recommended_day": 2,
+      "confidence": 0.38488344713061845,
+      "prediction_quality": "poor"
+    },
+    "91": {
+      "method_name": "Method 91",
+      "day_probabilities": {
+        "day_1": 0.44405483578056326,
+        "day_2": 0.4958408542751143,
+        "day_3": 0.48891905478042014
+      },
+      "day_confidences": {
+        "day_1": 0.41525358967021186,
+        "day_2": 0.37879571107014864,
+        "day_3": 0.3989692184454822
+      },
+      "recommended_day": 2,
+      "confidence": 0.3976728397286142,
+      "prediction_quality": "poor"
+    },
+    "92": {
+      "method_name": "Method 92",
+      "day_probabilities": {
+        "day_1": 0.5039202567338557,
+        "day_2": 0.5014500614038717,
+        "day_3": 0.4934020512650641
+      },
+      "day_confidences": {
+        "day_1": 0.38671078680761795,
+        "day_2": 0.37481436607543817,
+        "day_3": 0.3941462062289113
+      },
+      "recommended_day": 1,
+      "confidence": 0.3852237863706558,
+      "prediction_quality": "poor"
+    },
+    "93": {
+      "method_name": "Method 93",
+      "day_probabilities": {
+        "day_1": 0.5016224679991723,
+        "day_2": 0.505644821623029,
+        "day_3": 0.48913503141573467
+      },
+      "day_confidences": {
+        "day_1": 0.3874070784652465,
+        "day_2": 0.37074772248119625,
+        "day_3": 0.4002267311656374
+      },
+      "recommended_day": 2,
+      "confidence": 0.38612717737069335,
+      "prediction_quality": "poor"
+    },
+    "94": {
+      "method_name": "Method 94",
+      "day_probabilities": {
+        "day_1": 0.506298047379092,
+        "day_2": 0.5031620192366579,
+        "day_3": 0.4873787474274414
+      },
+      "day_confidences": {
+        "day_1": 0.38507155376102925,
+        "day_2": 0.38839018778898354,
+        "day_3": 0.4050143905760956
+      },
+      "recommended_day": 1,
+      "confidence": 0.39282537737536943,
+      "prediction_quality": "poor"
+    },
+    "95": {
+      "method_name": "Method 95",
+      "day_probabilities": {
+        "day_1": 0.48088117597984154,
+        "day_2": 0.502067266794315,
+        "day_3": 0.48751058643490724
+      },
+      "day_confidences": {
+        "day_1": 0.38658240178156617,
+        "day_2": 0.37738995170245454,
+        "day_3": 0.3960891555798224
+      },
+      "recommended_day": 2,
+      "confidence": 0.3866871696879477,
+      "prediction_quality": "poor"
+    },
+    "96": {
+      "method_name": "Method 96",
+      "day_probabilities": {
+        "day_1": 0.5039202567338557,
+        "day_2": 0.5014500614038717,
+        "day_3": 0.4934020512650641
+      },
+      "day_confidences": {
+        "day_1": 0.38671078680761795,
+        "day_2": 0.37481436607543817,
+        "day_3": 0.3941462062289113
+      },
+      "recommended_day": 1,
+      "confidence": 0.3852237863706558,
+      "prediction_quality": "poor"
+    },
+    "97": {
+      "method_name": "Method 97",
+      "day_probabilities": {
+        "day_1": 0.5001934313527705,
+        "day_2": 0.4974572471565227,
+        "day_3": 0.49160186566977093
+      },
+      "day_confidences": {
+        "day_1": 0.3929795981846012,
+        "day_2": 0.37371488740002257,
+        "day_3": 0.39265244172188285
+      },
+      "recommended_day": 1,
+      "confidence": 0.3864489757688356,
+      "prediction_quality": "poor"
+    },
+    "98": {
+      "method_name": "Method 98",
+      "day_probabilities": {
+        "day_1": 0.47767547625869156,
+        "day_2": 0.4997414903936706,
+        "day_3": 0.5018801556228493
+      },
+      "day_confidences": {
+        "day_1": 0.4079922231103206,
+        "day_2": 0.3744214312079825,
+        "day_3": 0.3956148859709642
+      },
+      "recommended_day": 3,
+      "confidence": 0.39267618009642247,
+      "prediction_quality": "poor"
+    },
+    "99": {
+      "method_name": "Method 99",
+      "day_probabilities": {
+        "day_1": 0.4951447568314223,
+        "day_2": 0.48967414459076963,
+        "day_3": 0.4916944393251654
+      },
+      "day_confidences": {
+        "day_1": 0.38815888458785763,
+        "day_2": 0.373581796145209,
+        "day_3": 0.3886460116012031
+      },
+      "recommended_day": 1,
+      "confidence": 0.38346223077808994,
+      "prediction_quality": "poor"
+    },
+    "100": {
+      "method_name": "Method 100",
+      "day_probabilities": {
+        "day_1": 0.48753318443759974,
+        "day_2": 0.49817911348149524,
+        "day_3": 0.48836458313772946
+      },
+      "day_confidences": {
+        "day_1": 0.39090634069481633,
+        "day_2": 0.38668069719427195,
+        "day_3": 0.40098224733507837
+      },
+      "recommended_day": 2,
+      "confidence": 0.39285642840805557,
+      "prediction_quality": "poor"
+    },
+    "101": {
+      "method_name": "Method 101",
+      "day_probabilities": {
+        "day_1": 0.5126735112630745,
+        "day_2": 0.5083469793285543,
+        "day_3": 0.49509910408560875
+      },
+      "day_confidences": {
+        "day_1": 0.388273847203021,
+        "day_2": 0.37234135018400055,
+        "day_3": 0.39469653973082686
+      },
+      "recommended_day": 1,
+      "confidence": 0.3851039123726161,
+      "prediction_quality": "poor"
+    },
+    "102": {
+      "method_name": "Method 102",
+      "day_probabilities": {
+        "day_1": 0.5001934313527705,
+        "day_2": 0.5013527314903231,
+        "day_3": 0.5010518210565469
+      },
+      "day_confidences": {
+        "day_1": 0.3969133634201028,
+        "day_2": 0.3838291773765657,
+        "day_3": 0.39152943720422934
+      },
+      "recommended_day": 2,
+      "confidence": 0.3907573260002993,
+      "prediction_quality": "poor"
+    },
+    "intelligence_data": {
+      "method_name": "Method intelligence_data",
+      "day_probabilities": {
+        "day_1": 0.1,
+        "day_2": 0.1,
+        "day_3": 0.1
+      },
+      "day_confidences": {
+        "day_1": 0.1,
+        "day_2": 0.1,
+        "day_3": 0.1
+      },
+      "recommended_day": 1,
+      "confidence": 0,
+      "prediction_quality": "error"
+    }
+  },
+  "analysis_type": "advanced_ml_dataservice",
+  "data_source": "trained_advanced_models_dataservice",
+  "target_date": "2025-07-21",
+  "prediction_horizon": 1,
+  "methods_analyzed": 103,
+  "data_quality": {
+    "is_sufficient": true,
+    "total_methods": 102,
+    "valid_methods": 102,
+    "avg_data_points": 195,
+    "avg_diversity": 0.8037204625439922,
+    "quality_score": 27.326495726495736,
+    "recommendation": "sufficient"
+  },
+  "metadata": {
+    "model_type": "ensemble_advanced_dataservice",
+    "training_samples": 0,
+    "feature_engineering": "advanced",
+    "prediction_algorithm": "sliding_window_ensemble",
+    "service": "DataService"
+  }
+}

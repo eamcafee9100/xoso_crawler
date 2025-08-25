@@ -1,0 +1,53 @@
+<!-- templates/results/partials/day_of_week_frequency_table.html -->
+{% load static %}
+{% load xs_tags %}
+<!-- templates/results/partials/day_of_week_frequency_table.html -->
+<div class="d-flex justify-content-between mb-3">
+    <h5>Thống kê theo thứ trong tuần {% if month %}{{ month }}/{% endif %}{% if year %}{{ year }}{% endif %}</h5>
+    <div>
+        <a href="{% url 'number_frequency_api' %}?view_type=day_of_week&year={{ year }}&month={{ month }}" 
+           class="btn btn-sm btn-outline-secondary" target="_blank">
+            <i class="fas fa-download"></i> JSON
+        </a>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover table-sm">
+    <thead class="table-primary">
+        <tr>
+            <th class="text-center">Số</th>
+            {% for day_index in days_of_week %}
+            <th class="text-center">
+                {% if day_index == 0 %}Thứ 2
+                {% elif day_index == 1 %}Thứ 3
+                {% elif day_index == 2 %}Thứ 4
+                {% elif day_index == 3 %}Thứ 5
+                {% elif day_index == 4 %}Thứ 6
+                {% elif day_index == 5 %}Thứ 7
+                {% elif day_index == 6 %}CN
+                {% endif %}
+            </th>
+            {% endfor %}
+            <th class="text-center">Tổng</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table_data %}
+        <tr>
+            <td class="text-center fw-bold">{{ row.number }}</td>
+            {% for day in days_of_week %}
+            {% with cell_value=row|get_item:day|default:"" %}
+            <td class="text-center {% if cell_value %}bg-secondary text-white{% endif %}">
+                {% if cell_value %}{{ cell_value }}{% endif %}
+            </td>
+            {% endwith %}
+            {% endfor %}
+            <td class="text-center fw-bold">{{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="{{ days_of_week|length|add:2 }}" class="text-center">Không có dữ liệu</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

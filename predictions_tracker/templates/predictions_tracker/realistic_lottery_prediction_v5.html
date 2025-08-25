@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 REALISTIC LOTTERY ANALYZER V5 - Phân Tích Xổ Số Thực Tế</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #e53e3e;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #e53e3e;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .warning-banner {
+            background: #e53e3e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #4299e1;
+        }
+
+        .analyze-button {
+            width: 100%;
+            padding: 15px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .analyze-button:hover {
+            background: #3182ce;
+        }
+
+        .analyze-button:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4299e1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results-section {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .numbers-display {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .number-card {
+            background: #4299e1;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .confidence-info {
+            background: #f7fafc;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning-section {
+            background: #fed7d7;
+            border: 2px solid #e53e3e;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .warning-section h3 {
+            color: #e53e3e;
+            margin-bottom: 10px;
+        }
+
+        .warning-section ul {
+            padding-left: 20px;
+        }
+
+        .warning-section li {
+            margin-bottom: 8px;
+            color: #744210;
+        }
+
+        .methodology-section {
+            background: #e6fffa;
+            border: 2px solid #38b2ac;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .methodology-section h3 {
+            color: #38b2ac;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            text-align: center;
+            color: #718096;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .numbers-display {
+                gap: 10px;
+            }
+            
+            .number-card {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 REALISTIC LOTTERY ANALYZER V5</h1>
+            <p class="subtitle">Phân Tích Xổ Số Thực Tế & Trung Thực</p>
+            <div class="warning-banner">
+                ⚠️ THÔNG BÁO QUAN TRỌNG: Hệ thống này KHÔNG ĐẢM BẢO thắng lô ⚠️
+            </div>
+        </div>
+
+        <!-- Analysis Form -->
+        <div class="form-section">
+            <h2>📊 Phân Tích Thống Kê</h2>
+            <form id="analysis-form">
+                <div class="form-group">
+                    <label for="analysis-date">📅 Ngày cần phân tích:</label>
+                    <input type="date" id="analysis-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="target-count">🎯 Số lượng số cần chọn (1-10):</label>
+                    <select id="target-count">
+                        <option value="3">3 số</option>
+                        <option value="5" selected>5 số</option>
+                        <option value="7">7 số</option>
+                        <option value="10">10 số</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="lookback-days">📈 Số ngày dữ liệu lịch sử (30-365):</label>
+                    <select id="lookback-days">
+                        <option value="30">30 ngày</option>
+                        <option value="60">60 ngày</option>
+                        <option value="90" selected>90 ngày</option>
+                        <option value="180">180 ngày</option>
+                        <option value="365">365 ngày</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="analyze-button">🔍 Phân Tích Thống Kê</button>
+            </form>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+            <p>Đang phân tích dữ liệu lịch sử...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results-section" class="results-section">
+            <h2>📊 Kết Quả Phân Tích</h2>
+            <div id="results-content"></div>
+        </div>
+
+        <!-- Always Visible Warnings -->
+        <div class="warning-section">
+            <h3>⚠️ CẢNH BÁO QUAN TRỌNG</h3>
+            <ul>
+                <li><strong>Xổ số có tính ngẫu nhiên cao</strong> - Không thể dự đoán chính xác</li>
+                <li><strong>Phân tích chỉ dựa trên thống kê</strong> - Không phải "công thức thần thánh"</li>
+                <li><strong>Rủi ro mất tiền RẤT CAO</strong> - Chỉ chơi với số tiền có thể chấp nhận mất</li>
+                <li><strong>Không có phương pháp nào đảm bảo thắng</strong> - Hãy xem đây là giải trí</li>
+                <li><strong>Đánh bạc có thể gây nghiện</strong> - Chơi có trách nhiệm</li>
+            </ul>
+        </div>
+
+        <!-- Methodology -->
+        <div class="methodology-section">
+            <h3>🔬 Phương Pháp Phân Tích</h3>
+            <p><strong>1. Thu thập dữ liệu:</strong> Lấy kết quả xổ số lịch sử từ database</p>
+            <p><strong>2. Phân tích tần suất:</strong> Đếm số lần xuất hiện của từng số</p>
+            <p><strong>3. Tính xác suất:</strong> Dựa trên tần suất lịch sử (không đảm bảo tương lai)</p>
+            <p><strong>4. Chọn số:</strong> Ưu tiên các số có tần suất cao trong lịch sử</p>
+            <p><strong>5. Đánh giá:</strong> Tính độ tin cậy dựa trên chất lượng dữ liệu</p>
+            <p><strong>⚠️ Hạn chế:</strong> Dữ liệu lịch sử KHÔNG đảm bảo kết quả tương lai!</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>🎯 Realistic Lottery Analyzer V5 HONEST - Chỉ dành cho tham khảo</p>
+            <p>⚠️ Đánh bạc có thể gây nghiện - Chơi có trách nhiệm</p>
+            <p><small>Phát triển với mục tiêu trung thực và minh bạch</small></p>
+        </div>
+    </div>
+
+    <script>
+        // Set tomorrow as default date
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('analysis-date').valueAsDate = tomorrow;
+
+        document.getElementById('analysis-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const analysisDate = document.getElementById('analysis-date').value;
+            const targetCount = document.getElementById('target-count').value;
+            const lookbackDays = document.getElementById('lookback-days').value;
+
+            if (!analysisDate) {
+                alert('Vui lòng chọn ngày phân tích!');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results-section').style.display = 'none';
+            document.querySelector('.analyze-button').disabled = true;
+
+            try {
+                const response = await fetch(`/pre-lokhung/api/realistic-prediction-v5/?analysis_date=${analysisDate}&target_count=${targetCount}&lookback_days=${lookbackDays}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    displayError(data);
+                }
+            } catch (error) {
+                displayError({
+                    error: error.message,
+                    honest_message: 'Lỗi kết nối với server'
+                });
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.analyze-button').disabled = false;
+            }
+        });
+
+        function displayResults(data) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsSection.style.display = 'block';
+
+            const selectedNumbers = data.predictions?.selected_numbers || [];
+            const assessment = data.realistic_assessment || {};
+            const methodology = data.methodology || {};
+            const warnings = data.important_warnings || [];
+
+            resultsContent.innerHTML = `
+                <div class="numbers-display">
+                    ${selectedNumbers.map(item => `
+                        <div class="number-card" title="Số ${item.number} - Tần suất: ${item.frequency} lần (${item.percentage.toFixed(1)}%)">
+                            ${item.number.toString().padStart(2, '0')}
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="confidence-info">
+                    <h4>📊 Thông Tin Phân Tích</h4>
+                    <p><strong>Phương pháp:</strong> ${data.predictions?.method || 'N/A'}</p>
+                    <p><strong>Dữ liệu sử dụng:</strong> ${data.parameters_used?.lookback_days} ngày gần nhất</p>
+                    <p><strong>Lưu ý:</strong> ${data.predictions?.confidence_note || 'N/A'}</p>
+                </div>
+
+                <div class="warning-section">
+                    <h3>⚠️ ĐÁNH GIÁ THỰC TẾ</h3>
+                    <p><strong>Độ chính xác:</strong> ${assessment.expected_accuracy || 'Không thể dự đoán'}</p>
+                    <p><strong>Xác suất thành công:</strong> ${assessment.success_probability || 'Phụ thuộc may mắn'}</p>
+                    <p><strong>Mức độ rủi ro:</strong> ${assessment.risk_level || 'Rất cao'}</p>
+                    <p><strong>Khuyến nghị:</strong> ${assessment.recommendation || 'Chỉ tham khảo'}</p>
+                </div>
+
+                <div class="methodology-section">
+                    <h3>🔬 Chi Tiết Phương Pháp</h3>
+                    ${Object.entries(methodology).map(([key, value]) => `
+                        <p><strong>${key.replace('step_', 'Bước ').replace('_', ' ')}:</strong> ${value}</p>
+                    `).join('')}
+                </div>
+
+                ${warnings.length > 0 ? `
+                    <div class="warning-section">
+                        <h3>⚠️ CẢNH BÁO BỔ SUNG</h3>
+                        <ul>
+                            ${warnings.map(warning => `<li>${warning}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function displayError(data) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContent = document.getElementById('results-content');
+            
+            resultsSection.style.display = 'block';
+
+            resultsContent.innerHTML = `
+                <div class="warning-section">
+                    <h3>❌ Lỗi Phân Tích</h3>
+                    <p><strong>Lỗi:</strong> ${data.error || 'Lỗi không xác định'}</p>
+                    <p><strong>Thông báo:</strong> ${data.honest_message || data.message || 'N/A'}</p>
+                    <p><strong>Khuyến nghị:</strong> ${data.recommendation || 'Vui lòng thử lại sau'}</p>
+                </div>
+            `;
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to form inputs
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.transform = 'scale(1.02)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

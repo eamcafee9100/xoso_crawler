@@ -1,0 +1,264 @@
+{% comment %}
+Partial component: Method Management Panel
+File: predictions_tracker/templates/predictions_tracker/partials/_method_management_panel.html
+{% endcomment %}
+
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+            <i class="fas fa-cogs me-2"></i>Quản lý Phương pháp Dự đoán
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <!-- Quick Actions -->
+            <div class="col-md-6">
+                <h6 class="text-primary">⚡ Thao tác nhanh</h6>
+                <form method="post" action="{% url 'predictions_tracker:method_management_action' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="reload_quick">
+                    <button type="submit" class="btn btn-primary btn-sm me-2" title="Quét lại 3 ngày gần nhất">
+                        <i class="fas fa-sync-alt"></i> Quét nhanh (3 ngày)
+                    </button>
+                </form>
+                
+                <button type="button" class="btn btn-success btn-sm me-2" data-bs-toggle="modal" data-bs-target="#methodManagementModal">
+                    <i class="fas fa-sliders-h"></i> Tùy chọn nâng cao
+                </button>
+                
+                <form method="post" action="{% url 'predictions_tracker:method_management_action' %}" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="scan_only">
+                    <button type="submit" class="btn btn-outline-info btn-sm" title="Chỉ quét phương pháp mới">
+                        <i class="fas fa-search"></i> Quét Methods
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Status Info -->
+            <div class="col-md-6">
+                <h6 class="text-success">📊 Thống kê hiện tại</h6>
+                <div class="small">
+                    <div class="d-flex justify-content-between">
+                        <span>Tổng methods:</span>
+                        <strong>{{ method_stats.total_methods }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Đang hoạt động:</span>
+                        <strong class="text-success">{{ method_stats.active_methods }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Có dữ liệu tháng này:</span>
+                        <strong class="text-info">{{ method_stats.methods_with_data }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Cập nhật lần cuối:</span>
+                        <strong class="text-muted">{{ method_stats.last_update|default:"Chưa có" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Messages -->
+        {% if messages %}
+            <div class="mt-3">
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Advanced Options Modal -->
+<div class="modal fade" id="methodManagementModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-cogs"></i> Tùy chọn nâng cao - Quản lý Methods
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'predictions_tracker:method_management_action' %}">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <!-- Action Type -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold">🎯 Loại thao tác:</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="action" value="reload_range" id="reload_range" checked>
+                                        <label class="form-check-label" for="reload_range">
+                                            <strong>Quét & Tính toán</strong><br>
+                                            <small class="text-muted">Quét methods + tính toán dữ liệu</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="action" value="scan_only" id="scan_only">
+                                        <label class="form-check-label" for="scan_only">
+                                            <strong>Chỉ quét Methods</strong><br>
+                                            <small class="text-muted">Không tính toán dữ liệu</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Date Range Options -->
+                        <div class="col-12" id="dateRangeOptions">
+                            <label class="form-label fw-bold">📅 Phạm vi ngày:</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="date_option" value="days" id="days_option" checked>
+                                        <label class="form-check-label" for="days_option">
+                                            Số ngày gần đây
+                                        </label>
+                                    </div>
+                                    <input type="number" class="form-control form-control-sm mt-1" name="days" value="7" min="1" max="90">
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="date_option" value="current_month" id="current_month_option">
+                                        <label class="form-check-label" for="current_month_option">
+                                            Tháng hiện tại
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="date_option" value="custom_range" id="custom_range_option">
+                                        <label class="form-check-label" for="custom_range_option">
+                                            Tùy chọn ngày
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Custom Date Range -->
+                            <div class="row mt-2" id="customDateRange" style="display: none;">
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-sm">Từ ngày:</label>
+                                    <input type="date" class="form-control form-control-sm" name="start_date">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label form-label-sm">Đến ngày:</label>
+                                    <input type="date" class="form-control form-control-sm" name="end_date">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Force Options -->
+                        <div class="col-12">
+                            <label class="form-label fw-bold">⚙️ Tùy chọn thực thi:</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="force" id="force_option">
+                                        <label class="form-check-label" for="force_option">
+                                            <strong>Force Reload</strong><br>
+                                            <small class="text-warning">Ghi đè dữ liệu cũ</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" name="dry_run" id="dry_run_option">
+                                        <label class="form-check-label" for="dry_run_option">
+                                            <strong>Dry Run</strong><br>
+                                            <small class="text-info">Chỉ xem trước, không thực thi</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Danger Zone -->
+                        <div class="col-12">
+                            <div class="border border-danger rounded p-2 bg-light">
+                                <label class="form-label fw-bold text-danger">⚠️ Vùng nguy hiểm:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="clear_all" id="clear_all_option">
+                                    <label class="form-check-label text-danger" for="clear_all_option">
+                                        <strong>Xóa toàn bộ dữ liệu</strong><br>
+                                        <small>Xóa tất cả predictions và reset ID</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Hủy
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="executeBtn">
+                        <i class="fas fa-play"></i> Thực thi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle date option changes
+    const dateOptions = document.querySelectorAll('input[name="date_option"]');
+    const customDateRange = document.getElementById('customDateRange');
+    const dateRangeOptions = document.getElementById('dateRangeOptions');
+    const actionOptions = document.querySelectorAll('input[name="action"]');
+    
+    function toggleDateRangeOptions() {
+        const selectedAction = document.querySelector('input[name="action"]:checked').value;
+        if (selectedAction === 'scan_only') {
+            dateRangeOptions.style.display = 'none';
+        } else {
+            dateRangeOptions.style.display = 'block';
+        }
+    }
+    
+    function toggleCustomDateRange() {
+        const selectedOption = document.querySelector('input[name="date_option"]:checked').value;
+        if (selectedOption === 'custom_range') {
+            customDateRange.style.display = 'block';
+        } else {
+            customDateRange.style.display = 'none';
+        }
+    }
+    
+    actionOptions.forEach(option => {
+        option.addEventListener('change', toggleDateRangeOptions);
+    });
+    
+    dateOptions.forEach(option => {
+        option.addEventListener('change', toggleCustomDateRange);
+    });
+    
+    // Handle clear all confirmation
+    const clearAllOption = document.getElementById('clear_all_option');
+    const executeBtn = document.getElementById('executeBtn');
+    
+    clearAllOption.addEventListener('change', function() {
+        if (this.checked) {
+            executeBtn.innerHTML = '<i class="fas fa-trash"></i> XÓA TOÀN BỘ DỮ LIỆU';
+            executeBtn.className = 'btn btn-danger';
+        } else {
+            executeBtn.innerHTML = '<i class="fas fa-play"></i> Thực thi';
+            executeBtn.className = 'btn btn-primary';
+        }
+    });
+    
+    // Initialize
+    toggleDateRangeOptions();
+    toggleCustomDateRange();
+});
+</script>

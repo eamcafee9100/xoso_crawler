@@ -1,0 +1,2921 @@
+{
+  "demo_metadata": {
+    "timestamp": "2025-07-31T16:28:33.053048",
+    "database_status": {
+      "total_records": 8854,
+      "date_range": {
+        "earliest": "2024-07-14",
+        "latest": "2025-07-24",
+        "total_days": 376
+      },
+      "recent_30_days": 576,
+      "unique_numbers": 100,
+      "top_numbers": [
+        {
+          "number": "39",
+          "count": 106
+        },
+        {
+          "number": "13",
+          "count": 104
+        },
+        {
+          "number": "58",
+          "count": 101
+        },
+        {
+          "number": "75",
+          "count": 100
+        },
+        {
+          "number": "22",
+          "count": 100
+        },
+        {
+          "number": "32",
+          "count": 99
+        },
+        {
+          "number": "24",
+          "count": 99
+        },
+        {
+          "number": "19",
+          "count": 99
+        },
+        {
+          "number": "53",
+          "count": 98
+        },
+        {
+          "number": "97",
+          "count": 98
+        }
+      ],
+      "prize_positions": {
+        "special": 636,
+        "first": 608,
+        "other": 7648
+      }
+    }
+  },
+  "basic_analysis": {
+    "analysis_metadata": {
+      "start_date": "2025-05-02",
+      "end_date": "2025-07-31",
+      "total_records": 2007,
+      "significance_level": 0.05,
+      "analysis_timestamp": "2025-07-31T16:28:25.604201"
+    },
+    "hot_numbers": {},
+    "cold_numbers": {},
+    "cyclical_patterns": {},
+    "mean_reversion": {},
+    "momentum_patterns": {},
+    "seasonal_effects": {
+      "monthly_patterns": {
+        "1": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "2": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "3": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "4": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "5": {
+          "total_appearances": 713,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "30",
+              "count": 14,
+              "month_dominance": 0.02
+            },
+            {
+              "number": "58",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "24",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "57",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "45",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "78",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "88",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "63",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "18",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "6": {
+          "total_appearances": 718,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "21",
+              "count": 17,
+              "month_dominance": 0.024
+            },
+            {
+              "number": "39",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "34",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "08",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "19",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "95",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "68",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "13",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "01",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "7": {
+          "total_appearances": 576,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "16",
+              "count": 12,
+              "month_dominance": 0.021
+            },
+            {
+              "number": "56",
+              "count": 12,
+              "month_dominance": 0.021
+            },
+            {
+              "number": "48",
+              "count": 11,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "21",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "06",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "86",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "11",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "92",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "53",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "80",
+              "count": 9,
+              "month_dominance": 0.016
+            }
+          ]
+        },
+        "8": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "9": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "10": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "11": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "12": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        }
+      },
+      "quarterly_patterns": {},
+      "day_of_week_patterns": {
+        "0": {
+          "total_appearances": 286,
+          "special_prize_rate": 0.073,
+          "first_prize_rate": 0.063,
+          "day_name": "Monday"
+        },
+        "1": {
+          "total_appearances": 285,
+          "special_prize_rate": 0.077,
+          "first_prize_rate": 0.063,
+          "day_name": "Tuesday"
+        },
+        "2": {
+          "total_appearances": 290,
+          "special_prize_rate": 0.086,
+          "first_prize_rate": 0.069,
+          "day_name": "Wednesday"
+        },
+        "3": {
+          "total_appearances": 290,
+          "special_prize_rate": 0.069,
+          "first_prize_rate": 0.066,
+          "day_name": "Thursday"
+        },
+        "4": {
+          "total_appearances": 281,
+          "special_prize_rate": 0.071,
+          "first_prize_rate": 0.075,
+          "day_name": "Friday"
+        },
+        "5": {
+          "total_appearances": 284,
+          "special_prize_rate": 0.081,
+          "first_prize_rate": 0.063,
+          "day_name": "Saturday"
+        },
+        "6": {
+          "total_appearances": 291,
+          "special_prize_rate": 0.062,
+          "first_prize_rate": 0.065,
+          "day_name": "Sunday"
+        }
+      },
+      "day_of_month_patterns": {
+        "days_1_to_10": {
+          "total_appearances": 676,
+          "period": "1-10",
+          "intensity": 0.3368211260587942
+        },
+        "days_11_to_20": {
+          "total_appearances": 712,
+          "period": "11-20",
+          "intensity": 0.3547583457897359
+        },
+        "days_21_to_31": {
+          "total_appearances": 619,
+          "period": "21-31",
+          "intensity": 0.30842052815146986
+        }
+      },
+      "week_of_month_patterns": {}
+    },
+    "day_of_week_bias": {},
+    "month_end_effects": {},
+    "prize_position_intelligence": {
+      "overall_statistics": {
+        "special_prize_rate": 0.074,
+        "first_prize_rate": 0.066,
+        "other_prize_rate": 0.863
+      },
+      "number_patterns": {
+        "00": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.095,
+          "first_prize_rate": 0.095,
+          "other_prize_rate": 0.81,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.81
+        },
+        "01": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.174,
+          "first_prize_rate": 0.043,
+          "other_prize_rate": 0.783,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.783
+        },
+        "02": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.2,
+          "first_prize_rate": 0.05,
+          "other_prize_rate": 0.75,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.75
+        },
+        "03": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.136,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.818,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.818
+        },
+        "04": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.105,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.842,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.842
+        },
+        "05": {
+          "total_appearances": 18,
+          "special_prize_rate": 0.111,
+          "first_prize_rate": 0.111,
+          "other_prize_rate": 0.778,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.778
+        },
+        "06": {
+          "total_appearances": 28,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.071,
+          "other_prize_rate": 0.786,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.786
+        },
+        "07": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.095,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.905,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.905
+        },
+        "08": {
+          "total_appearances": 25,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.08,
+          "other_prize_rate": 0.92,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.92
+        },
+        "09": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.087,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.913,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.913
+        },
+        "10": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.048,
+          "first_prize_rate": 0.19,
+          "other_prize_rate": 0.762,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.762
+        },
+        "11": {
+          "total_appearances": 24,
+          "special_prize_rate": 0.042,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.958,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.958
+        },
+        "12": {
+          "total_appearances": 16,
+          "special_prize_rate": 0.062,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.938,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.938
+        },
+        "13": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.087,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.87,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.87
+        },
+        "14": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.05,
+          "first_prize_rate": 0.15,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "15": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.091,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.864,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.864
+        },
+        "16": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.095,
+          "other_prize_rate": 0.905,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.905
+        },
+        "17": {
+          "total_appearances": 11,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.091,
+          "other_prize_rate": 0.909,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.909
+        },
+        "18": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.1,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.9,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.9
+        },
+        "19": {
+          "total_appearances": 26,
+          "special_prize_rate": 0.038,
+          "first_prize_rate": 0.038,
+          "other_prize_rate": 0.923,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.923
+        },
+        "20": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.048,
+          "first_prize_rate": 0.048,
+          "other_prize_rate": 0.905,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.905
+        },
+        "21": {
+          "total_appearances": 28,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.071,
+          "other_prize_rate": 0.821,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.821
+        },
+        "22": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.1,
+          "first_prize_rate": 0.05,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.85
+        },
+        "23": {
+          "total_appearances": 12,
+          "special_prize_rate": 0.083,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.917,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.917
+        },
+        "24": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.13,
+          "first_prize_rate": 0.174,
+          "other_prize_rate": 0.696,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.696
+        },
+        "25": {
+          "total_appearances": 18,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "26": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.059,
+          "first_prize_rate": 0.059,
+          "other_prize_rate": 0.882,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.882
+        },
+        "27": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "28": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.143,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.857
+        },
+        "29": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.955,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.955
+        },
+        "30": {
+          "total_appearances": 27,
+          "special_prize_rate": 0.074,
+          "first_prize_rate": 0.037,
+          "other_prize_rate": 0.889,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.889
+        },
+        "31": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "32": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.045,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.909,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.909
+        },
+        "33": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.053,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.895,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.895
+        },
+        "34": {
+          "total_appearances": 24,
+          "special_prize_rate": 0.125,
+          "first_prize_rate": 0.083,
+          "other_prize_rate": 0.792,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.792
+        },
+        "35": {
+          "total_appearances": 13,
+          "special_prize_rate": 0.154,
+          "first_prize_rate": 0.231,
+          "other_prize_rate": 0.615,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.615
+        },
+        "36": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.143,
+          "other_prize_rate": 0.714,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.714
+        },
+        "37": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.059,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.941,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.941
+        },
+        "38": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "39": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.087,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.826,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.826
+        },
+        "40": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.048,
+          "other_prize_rate": 0.81,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.81
+        },
+        "41": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.053,
+          "first_prize_rate": 0.105,
+          "other_prize_rate": 0.895,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.895
+        },
+        "42": {
+          "total_appearances": 15,
+          "special_prize_rate": 0.067,
+          "first_prize_rate": 0.133,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "43": {
+          "total_appearances": 16,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "44": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.105,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.842,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.842
+        },
+        "45": {
+          "total_appearances": 24,
+          "special_prize_rate": 0.083,
+          "first_prize_rate": 0.125,
+          "other_prize_rate": 0.792,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.792
+        },
+        "46": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.071,
+          "other_prize_rate": 0.786,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.786
+        },
+        "47": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.05,
+          "other_prize_rate": 0.95,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.95
+        },
+        "48": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "49": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.095,
+          "first_prize_rate": 0.048,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "50": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "51": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.15,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.85
+        },
+        "52": {
+          "total_appearances": 18,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.056,
+          "other_prize_rate": 0.944,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.944
+        },
+        "53": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.045,
+          "first_prize_rate": 0.182,
+          "other_prize_rate": 0.773,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.773
+        },
+        "54": {
+          "total_appearances": 24,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.042,
+          "other_prize_rate": 0.958,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.958
+        },
+        "55": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.059,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.941,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.941
+        },
+        "56": {
+          "total_appearances": 27,
+          "special_prize_rate": 0.111,
+          "first_prize_rate": 0.037,
+          "other_prize_rate": 0.852,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.852
+        },
+        "57": {
+          "total_appearances": 24,
+          "special_prize_rate": 0.125,
+          "first_prize_rate": 0.083,
+          "other_prize_rate": 0.792,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.792
+        },
+        "58": {
+          "total_appearances": 26,
+          "special_prize_rate": 0.038,
+          "first_prize_rate": 0.077,
+          "other_prize_rate": 0.885,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.885
+        },
+        "59": {
+          "total_appearances": 15,
+          "special_prize_rate": 0.2,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.733,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.733
+        },
+        "60": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.947,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.947
+        },
+        "61": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.15,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.85
+        },
+        "62": {
+          "total_appearances": 18,
+          "special_prize_rate": 0.333,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.667,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.667
+        },
+        "63": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.048,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.952,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.952
+        },
+        "64": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.136,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.818,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.818
+        },
+        "65": {
+          "total_appearances": 15,
+          "special_prize_rate": 0.067,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.867,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.867
+        },
+        "66": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.091,
+          "first_prize_rate": 0.136,
+          "other_prize_rate": 0.773,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.773
+        },
+        "67": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.15,
+          "first_prize_rate": 0.05,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "68": {
+          "total_appearances": 28,
+          "special_prize_rate": 0.214,
+          "first_prize_rate": 0.107,
+          "other_prize_rate": 0.714,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.714
+        },
+        "69": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.05,
+          "first_prize_rate": 0.1,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.85
+        },
+        "70": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.118,
+          "other_prize_rate": 0.882,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.882
+        },
+        "71": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.095,
+          "other_prize_rate": 0.905,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.905
+        },
+        "72": {
+          "total_appearances": 26,
+          "special_prize_rate": 0.038,
+          "first_prize_rate": 0.038,
+          "other_prize_rate": 0.923,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.923
+        },
+        "73": {
+          "total_appearances": 13,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "74": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.136,
+          "first_prize_rate": 0.091,
+          "other_prize_rate": 0.773,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.773
+        },
+        "75": {
+          "total_appearances": 19,
+          "special_prize_rate": 0.053,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.895,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.895
+        },
+        "76": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.048,
+          "first_prize_rate": 0.095,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "77": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.05,
+          "first_prize_rate": 0.15,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "78": {
+          "total_appearances": 25,
+          "special_prize_rate": 0.08,
+          "first_prize_rate": 0.04,
+          "other_prize_rate": 0.88,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.88
+        },
+        "79": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.857
+        },
+        "80": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.045,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.909,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.909
+        },
+        "81": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.13,
+          "first_prize_rate": 0.043,
+          "other_prize_rate": 0.826,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.826
+        },
+        "82": {
+          "total_appearances": 16,
+          "special_prize_rate": 0.062,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.938,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.938
+        },
+        "83": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "84": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "85": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.091,
+          "first_prize_rate": 0.182,
+          "other_prize_rate": 0.773,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.773
+        },
+        "86": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.045,
+          "first_prize_rate": 0.182,
+          "other_prize_rate": 0.818,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.818
+        },
+        "87": {
+          "total_appearances": 15,
+          "special_prize_rate": 0.067,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.867,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.867
+        },
+        "88": {
+          "total_appearances": 23,
+          "special_prize_rate": 0.13,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.783,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.783
+        },
+        "89": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "90": {
+          "total_appearances": 17,
+          "special_prize_rate": 0.176,
+          "first_prize_rate": 0.235,
+          "other_prize_rate": 0.647,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.647
+        },
+        "91": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.15,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.85
+        },
+        "92": {
+          "total_appearances": 20,
+          "special_prize_rate": 0.1,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.9,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.9
+        },
+        "93": {
+          "total_appearances": 14,
+          "special_prize_rate": 0.143,
+          "first_prize_rate": 0.214,
+          "other_prize_rate": 0.714,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.714
+        },
+        "94": {
+          "total_appearances": 25,
+          "special_prize_rate": 0.2,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.8
+        },
+        "95": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "96": {
+          "total_appearances": 16,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "97": {
+          "total_appearances": 21,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 1.0,
+          "preferred_position": "other",
+          "position_diversification": 0.333,
+          "position_specialization": 1.0
+        },
+        "98": {
+          "total_appearances": 18,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.056,
+          "other_prize_rate": 0.944,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.944
+        },
+        "99": {
+          "total_appearances": 22,
+          "special_prize_rate": 0.091,
+          "first_prize_rate": 0.091,
+          "other_prize_rate": 0.818,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.818
+        }
+      },
+      "specialized_numbers": {
+        "special_specialists": [],
+        "first_specialists": [],
+        "other_specialists": [
+          [
+            "25",
+            {
+              "total_appearances": 18,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "27",
+            {
+              "total_appearances": 14,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "31",
+            {
+              "total_appearances": 17,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "38",
+            {
+              "total_appearances": 14,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "43",
+            {
+              "total_appearances": 16,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "48",
+            {
+              "total_appearances": 21,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "50",
+            {
+              "total_appearances": 19,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "73",
+            {
+              "total_appearances": 13,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "83",
+            {
+              "total_appearances": 14,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ],
+          [
+            "84",
+            {
+              "total_appearances": 14,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 1.0,
+              "preferred_position": "other",
+              "position_diversification": 0.333,
+              "position_specialization": 1.0
+            }
+          ]
+        ]
+      }
+    },
+    "gap_analysis": {},
+    "correlation_matrix": {},
+    "statistical_tests": {
+      "uniformity_test": {},
+      "independence_test": {},
+      "randomness_test": {},
+      "trend_test": {}
+    },
+    "trend_analysis": {},
+    "risk_assessment": {}
+  },
+  "advanced_features": {
+    "analysis_metadata": {
+      "start_date": "2025-02-01",
+      "end_date": "2025-07-31",
+      "total_records": 4141,
+      "significance_level": 0.01,
+      "analysis_timestamp": "2025-07-31T16:28:26.728942"
+    },
+    "hot_numbers": {},
+    "cold_numbers": {},
+    "cyclical_patterns": {},
+    "mean_reversion": {},
+    "momentum_patterns": {},
+    "seasonal_effects": {
+      "monthly_patterns": {
+        "1": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "2": {
+          "total_appearances": 663,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "91",
+              "count": 13,
+              "month_dominance": 0.02
+            },
+            {
+              "number": "58",
+              "count": 13,
+              "month_dominance": 0.02
+            },
+            {
+              "number": "24",
+              "count": 12,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "41",
+              "count": 12,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "42",
+              "count": 11,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "57",
+              "count": 10,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "54",
+              "count": 10,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "18",
+              "count": 10,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "97",
+              "count": 10,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "47",
+              "count": 10,
+              "month_dominance": 0.015
+            }
+          ]
+        },
+        "3": {
+          "total_appearances": 733,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "61",
+              "count": 15,
+              "month_dominance": 0.02
+            },
+            {
+              "number": "25",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "44",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "68",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "17",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "63",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "31",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "74",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "79",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "4": {
+          "total_appearances": 716,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "77",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "60",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "35",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "49",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "45",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "92",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "82",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "43",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "08",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "53",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "5": {
+          "total_appearances": 735,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "58",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "30",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "57",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "24",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "06",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "88",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "99",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "45",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "09",
+              "count": 11,
+              "month_dominance": 0.015
+            }
+          ]
+        },
+        "6": {
+          "total_appearances": 718,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "21",
+              "count": 17,
+              "month_dominance": 0.024
+            },
+            {
+              "number": "39",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "34",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "08",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "19",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "95",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "68",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "13",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "01",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "7": {
+          "total_appearances": 576,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "16",
+              "count": 12,
+              "month_dominance": 0.021
+            },
+            {
+              "number": "56",
+              "count": 12,
+              "month_dominance": 0.021
+            },
+            {
+              "number": "48",
+              "count": 11,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "21",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "06",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "86",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "11",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "92",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "53",
+              "count": 9,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "80",
+              "count": 9,
+              "month_dominance": 0.016
+            }
+          ]
+        },
+        "8": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "9": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "10": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "11": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "12": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        }
+      },
+      "quarterly_patterns": {},
+      "day_of_week_patterns": {
+        "0": {
+          "total_appearances": 593,
+          "special_prize_rate": 0.076,
+          "first_prize_rate": 0.066,
+          "day_name": "Monday"
+        },
+        "1": {
+          "total_appearances": 591,
+          "special_prize_rate": 0.073,
+          "first_prize_rate": 0.061,
+          "day_name": "Tuesday"
+        },
+        "2": {
+          "total_appearances": 605,
+          "special_prize_rate": 0.079,
+          "first_prize_rate": 0.071,
+          "day_name": "Wednesday"
+        },
+        "3": {
+          "total_appearances": 597,
+          "special_prize_rate": 0.07,
+          "first_prize_rate": 0.074,
+          "day_name": "Thursday"
+        },
+        "4": {
+          "total_appearances": 565,
+          "special_prize_rate": 0.073,
+          "first_prize_rate": 0.065,
+          "day_name": "Friday"
+        },
+        "5": {
+          "total_appearances": 595,
+          "special_prize_rate": 0.077,
+          "first_prize_rate": 0.074,
+          "day_name": "Saturday"
+        },
+        "6": {
+          "total_appearances": 595,
+          "special_prize_rate": 0.067,
+          "first_prize_rate": 0.062,
+          "day_name": "Sunday"
+        }
+      },
+      "day_of_month_patterns": {
+        "days_1_to_10": {
+          "total_appearances": 1422,
+          "period": "1-10",
+          "intensity": 0.34339531514127025
+        },
+        "days_11_to_20": {
+          "total_appearances": 1420,
+          "period": "11-20",
+          "intensity": 0.3429123400144893
+        },
+        "days_21_to_31": {
+          "total_appearances": 1299,
+          "period": "21-31",
+          "intensity": 0.3136923448442405
+        }
+      },
+      "week_of_month_patterns": {}
+    },
+    "day_of_week_bias": {},
+    "month_end_effects": {},
+    "prize_position_intelligence": {
+      "overall_statistics": {
+        "special_prize_rate": 0.074,
+        "first_prize_rate": 0.068,
+        "other_prize_rate": 0.862
+      },
+      "number_patterns": {
+        "00": {
+          "total_appearances": 33,
+          "special_prize_rate": 0.061,
+          "first_prize_rate": 0.061,
+          "other_prize_rate": 0.879,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.879
+        },
+        "01": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.116,
+          "first_prize_rate": 0.047,
+          "other_prize_rate": 0.837,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.837
+        },
+        "02": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.103,
+          "first_prize_rate": 0.077,
+          "other_prize_rate": 0.821,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.821
+        },
+        "03": {
+          "total_appearances": 40,
+          "special_prize_rate": 0.1,
+          "first_prize_rate": 0.05,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.85
+        },
+        "04": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.103,
+          "first_prize_rate": 0.128,
+          "other_prize_rate": 0.795,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.795
+        },
+        "05": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.054,
+          "first_prize_rate": 0.108,
+          "other_prize_rate": 0.838,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.838
+        },
+        "06": {
+          "total_appearances": 49,
+          "special_prize_rate": 0.102,
+          "first_prize_rate": 0.041,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "07": {
+          "total_appearances": 40,
+          "special_prize_rate": 0.075,
+          "first_prize_rate": 0.075,
+          "other_prize_rate": 0.85,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.85
+        },
+        "08": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.043,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.87,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.87
+        },
+        "09": {
+          "total_appearances": 50,
+          "special_prize_rate": 0.14,
+          "first_prize_rate": 0.02,
+          "other_prize_rate": 0.84,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.84
+        },
+        "10": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.054,
+          "first_prize_rate": 0.135,
+          "other_prize_rate": 0.811,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.811
+        },
+        "11": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.07,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.93,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.93
+        },
+        "12": {
+          "total_appearances": 32,
+          "special_prize_rate": 0.062,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.938,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.938
+        },
+        "13": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.111,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.867,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.867
+        },
+        "14": {
+          "total_appearances": 42,
+          "special_prize_rate": 0.071,
+          "first_prize_rate": 0.071,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "15": {
+          "total_appearances": 42,
+          "special_prize_rate": 0.119,
+          "first_prize_rate": 0.024,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "16": {
+          "total_appearances": 38,
+          "special_prize_rate": 0.026,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.921,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.921
+        },
+        "17": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.054,
+          "first_prize_rate": 0.108,
+          "other_prize_rate": 0.838,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.838
+        },
+        "18": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.133,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "19": {
+          "total_appearances": 50,
+          "special_prize_rate": 0.04,
+          "first_prize_rate": 0.06,
+          "other_prize_rate": 0.92,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.92
+        },
+        "20": {
+          "total_appearances": 34,
+          "special_prize_rate": 0.029,
+          "first_prize_rate": 0.118,
+          "other_prize_rate": 0.853,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.853
+        },
+        "21": {
+          "total_appearances": 50,
+          "special_prize_rate": 0.12,
+          "first_prize_rate": 0.1,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "22": {
+          "total_appearances": 40,
+          "special_prize_rate": 0.05,
+          "first_prize_rate": 0.075,
+          "other_prize_rate": 0.875,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.875
+        },
+        "23": {
+          "total_appearances": 36,
+          "special_prize_rate": 0.083,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.917,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.917
+        },
+        "24": {
+          "total_appearances": 51,
+          "special_prize_rate": 0.059,
+          "first_prize_rate": 0.078,
+          "other_prize_rate": 0.863,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.863
+        },
+        "25": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.022,
+          "first_prize_rate": 0.022,
+          "other_prize_rate": 0.957,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.957
+        },
+        "26": {
+          "total_appearances": 32,
+          "special_prize_rate": 0.062,
+          "first_prize_rate": 0.094,
+          "other_prize_rate": 0.844,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.844
+        },
+        "27": {
+          "total_appearances": 31,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.032,
+          "other_prize_rate": 0.968,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.968
+        },
+        "28": {
+          "total_appearances": 35,
+          "special_prize_rate": 0.057,
+          "first_prize_rate": 0.057,
+          "other_prize_rate": 0.886,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.886
+        },
+        "29": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.026,
+          "first_prize_rate": 0.051,
+          "other_prize_rate": 0.923,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.923
+        },
+        "30": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.098,
+          "first_prize_rate": 0.024,
+          "other_prize_rate": 0.878,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.878
+        },
+        "31": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.023,
+          "first_prize_rate": 0.07,
+          "other_prize_rate": 0.907,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.907
+        },
+        "32": {
+          "total_appearances": 48,
+          "special_prize_rate": 0.042,
+          "first_prize_rate": 0.021,
+          "other_prize_rate": 0.938,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.938
+        },
+        "33": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.098,
+          "first_prize_rate": 0.049,
+          "other_prize_rate": 0.854,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.854
+        },
+        "34": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.103,
+          "first_prize_rate": 0.051,
+          "other_prize_rate": 0.846,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.846
+        },
+        "35": {
+          "total_appearances": 36,
+          "special_prize_rate": 0.111,
+          "first_prize_rate": 0.139,
+          "other_prize_rate": 0.75,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.75
+        },
+        "36": {
+          "total_appearances": 34,
+          "special_prize_rate": 0.118,
+          "first_prize_rate": 0.147,
+          "other_prize_rate": 0.735,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.735
+        },
+        "37": {
+          "total_appearances": 34,
+          "special_prize_rate": 0.029,
+          "first_prize_rate": 0.029,
+          "other_prize_rate": 0.941,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.941
+        },
+        "38": {
+          "total_appearances": 38,
+          "special_prize_rate": 0.079,
+          "first_prize_rate": 0.026,
+          "other_prize_rate": 0.895,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.895
+        },
+        "39": {
+          "total_appearances": 48,
+          "special_prize_rate": 0.042,
+          "first_prize_rate": 0.125,
+          "other_prize_rate": 0.833,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.833
+        },
+        "40": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.128,
+          "first_prize_rate": 0.077,
+          "other_prize_rate": 0.795,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.795
+        },
+        "41": {
+          "total_appearances": 38,
+          "special_prize_rate": 0.105,
+          "first_prize_rate": 0.053,
+          "other_prize_rate": 0.868,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.868
+        },
+        "42": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.051,
+          "first_prize_rate": 0.077,
+          "other_prize_rate": 0.872,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.872
+        },
+        "43": {
+          "total_appearances": 38,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.026,
+          "other_prize_rate": 0.974,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.974
+        },
+        "44": {
+          "total_appearances": 48,
+          "special_prize_rate": 0.042,
+          "first_prize_rate": 0.042,
+          "other_prize_rate": 0.917,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.917
+        },
+        "45": {
+          "total_appearances": 47,
+          "special_prize_rate": 0.064,
+          "first_prize_rate": 0.085,
+          "other_prize_rate": 0.851,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.851
+        },
+        "46": {
+          "total_appearances": 32,
+          "special_prize_rate": 0.094,
+          "first_prize_rate": 0.125,
+          "other_prize_rate": 0.781,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.781
+        },
+        "47": {
+          "total_appearances": 47,
+          "special_prize_rate": 0.043,
+          "first_prize_rate": 0.064,
+          "other_prize_rate": 0.894,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.894
+        },
+        "48": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.043,
+          "first_prize_rate": 0.022,
+          "other_prize_rate": 0.935,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.935
+        },
+        "49": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.07,
+          "first_prize_rate": 0.093,
+          "other_prize_rate": 0.837,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.837
+        },
+        "50": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.073,
+          "first_prize_rate": 0.073,
+          "other_prize_rate": 0.854,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.854
+        },
+        "51": {
+          "total_appearances": 33,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.091,
+          "other_prize_rate": 0.909,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.909
+        },
+        "52": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.0,
+          "first_prize_rate": 0.027,
+          "other_prize_rate": 0.973,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.973
+        },
+        "53": {
+          "total_appearances": 50,
+          "special_prize_rate": 0.06,
+          "first_prize_rate": 0.14,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "54": {
+          "total_appearances": 50,
+          "special_prize_rate": 0.02,
+          "first_prize_rate": 0.1,
+          "other_prize_rate": 0.88,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.88
+        },
+        "55": {
+          "total_appearances": 33,
+          "special_prize_rate": 0.061,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.939,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.939
+        },
+        "56": {
+          "total_appearances": 47,
+          "special_prize_rate": 0.085,
+          "first_prize_rate": 0.043,
+          "other_prize_rate": 0.872,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.872
+        },
+        "57": {
+          "total_appearances": 52,
+          "special_prize_rate": 0.077,
+          "first_prize_rate": 0.058,
+          "other_prize_rate": 0.865,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.865
+        },
+        "58": {
+          "total_appearances": 52,
+          "special_prize_rate": 0.058,
+          "first_prize_rate": 0.077,
+          "other_prize_rate": 0.865,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.865
+        },
+        "59": {
+          "total_appearances": 36,
+          "special_prize_rate": 0.194,
+          "first_prize_rate": 0.111,
+          "other_prize_rate": 0.722,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.722
+        },
+        "60": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.087,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.826,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.826
+        },
+        "61": {
+          "total_appearances": 47,
+          "special_prize_rate": 0.085,
+          "first_prize_rate": 0.085,
+          "other_prize_rate": 0.83,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.83
+        },
+        "62": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.162,
+          "first_prize_rate": 0.027,
+          "other_prize_rate": 0.811,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.811
+        },
+        "63": {
+          "total_appearances": 47,
+          "special_prize_rate": 0.064,
+          "first_prize_rate": 0.043,
+          "other_prize_rate": 0.894,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.894
+        },
+        "64": {
+          "total_appearances": 40,
+          "special_prize_rate": 0.125,
+          "first_prize_rate": 0.125,
+          "other_prize_rate": 0.75,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.75
+        },
+        "65": {
+          "total_appearances": 40,
+          "special_prize_rate": 0.075,
+          "first_prize_rate": 0.125,
+          "other_prize_rate": 0.8,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.8
+        },
+        "66": {
+          "total_appearances": 44,
+          "special_prize_rate": 0.114,
+          "first_prize_rate": 0.114,
+          "other_prize_rate": 0.773,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.773
+        },
+        "67": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.089,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.844,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.844
+        },
+        "68": {
+          "total_appearances": 53,
+          "special_prize_rate": 0.17,
+          "first_prize_rate": 0.075,
+          "other_prize_rate": 0.792,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.792
+        },
+        "69": {
+          "total_appearances": 38,
+          "special_prize_rate": 0.132,
+          "first_prize_rate": 0.132,
+          "other_prize_rate": 0.737,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.737
+        },
+        "70": {
+          "total_appearances": 36,
+          "special_prize_rate": 0.056,
+          "first_prize_rate": 0.056,
+          "other_prize_rate": 0.889,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.889
+        },
+        "71": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.047,
+          "first_prize_rate": 0.116,
+          "other_prize_rate": 0.837,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.837
+        },
+        "72": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.049,
+          "first_prize_rate": 0.049,
+          "other_prize_rate": 0.902,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.902
+        },
+        "73": {
+          "total_appearances": 33,
+          "special_prize_rate": 0.121,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.879,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.879
+        },
+        "74": {
+          "total_appearances": 44,
+          "special_prize_rate": 0.114,
+          "first_prize_rate": 0.068,
+          "other_prize_rate": 0.818,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.818
+        },
+        "75": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.067,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.867,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.867
+        },
+        "76": {
+          "total_appearances": 39,
+          "special_prize_rate": 0.103,
+          "first_prize_rate": 0.103,
+          "other_prize_rate": 0.795,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.795
+        },
+        "77": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.065,
+          "first_prize_rate": 0.087,
+          "other_prize_rate": 0.848,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.848
+        },
+        "78": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.089,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.844,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.844
+        },
+        "79": {
+          "total_appearances": 48,
+          "special_prize_rate": 0.083,
+          "first_prize_rate": 0.042,
+          "other_prize_rate": 0.875,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.875
+        },
+        "80": {
+          "total_appearances": 44,
+          "special_prize_rate": 0.091,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.864,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.864
+        },
+        "81": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.089,
+          "first_prize_rate": 0.044,
+          "other_prize_rate": 0.867,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.867
+        },
+        "82": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.023,
+          "first_prize_rate": 0.023,
+          "other_prize_rate": 0.953,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.953
+        },
+        "83": {
+          "total_appearances": 31,
+          "special_prize_rate": 0.032,
+          "first_prize_rate": 0.032,
+          "other_prize_rate": 0.935,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.935
+        },
+        "84": {
+          "total_appearances": 32,
+          "special_prize_rate": 0.031,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.969,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.969
+        },
+        "85": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.049,
+          "first_prize_rate": 0.098,
+          "other_prize_rate": 0.878,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.878
+        },
+        "86": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.07,
+          "first_prize_rate": 0.116,
+          "other_prize_rate": 0.837,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.837
+        },
+        "87": {
+          "total_appearances": 28,
+          "special_prize_rate": 0.107,
+          "first_prize_rate": 0.071,
+          "other_prize_rate": 0.821,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.821
+        },
+        "88": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.116,
+          "first_prize_rate": 0.047,
+          "other_prize_rate": 0.837,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.837
+        },
+        "89": {
+          "total_appearances": 37,
+          "special_prize_rate": 0.027,
+          "first_prize_rate": 0.027,
+          "other_prize_rate": 0.946,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.946
+        },
+        "90": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.116,
+          "first_prize_rate": 0.186,
+          "other_prize_rate": 0.721,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.721
+        },
+        "91": {
+          "total_appearances": 52,
+          "special_prize_rate": 0.019,
+          "first_prize_rate": 0.096,
+          "other_prize_rate": 0.885,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.885
+        },
+        "92": {
+          "total_appearances": 48,
+          "special_prize_rate": 0.104,
+          "first_prize_rate": 0.062,
+          "other_prize_rate": 0.833,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.833
+        },
+        "93": {
+          "total_appearances": 29,
+          "special_prize_rate": 0.069,
+          "first_prize_rate": 0.103,
+          "other_prize_rate": 0.862,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.862
+        },
+        "94": {
+          "total_appearances": 46,
+          "special_prize_rate": 0.13,
+          "first_prize_rate": 0.0,
+          "other_prize_rate": 0.87,
+          "preferred_position": "other",
+          "position_diversification": 0.667,
+          "position_specialization": 0.87
+        },
+        "95": {
+          "total_appearances": 41,
+          "special_prize_rate": 0.024,
+          "first_prize_rate": 0.024,
+          "other_prize_rate": 0.951,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.951
+        },
+        "96": {
+          "total_appearances": 35,
+          "special_prize_rate": 0.029,
+          "first_prize_rate": 0.114,
+          "other_prize_rate": 0.857,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.857
+        },
+        "97": {
+          "total_appearances": 44,
+          "special_prize_rate": 0.068,
+          "first_prize_rate": 0.045,
+          "other_prize_rate": 0.886,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.886
+        },
+        "98": {
+          "total_appearances": 43,
+          "special_prize_rate": 0.023,
+          "first_prize_rate": 0.047,
+          "other_prize_rate": 0.93,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.93
+        },
+        "99": {
+          "total_appearances": 45,
+          "special_prize_rate": 0.044,
+          "first_prize_rate": 0.067,
+          "other_prize_rate": 0.889,
+          "preferred_position": "other",
+          "position_diversification": 1.0,
+          "position_specialization": 0.889
+        }
+      },
+      "specialized_numbers": {
+        "special_specialists": [],
+        "first_specialists": [],
+        "other_specialists": [
+          [
+            "43",
+            {
+              "total_appearances": 38,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.026,
+              "other_prize_rate": 0.974,
+              "preferred_position": "other",
+              "position_diversification": 0.667,
+              "position_specialization": 0.974
+            }
+          ],
+          [
+            "52",
+            {
+              "total_appearances": 37,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.027,
+              "other_prize_rate": 0.973,
+              "preferred_position": "other",
+              "position_diversification": 0.667,
+              "position_specialization": 0.973
+            }
+          ],
+          [
+            "84",
+            {
+              "total_appearances": 32,
+              "special_prize_rate": 0.031,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 0.969,
+              "preferred_position": "other",
+              "position_diversification": 0.667,
+              "position_specialization": 0.969
+            }
+          ],
+          [
+            "27",
+            {
+              "total_appearances": 31,
+              "special_prize_rate": 0.0,
+              "first_prize_rate": 0.032,
+              "other_prize_rate": 0.968,
+              "preferred_position": "other",
+              "position_diversification": 0.667,
+              "position_specialization": 0.968
+            }
+          ],
+          [
+            "25",
+            {
+              "total_appearances": 46,
+              "special_prize_rate": 0.022,
+              "first_prize_rate": 0.022,
+              "other_prize_rate": 0.957,
+              "preferred_position": "other",
+              "position_diversification": 1.0,
+              "position_specialization": 0.957
+            }
+          ],
+          [
+            "82",
+            {
+              "total_appearances": 43,
+              "special_prize_rate": 0.023,
+              "first_prize_rate": 0.023,
+              "other_prize_rate": 0.953,
+              "preferred_position": "other",
+              "position_diversification": 1.0,
+              "position_specialization": 0.953
+            }
+          ],
+          [
+            "95",
+            {
+              "total_appearances": 41,
+              "special_prize_rate": 0.024,
+              "first_prize_rate": 0.024,
+              "other_prize_rate": 0.951,
+              "preferred_position": "other",
+              "position_diversification": 1.0,
+              "position_specialization": 0.951
+            }
+          ],
+          [
+            "89",
+            {
+              "total_appearances": 37,
+              "special_prize_rate": 0.027,
+              "first_prize_rate": 0.027,
+              "other_prize_rate": 0.946,
+              "preferred_position": "other",
+              "position_diversification": 1.0,
+              "position_specialization": 0.946
+            }
+          ],
+          [
+            "37",
+            {
+              "total_appearances": 34,
+              "special_prize_rate": 0.029,
+              "first_prize_rate": 0.029,
+              "other_prize_rate": 0.941,
+              "preferred_position": "other",
+              "position_diversification": 1.0,
+              "position_specialization": 0.941
+            }
+          ],
+          [
+            "55",
+            {
+              "total_appearances": 33,
+              "special_prize_rate": 0.061,
+              "first_prize_rate": 0.0,
+              "other_prize_rate": 0.939,
+              "preferred_position": "other",
+              "position_diversification": 0.667,
+              "position_specialization": 0.939
+            }
+          ]
+        ]
+      }
+    },
+    "gap_analysis": {},
+    "correlation_matrix": {},
+    "statistical_tests": {
+      "uniformity_test": {},
+      "independence_test": {},
+      "randomness_test": {},
+      "trend_test": {}
+    },
+    "trend_analysis": {},
+    "risk_assessment": {}
+  }
+}

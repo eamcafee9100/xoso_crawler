@@ -1,0 +1,466 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load humanize %}
+
+{% block title %}{{ method.name }} - Chi tiết phương pháp{% endblock %}
+
+{% block extra_css %}
+<style>
+    .method-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    
+    .chart-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        min-height: 400px;
+    }
+    
+    .prediction-item {
+        border-left: 4px solid #dee2e6;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 0 10px 10px 0;
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    
+    .prediction-item:hover {
+        background: #e9ecef;
+        border-left-color: #007bff;
+    }
+    
+    .prediction-excellent { border-left-color: #28a745; }
+    .prediction-good { border-left-color: #17a2b8; }
+    .prediction-average { border-left-color: #ffc107; }
+    .prediction-poor { border-left-color: #dc3545; }
+    
+    .comparison-card {
+        border: none;
+        border-radius: 15px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+    
+    .comparison-item {
+        padding: 1rem;
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .comparison-item:last-child {
+        border-bottom: none;
+    }
+    
+    .tabs-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .nav-tabs {
+        border-bottom: none;
+        background: #f8f9fa;
+    }
+    
+    .nav-tabs .nav-link {
+        border: none;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .nav-tabs .nav-link.active {
+        background: white;
+        color: #007bff;
+        border-bottom: 3px solid #007bff;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}{{ method.name }}{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="fas fa-calendar-alt"></i> {{ selected_days }} ngày
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="?days=7">7 ngày</a></li>
+            <li><a class="dropdown-item" href="?days=30">30 ngày</a></li>
+            <li><a class="dropdown-item" href="?days=90">90 ngày</a></li>
+            <li><a class="dropdown-item" href="?days=365">1 năm</a></li>
+        </ul>
+    </div>
+    <a href="{% url 'lokhung:report_daily_frequency' %}?method_id={{ method.pk }}" class="btn btn-primary">
+        <i class="fas fa-chart-line"></i> Báo cáo chi tiết
+    </a>
+    <a href="{% url 'lokhung:phuong_phap_list' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Quay lại
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Method Header -->
+<div class="method-header">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center mb-2">
+                <h2 class="mb-0 me-3">{{ method.name }}</h2>
+                <span class="badge bg-light text-dark">{{ method.get_category_display }}</span>
+                {% if method.is_active %}
+                    <span class="badge bg-success ms-2">Hoạt động</span>
+                {% else %}
+                    <span class="badge bg-danger ms-2">Tạm dừng</span>
+                {% endif %}
+            </div>
+            {% if method.description %}
+            <p class="mb-0 opacity-75">{{ method.description }}</p>
+            {% endif %}
+        </div>
+        <div class="col-md-4 text-md-end">
+            <div class="h3 mb-1">{{ method.success_rate|floatformat:1 }}%</div>
+            <div class="small opacity-75">Tỷ lệ thành công tổng</div>
+            <div class="mt-2">
+                <small>
+                    <i class="fas fa-star"></i> Ưu tiên: {{ method.priority }}/10
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-value text-primary">{{ detailed_stats.total_predictions|default:0 }}</div>
+                <div class="text-muted">Tổng dự đoán</div>
+                <div class="mt-2">
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up"></i>
+                        {{ selected_days }} ngày gần nhất
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-value text-success">{{ detailed_stats.success_rate|floatformat:1 }}%</div>
+                <div class="text-muted">Tỷ lệ thành công</div>
+                <div class="mt-2">
+                    <div class="progress" style="height: 4px;">
+                        <div class="progress-bar bg-success" style="width: {{ detailed_stats.success_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-value text-warning">{{ detailed_stats.avg_hit_count|floatformat:1 }}</div>
+                <div class="text-muted">Số trúng trung bình</div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        Max: {{ detailed_stats.max_hit_count|default:0 }} | 
+                        Min: {{ detailed_stats.min_hit_count|default:0 }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <div class="stat-value text-info">{{ detailed_stats.avg_confidence|floatformat:1 }}</div>
+                <div class="text-muted">Độ tin cậy TB</div>
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-clock"></i>
+                        {{ detailed_stats.avg_execution_time|floatformat:0 }}ms
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs-container mb-4">
+    <ul class="nav nav-tabs" id="methodTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="performance-tab" data-bs-toggle="tab" 
+                    data-bs-target="#performance" type="button" role="tab">
+                <i class="fas fa-chart-line me-2"></i>Hiệu suất theo thời gian
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="distribution-tab" data-bs-toggle="tab" 
+                    data-bs-target="#distribution" type="button" role="tab">
+                <i class="fas fa-chart-bar me-2"></i>Phân bố kết quả
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="recent-tab" data-bs-toggle="tab" 
+                    data-bs-target="#recent" type="button" role="tab">
+                <i class="fas fa-history me-2"></i>Dự đoán gần đây
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" 
+                    data-bs-target="#comparison" type="button" role="tab">
+                <i class="fas fa-balance-scale me-2"></i>So sánh
+            </button>
+        </li>
+    </ul>
+    
+    <div class="tab-content p-3" id="methodTabsContent">
+        <!-- Performance Tab -->
+        <div class="tab-pane fade show active" id="performance" role="tabpanel">
+            <div class="chart-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Hiệu suất hàng ngày ({{ selected_days }} ngày gần nhất)</h5>
+                    <canvas id="performanceChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Distribution Tab -->
+        <div class="tab-pane fade" id="distribution" role="tabpanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Phân bố số trúng</h5>
+                            <canvas id="hitDistributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-card">
+                        <div class="card-body">
+                            <h5 class="card-title">Thống kê chi tiết</h5>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Tổng dự đoán:</td>
+                                            <td><strong>{{ detailed_stats.total_predictions|default:0 }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dự đoán thành công:</td>
+                                            <td><strong class="text-success">{{ detailed_stats.successful_predictions|default:0 }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Dự đoán không trúng:</td>
+                                            <td><strong class="text-danger">{{ detailed_stats.zero_hit_predictions|default:0 }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Độ tin cậy cao (≥80%):</td>
+                                            <td><strong class="text-info">{{ detailed_stats.high_confidence_predictions|default:0 }}</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Thời gian thực thi TB:</td>
+                                            <td><strong>{{ detailed_stats.avg_execution_time|floatformat:0 }}ms</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Predictions Tab -->
+        <div class="tab-pane fade" id="recent" role="tabpanel">
+            <h5 class="mb-3">20 dự đoán gần nhất</h5>
+            {% for prediction in recent_predictions %}
+            <div class="prediction-item 
+                {% if prediction.hit_rate >= 70 %}prediction-excellent
+                {% elif prediction.hit_rate >= 50 %}prediction-good
+                {% elif prediction.hit_rate >= 30 %}prediction-average
+                {% else %}prediction-poor{% endif %}">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <div class="fw-bold">{{ prediction.dan_btl.analysis_date|date:"d/m/Y" }}</div>
+                        <small class="text-muted">{{ prediction.dan_btl.analysis_date|date:"D" }}</small>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="small text-muted">Dự đoán:</div>
+                        <div class="fw-bold">
+                            {% for num in prediction.predicted_numbers %}
+                                <span class="badge bg-primary me-1">{{ num }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="small text-muted">Trúng:</div>
+                        <div class="fw-bold">
+                            {% for num in prediction.winning_numbers %}
+                                <span class="badge bg-success me-1">{{ num }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="h5 mb-0">{{ prediction.hit_count }}</div>
+                        <small class="text-muted">số trúng</small>
+                    </div>
+                    <div class="col-md-2 text-center">
+                        <div class="h6 mb-0">{{ prediction.confidence_score|floatformat:0 }}%</div>
+                        <small class="text-muted">tin cậy</small>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-4 text-muted">
+                <i class="fas fa-inbox fa-3x mb-2"></i>
+                <p>Không có dự đoán nào trong khoảng thời gian này</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Comparison Tab -->
+        <div class="tab-pane fade" id="comparison" role="tabpanel">
+            <h5 class="mb-3">So với các phương pháp cùng loại</h5>
+            <div class="comparison-card">
+                {% for other_method in comparison_data %}
+                <div class="comparison-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <div class="fw-bold">{{ other_method.name }}</div>
+                            <small class="text-muted">{{ other_method.get_category_display }}</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold text-success">{{ other_method.success_rate|floatformat:1 }}%</div>
+                            <small class="text-muted">Tỷ lệ thành công</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">{{ other_method.total_predictions }}</div>
+                            <small class="text-muted">Tổng dự đoán</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold text-warning">{{ other_method.avg_hit_count|floatformat:1 }}</div>
+                            <small class="text-muted">Số trúng TB</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <a href="{% url 'lokhung:phuong_phap_detail' other_method.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye"></i> Xem
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-search fa-2x mb-2"></i>
+                    <p>Không có phương pháp nào khác cùng loại</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Performance Chart
+const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(performanceCtx, {
+    type: 'line',
+    data: {
+        labels: [{% for day in daily_performance %}'{{ day.dan_btl__analysis_date|date:"m-d" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Số trúng',
+            data: [{% for day in daily_performance %}{{ day.hits|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Số dự đoán',
+            data: [{% for day in daily_performance %}{{ day.predictions|default:0 }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: 'Số lượng'
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Hit Distribution Chart
+const hitDistCtx = document.getElementById('hitDistributionChart').getContext('2d');
+const hitDistributionChart = new Chart(hitDistCtx, {
+    type: 'doughnut',
+    data: {
+        labels: [{% for item in detailed_stats.hit_distribution %}'{{ item.hit_count }} trúng'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for item in detailed_stats.hit_distribution %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

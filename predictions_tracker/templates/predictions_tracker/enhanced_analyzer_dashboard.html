@@ -1,0 +1,1488 @@
+{% extends 'predictions_tracker/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    .analysis-card {
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        transition: transform 0.2s ease;
+    }
+    .analysis-card:hover {
+        transform: translateY(-2px);
+    }
+    .number-badge {
+        display: inline-block;
+        padding: 8px 12px;
+        margin: 3px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .hot-number {
+        background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+        color: white;
+    }
+    .cold-number {
+        background: linear-gradient(135deg, #4ecdc4, #7ed8d1);
+        color: white;
+    }
+    .cyclical-number {
+        background: linear-gradient(135deg, #45b7d1, #6bcbf0);
+        color: white;
+    }
+    .adaptive-number {
+        background: linear-gradient(135deg, #f39c12, #f5b841);
+        color: white;
+    }
+    .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 40px;
+    }
+    .results-section {
+        display: none;
+        animation: fadeIn 0.5s ease;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .metric-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+    }
+    .validation-form {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    .analysis-controls {
+        background: white;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    .nav-pills .nav-link.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .table-responsive {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    .alert-success {
+        border-left: 4px solid #28a745;
+    }
+    .alert-danger {
+        border-left: 4px solid #dc3545;
+    }
+    .alert-info {
+        border-left: 4px solid #17a2b8;
+    }
+    .prediction-card {
+        background: #f8f9fa;
+        transition: all 0.3s ease;
+    }
+    .prediction-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .risk-indicator {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    }
+    .expert-insights-section {
+        background: linear-gradient(135deg, #fff5f5, #ffe0e0);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 15px 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">
+                        <i class="fas fa-chart-line text-primary"></i>
+                        Enhanced Frequency Analyzer
+                    </h1>
+                    <p class="text-muted">Professional lottery analysis dashboard for analysts</p>
+                </div>
+                    <div class="text-end">
+                        <span class="badge bg-success fs-6">
+                            <i class="fas fa-clock"></i> Real-time Analysis
+                        </span>
+                        <div class="text-muted small mt-1">{{ current_date|date:"Y-m-d" }}</div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Controls -->
+    <div class="analysis-controls">
+        <form id="analysisForm">
+            <div class="row">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-calendar-alt"></i> Date Range
+                    </label>
+                    <div class="input-group">
+                        <input type="date" class="form-control" id="startDate" 
+                               value="{{ default_start_date }}" required>
+                        <span class="input-group-text">to</span>
+                        <input type="date" class="form-control" id="endDate" 
+                               value="{{ default_end_date }}" required>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-sliders-h"></i> Significance Level
+                    </label>
+                    <select class="form-select" id="significanceLevel">
+                        {% for level in significance_levels %}
+                        <option value="{{ level }}" {% if level == 0.05 %}selected{% endif %}>
+                            {{ level }} {% if level == 0.05 %}(Recommended){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-cogs"></i> Pipeline Mode
+                    </label>
+                    <select class="form-select" id="pipelineMode">
+                        <option value="true">Full Pipeline</option>
+                        <option value="false">Basic Analysis</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">
+                        <i class="fas fa-filter"></i> Analysis Methods
+                    </label>
+                    <div class="d-flex flex-wrap">
+                        {% for method in analysis_methods %}
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" 
+                                   id="{{ method }}" value="{{ method }}" checked>
+                            <label class="form-check-label small" for="{{ method }}">
+                                {{ method|title|truncatechars:8 }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-play"></i> Run Analysis
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+            <span class="visually-hidden">Analyzing...</span>
+        </div>
+        <h4 class="mt-3">Running Enhanced Analysis...</h4>
+        <p class="text-muted">This may take a few moments for comprehensive analysis</p>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="resultsSection">
+        <!-- Analysis Results Tabs -->
+        <ul class="nav nav-pills mb-4" id="resultsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" 
+                        data-bs-target="#overview" type="button" role="tab">
+                    <i class="fas fa-chart-pie"></i> Overview
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="results-tab" data-bs-toggle="pill" 
+                        data-bs-target="#results" type="button" role="tab">
+                    <i class="fas fa-table"></i> Results Tables
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="validation-tab" data-bs-toggle="pill" 
+                        data-bs-target="#validation" type="button" role="tab">
+                    <i class="fas fa-check-circle"></i> Validation
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="predictive-insights-tab" data-bs-toggle="pill" 
+                        data-bs-target="#predictive-insights" type="button" role="tab">
+                    <i class="fas fa-bullseye"></i> Expert Insights
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="adaptive-tab" data-bs-toggle="pill" 
+                        data-bs-target="#adaptive" type="button" role="tab">
+                    <i class="fas fa-brain"></i> Adaptive Predictions
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="resultsTabContent">
+            <!-- Overview Tab -->
+            <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                    <!-- Quick Stats -->
+                    <div class="col-md-3">
+                        <div class="card analysis-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-fire text-danger"></i> Hot Numbers
+                                </h5>
+                                <div id="hotNumbersPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card analysis-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-snowflake text-info"></i> Cold Numbers
+                                </h5>
+                                <div id="coldNumbersPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card analysis-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-sync-alt text-success"></i> Cyclical Patterns
+                                </h5>
+                                <div id="cyclicalPatternsPreview"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card analysis-card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-chart-bar text-warning"></i> Analysis Metrics
+                                </h5>
+                                <div id="analysisMetrics"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tables Tab -->
+            <div class="tab-pane fade" id="results" role="tabpanel">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-table"></i> Detailed Analysis Results
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Results Tables Navigation -->
+                                <div class="btn-group mb-3" role="group">
+                                    <button type="button" class="btn btn-outline-primary active" 
+                                            onclick="showResultsTable('hot_numbers')">
+                                        Hot Numbers
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            onclick="showResultsTable('cold_numbers')">
+                                        Cold Numbers
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            onclick="showResultsTable('cyclical_patterns')">
+                                        Cyclical Patterns
+                                    </button>
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            onclick="showResultsTable('seasonal_effects')">
+                                        Seasonal Effects
+                                    </button>
+                                </div>
+
+                                <!-- Dynamic Results Tables -->
+                                <div class="table-responsive">
+                                    <table id="resultsTable" class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr id="resultsTableHeader">
+                                                <!-- Dynamic headers -->
+                                            </tr>
+                                        </thead>
+                                        <tbody id="resultsTableBody">
+                                            <!-- Dynamic content -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Validation Tab -->
+            <div class="tab-pane fade" id="validation" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="validation-form">
+                            <h5 class="mb-3">
+                                <i class="fas fa-check-circle text-success"></i> 
+                                Validate Predictions
+                            </h5>
+                            <form id="validationForm">
+                                <div class="mb-3">
+                                    <label class="form-label">Prediction Date</label>
+                                    <input type="date" class="form-control" id="validationDate" 
+                                           value="{{ current_date }}" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Actual Results (comma-separated)</label>
+                                    <input type="text" class="form-control" id="actualResults" 
+                                           placeholder="01,23,45,67,89" required>
+                                    <div class="form-text">
+                                        Enter the actual winning numbers separated by commas
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-check"></i> Validate Predictions
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-chart-line"></i> Validation Results
+                                </h5>
+                            </div>
+                            <div class="card-body" id="validationResults">
+                                <p class="text-muted">Run validation to see results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expert Predictive Insights Tab -->
+            <div class="tab-pane fade" id="predictive-insights" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-bullseye"></i> Top 0.1% Analyst Intelligence
+                                </h5>
+                            </div>
+                            <div class="card-body" id="expertInsightsContent">
+                                <p class="text-muted">Expert insights will appear after running analysis</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-shield-alt"></i> Risk Assessment
+                                </h5>
+                            </div>
+                            <div class="card-body" id="riskAssessmentContent">
+                                <p class="text-muted">Risk analysis will appear after insights</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adaptive Predictions Tab -->
+            <div class="tab-pane fade" id="adaptive" role="tabpanel">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-warning text-dark">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-brain"></i> AI-Enhanced Predictions
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <p class="mb-0">Learning-enhanced predictions based on historical performance</p>
+                                    <button class="btn btn-warning" onclick="generateAdaptivePredictions()">
+                                        <i class="fas fa-sync"></i> Generate Adaptive Predictions
+                                    </button>
+                                </div>
+                                <div id="adaptivePredictionsContent">
+                                    <p class="text-muted">Click "Generate Adaptive Predictions" to see AI-enhanced results</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card analysis-card">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-graduation-cap"></i> Learning Progress
+                                </h5>
+                            </div>
+                            <div class="card-body" id="learningProgress">
+                                <p class="text-muted">Learning data will appear after validation</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Modals -->
+<div class="modal fade" id="alertModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="alertModalTitle">Alert</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="alertModalBody">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Global variables
+let currentAnalysisResults = null;
+let resultsDataTable = null;
+
+// Document ready
+$(document).ready(function() {
+    initializeComponents();
+    
+    {% if has_recent_data %}
+        loadRecentAnalysis();
+    {% endif %}
+});
+
+// Initialize components
+function initializeComponents() {
+    // Check if table exists first
+    if ($('#resultsTable').length === 0) {
+        console.warn('Results table not found in DOM');
+        return;
+    }
+
+    // Check if DataTable is already initialized and destroy it
+    if ($.fn.DataTable.isDataTable('#resultsTable')) {
+        console.log('DataTable already exists, destroying it first');
+        $('#resultsTable').DataTable().destroy();
+        resultsDataTable = null;
+    }
+
+    // Initialize DataTable with error handling
+    try {
+        resultsDataTable = $('#resultsTable').DataTable({
+            responsive: true,
+            pageLength: 25,
+            order: [[1, 'desc']], 
+            searching: true,
+            paging: true,
+            info: true,
+            autoWidth: false,
+            destroy: true, // Allow re-initialization
+            language: {
+                search: "Search numbers:",
+                lengthMenu: "Show _MENU_ numbers per page",
+                info: "Showing _START_ to _END_ of _TOTAL_ numbers",
+                emptyTable: "No data available",
+                zeroRecords: "No matching records found"
+            },
+            columnDefs: [
+                { targets: '_all', defaultContent: 'N/A' }
+            ]
+        });
+        console.log('DataTable initialized successfully');
+    } catch (error) {
+        console.error('Failed to initialize DataTable:', error);
+        resultsDataTable = null;
+    }
+}
+
+// Form submission handler
+$('#analysisForm').on('submit', function(e) {
+    e.preventDefault();
+    runAnalysis();
+});
+
+// Run analysis
+function runAnalysis() {
+    // Show loading
+    $('#loadingSpinner').show();
+    $('#resultsSection').hide();
+    
+    // Prepare data with validation
+    const startDate = $('#startDate').val();
+    const endDate = $('#endDate').val();
+    const significanceLevel = $('#significanceLevel').val();
+    const pipelineMode = $('#pipelineMode').val();
+    
+    // Basic validation
+    if (!startDate || !endDate) {
+        showAlert('error', 'Please select both start and end dates');
+        $('#loadingSpinner').hide();
+        return;
+    }
+    
+    const formData = {
+        start_date: startDate,
+        end_date: endDate,
+        significance_level: parseFloat(significanceLevel) || 0.05,
+        enable_full_pipeline: pipelineMode === 'true'
+    };
+    
+    console.log('Sending analysis request with data:', formData);
+    
+    // AJAX request
+    $.ajax({
+        url: '{% url "predictions_tracker:run_enhanced_analysis" %}',
+        method: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        timeout: 300000, // 5 minutes timeout
+        success: function(response) {
+            console.log('Analysis response received:', response);
+            
+            if (response && response.status === 'success') {
+                currentAnalysisResults = response.analysis_results;
+                displayAnalysisResults(response);
+                showAlert('success', 'Analysis completed successfully!');
+            } else {
+                const errorMsg = response ? response.error_message || 'Unknown error occurred' : 'No response received';
+                showAlert('error', 'Analysis failed: ' + errorMsg);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', { xhr, status, error });
+            
+            let errorMessage = 'Request failed: ';
+            if (status === 'timeout') {
+                errorMessage += 'Request timed out. The analysis may be taking longer than expected.';
+            } else if (xhr.status === 500) {
+                errorMessage += 'Server error occurred. Please check the server logs.';
+            } else if (xhr.status === 404) {
+                errorMessage += 'Analysis endpoint not found.';
+            } else {
+                errorMessage += error || 'Unknown error';
+            }
+            
+            showAlert('error', errorMessage);
+        },
+        complete: function() {
+            $('#loadingSpinner').hide();
+        }
+    });
+}
+
+// Display analysis results
+function displayAnalysisResults(response) {
+    const results = response.analysis_results;
+    const insights = response.quick_insights;
+    
+    console.log('Display Analysis Results - Response structure:', response);
+    console.log('Quick insights structure:', insights);
+    
+    // Show results section
+    $('#resultsSection').show();
+    
+    // Update overview with safety checks
+    if (insights && typeof insights === 'object') {
+        updateOverview(insights, response.analysis_metadata);
+    } else {
+        console.warn('No valid insights data, creating fallback overview');
+        // Create fallback insights structure
+        const fallbackInsights = {
+            top_hot_numbers: [],
+            top_cold_numbers: [],
+            cyclical_highlights: []
+        };
+        updateOverview(fallbackInsights, response.analysis_metadata);
+    }
+    
+    // Initialize results table with hot numbers
+    showResultsTable('hot_numbers');
+    
+    // Display expert predictive insights - use quick_insights which contains predictive data
+    if (response.quick_insights && typeof response.quick_insights === 'object') {
+        // Check if quick_insights has the new predictive structure
+        if (response.quick_insights.predictions || response.quick_insights.recommendations) {
+            displayExpertInsights(response.quick_insights);
+        } else {
+            // Fallback: generate insights from analysis results
+            console.log('Using fallback - generating insights from analysis results');
+            generatePredictiveInsights(results);
+        }
+    } else {
+        console.warn('No quick insights available');
+        $('#expertInsightsContent').html('<div class="alert alert-info">Run analysis to see expert insights</div>');
+    }
+}
+
+// Update overview section
+function updateOverview(insights, metadata) {
+    // Safety checks for insights data structure
+    if (!insights || typeof insights !== 'object') {
+        console.warn('Invalid insights data structure:', insights);
+        $('#hotNumbersPreview').html('<span class="text-muted">No data available</span>');
+        $('#coldNumbersPreview').html('<span class="text-muted">No data available</span>');
+        $('#cyclicalPatternsPreview').html('<span class="text-muted">No data available</span>');
+        return;
+    }
+    
+    // Hot numbers preview with safety check
+    if (insights.top_hot_numbers && Array.isArray(insights.top_hot_numbers)) {
+        const hotHtml = insights.top_hot_numbers.map(item => 
+            `<span class="number-badge hot-number" title="Score: ${item.score || 'N/A'}">${item.number || 'N/A'}</span>`
+        ).join('');
+        $('#hotNumbersPreview').html(hotHtml);
+    } else {
+        console.warn('top_hot_numbers is not an array:', insights.top_hot_numbers);
+        $('#hotNumbersPreview').html('<span class="text-muted">No hot numbers data</span>');
+    }
+    
+    // Cold numbers preview with safety check
+    if (insights.top_cold_numbers && Array.isArray(insights.top_cold_numbers)) {
+        const coldHtml = insights.top_cold_numbers.map(item => 
+            `<span class="number-badge cold-number" title="Absent: ${item.days_absent || 'N/A'} days">${item.number || 'N/A'}</span>`
+        ).join('');
+        $('#coldNumbersPreview').html(coldHtml);
+    } else {
+        console.warn('top_cold_numbers is not an array:', insights.top_cold_numbers);
+        $('#coldNumbersPreview').html('<span class="text-muted">No cold numbers data</span>');
+    }
+    
+    // Cyclical patterns preview with safety check
+    if (insights.cyclical_highlights && Array.isArray(insights.cyclical_highlights)) {
+        const cyclicalHtml = insights.cyclical_highlights.map(item => 
+            `<span class="number-badge cyclical-number" title="Next: ${item.next_expected || 'N/A'}">${item.number || 'N/A'}</span>`
+        ).join('');
+        $('#cyclicalPatternsPreview').html(cyclicalHtml);
+    } else {
+        console.warn('cyclical_highlights is not an array:', insights.cyclical_highlights);
+        $('#cyclicalPatternsPreview').html('<span class="text-muted">No cyclical patterns data</span>');
+    }
+    
+    // Analysis metrics with safety checks
+    if (metadata && typeof metadata === 'object') {
+        $('#analysisMetrics').html(`
+            <div class="row text-center">
+                <div class="col">
+                    <h6 class="text-primary">${metadata.total_components || 'N/A'}</h6>
+                    <small>Components</small>
+                </div>
+                <div class="col">
+                    <h6 class="text-success">${metadata.significance_level || 'N/A'}</h6>
+                    <small>Significance</small>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-muted">Range: ${metadata.date_range || 'N/A'}</small>
+            </div>
+        `);
+    } else {
+        console.warn('Invalid metadata:', metadata);
+        $('#analysisMetrics').html('<div class="text-muted">No metadata available</div>');
+    }
+}
+
+// Show specific results table
+function showResultsTable(category) {
+    if (!currentAnalysisResults) {
+        console.warn('No analysis results available');
+        showAlert('info', 'Please run analysis first to view results');
+        return;
+    }
+    
+    if (!currentAnalysisResults[category]) {
+        console.warn(`No data available for category: ${category}`);
+        showAlert('info', `No ${category.replace('_', ' ')} data available in current analysis`);
+        return;
+    }
+    
+    // Check if DataTable is initialized
+    if (!resultsDataTable || !$.fn.DataTable.isDataTable('#resultsTable')) {
+        console.error('DataTable is not initialized, initializing now...');
+        initializeComponents();
+        if (!resultsDataTable) {
+            showAlert('error', 'Failed to initialize data table');
+            return;
+        }
+    }
+    
+    const data = currentAnalysisResults[category];
+    console.log(`Showing results table for category: ${category}`, data);
+    
+    // Update active button
+    $('.btn-group button').removeClass('active');
+    $(`button[onclick="showResultsTable('${category}')"]`).addClass('active');
+    
+    try {
+        // Clear existing table data
+        resultsDataTable.clear();
+        
+        // Configure table based on category
+        switch(category) {
+            case 'hot_numbers':
+                updateTableForHotNumbers(data);
+                break;
+            case 'cold_numbers':
+                updateTableForColdNumbers(data);
+                break;
+            case 'cyclical_patterns':
+                updateTableForCyclicalPatterns(data);
+                break;
+            case 'seasonal_effects':
+                updateTableForSeasonalEffects(data);
+                break;
+            default:
+                console.warn(`Unknown category: ${category}`);
+                showAlert('warning', `Unknown table category: ${category}`);
+                return;
+        }
+        
+        resultsDataTable.draw();
+        console.log(`Successfully updated table for category: ${category}`);
+        
+    } catch (error) {
+        console.error('Error updating table:', error);
+        showAlert('error', 'Failed to update results table: ' + error.message);
+    }
+}
+
+// Update table for hot numbers
+function updateTableForHotNumbers(data) {
+    if (!data || typeof data !== 'object') {
+        console.warn('Invalid data for hot numbers');
+        return;
+    }
+
+    // Update headers
+    $('#resultsTableHeader').html(`
+        <th>Number</th>
+        <th>Hotness Score</th>
+        <th>Frequency</th>
+        <th>Frequency Ratio</th>
+        <th>Recent Momentum</th>
+        <th>Days Since Last</th>
+        <th>Special Prize Rate</th>
+    `);
+    
+    // Add data with safe access
+    Object.entries(data).forEach(([number, info]) => {
+        if (!info || typeof info !== 'object') {
+            console.warn(`Invalid info for number ${number}`);
+            return;
+        }
+        
+        try {
+            resultsDataTable.row.add([
+                `<span class="number-badge hot-number">${number}</span>`,
+                (info.hotness_score !== undefined) ? info.hotness_score.toFixed(2) : 'N/A',
+                info.frequency || 0,
+                (info.frequency_ratio !== undefined) ? info.frequency_ratio.toFixed(2) : 'N/A',
+                info.recent_momentum || 0,
+                info.days_since_last_appearance || 'N/A',
+                `${((info.special_prize_rate || 0) * 100).toFixed(1)}%`
+            ]);
+        } catch (error) {
+            console.error(`Error adding row for number ${number}:`, error);
+        }
+    });
+}
+
+// Validation form handler
+$('#validationForm').on('submit', function(e) {
+    e.preventDefault();
+    
+    if (!currentAnalysisResults) {
+        showAlert('error', 'Please run analysis first before validation');
+        return;
+    }
+    
+    const formData = {
+        prediction_date: $('#validationDate').val(),
+        actual_results: $('#actualResults').val().split(',').map(s => s.trim().padStart(2, '0'))
+    };
+    
+    $.ajax({
+        url: '{% url "predictions_tracker:validate_predictions" %}',
+        method: 'POST',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                displayValidationResults(response.validation_results);
+                updateLearningProgress(response.learning_progress);
+                showAlert('success', 'Validation completed successfully!');
+            } else {
+                showAlert('error', 'Validation failed: ' + response.error_message);
+            }
+        },
+        error: function(xhr, status, error) {
+            showAlert('error', 'Validation request failed: ' + error);
+        }
+    });
+});
+
+// Display validation results
+function displayValidationResults(results) {
+    const overall = results.overall_performance;
+    const roi = results.roi_analysis;
+    
+    $('#validationResults').html(`
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Overall Performance</h6>
+                <div class="mb-2">
+                    <label class="form-label small">Precision</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" style="width: ${overall.precision * 100}%">
+                            ${(overall.precision * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Recall</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-info" style="width: ${overall.recall * 100}%">
+                            ${(overall.recall * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">F1 Score</label>
+                    <div class="progress">
+                        <div class="progress-bar bg-warning" style="width: ${overall.f1_score * 100}%">
+                            ${(overall.f1_score * 100).toFixed(1)}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>ROI Analysis</h6>
+                <div class="metric-card p-3">
+                    <div class="d-flex justify-content-between">
+                        <span>Investment:</span>
+                        <strong>$${roi.total_investment}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Profit/Loss:</span>
+                        <strong class="${roi.profit_loss >= 0 ? 'text-success' : 'text-danger'}">
+                            $${roi.profit_loss}
+                        </strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>ROI:</span>
+                        <strong class="${roi.roi_percentage >= 0 ? 'text-success' : 'text-danger'}">
+                            ${roi.roi_percentage}%
+                        </strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Hit Ratio:</span>
+                        <strong>${roi.hit_ratio}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+}
+
+// Generate adaptive predictions
+function generateAdaptivePredictions() {
+    if (!currentAnalysisResults) {
+        showAlert('error', 'Please run analysis first');
+        return;
+    }
+    
+    $.ajax({
+        url: '{% url "predictions_tracker:get_adaptive_predictions" %}',
+        method: 'POST',
+        data: JSON.stringify({}),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success') {
+                displayAdaptivePredictions(response.adaptive_predictions);
+                updateLearningProgress(response.learning_summary);
+                showAlert('success', 'Adaptive predictions generated!');
+            } else {
+                showAlert('error', 'Failed to generate adaptive predictions: ' + response.error_message);
+            }
+        },
+        error: function(xhr, status, error) {
+            showAlert('error', 'Request failed: ' + error);
+        }
+    });
+}
+
+// Display adaptive predictions
+function displayAdaptivePredictions(predictions) {
+    const recommendations = predictions.adaptive_weighted_recommendations || [];
+    const confidenceScores = predictions.confidence_scores || {};
+    const methodWeights = predictions.method_weights_used || {};
+    
+    let html = `
+        <div class="row">
+            <div class="col-md-8">
+                <h6>Top Adaptive Recommendations</h6>
+                <div class="mb-3">
+    `;
+    
+    recommendations.slice(0, 20).forEach(number => {
+        const confidence = confidenceScores[number] || 0;
+        html += `<span class="number-badge adaptive-number" title="Confidence: ${confidence.toFixed(4)}">${number}</span>`;
+    });
+    
+    html += `
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6>Method Weights</h6>
+                <div class="small">
+    `;
+    
+    Object.entries(methodWeights).forEach(([method, weight]) => {
+        html += `
+            <div class="d-flex justify-content-between mb-1">
+                <span>${method.replace('_', ' ').toTitle()}:</span>
+                <strong>${(weight * 100).toFixed(1)}%</strong>
+            </div>
+        `;
+    });
+    
+    html += `
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#adaptivePredictionsContent').html(html);
+}
+
+// Update learning progress
+function updateLearningProgress(progress) {
+    if (!progress || progress.message) {
+        $('#learningProgress').html('<p class="text-muted">No learning data available</p>');
+        return;
+    }
+    
+    $('#learningProgress').html(`
+        <div class="text-center">
+            <h4 class="text-primary">${progress.total_learning_sessions || 0}</h4>
+            <p class="small text-muted">Learning Sessions</p>
+        </div>
+        <hr>
+        <div class="small">
+            <strong>Recent Adjustments:</strong>
+            ${(progress.recent_adjustments || []).length} updates
+        </div>
+    `);
+}
+
+// Utility functions
+function showAlert(type, message) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-triangle';
+    
+    $('#alertModalTitle').html(`<i class="${icon}"></i> ${type === 'success' ? 'Success' : 'Error'}`);
+    $('#alertModalBody').html(`<div class="alert ${alertClass}">${message}</div>`);
+    
+    const modal = new bootstrap.Modal(document.getElementById('alertModal'));
+    modal.show();
+}
+
+// Additional table update functions (continued from above)
+function updateTableForColdNumbers(data) {
+    if (!data || typeof data !== 'object') {
+        console.warn('Invalid data for cold numbers');
+        return;
+    }
+
+    $('#resultsTableHeader').html(`
+        <th>Number</th>
+        <th>Coldness Score</th>
+        <th>Days Absent</th>
+        <th>Frequency Ratio</th>
+        <th>Expected Returns</th>
+        <th>Last Appearance</th>
+        <th>Reversion Pressure</th>
+    `);
+    
+    Object.entries(data).forEach(([number, info]) => {
+        if (!info || typeof info !== 'object') {
+            console.warn(`Invalid info for cold number ${number}`);
+            return;
+        }
+        
+        try {
+            resultsDataTable.row.add([
+                `<span class="number-badge cold-number">${number}</span>`,
+                (info.coldness_score !== undefined) ? info.coldness_score.toFixed(2) : 'N/A',
+                info.days_since_last_appearance || 'N/A',
+                (info.frequency_ratio !== undefined) ? info.frequency_ratio.toFixed(2) : 'N/A',
+                info.expected_returns || 'N/A',
+                info.last_appearance || 'N/A',
+                (info.reversion_pressure !== undefined) ? info.reversion_pressure.toFixed(2) : 'N/A'
+            ]);
+        } catch (error) {
+            console.error(`Error adding cold number row for ${number}:`, error);
+        }
+    });
+}
+
+function updateTableForCyclicalPatterns(data) {
+    if (!data || typeof data !== 'object') {
+        console.warn('Invalid data for cyclical patterns');
+        return;
+    }
+
+    $('#resultsTableHeader').html(`
+        <th>Number</th>
+        <th>Cycle Strength</th>
+        <th>Average Gap</th>
+        <th>Dominant Cycle</th>
+        <th>Last Appearance</th>
+        <th>Next Expected</th>
+        <th>Confidence</th>
+    `);
+    
+    Object.entries(data).forEach(([number, info]) => {
+        if (!info || typeof info !== 'object') {
+            console.warn(`Invalid info for cyclical pattern ${number}`);
+            return;
+        }
+        
+        try {
+            resultsDataTable.row.add([
+                `<span class="number-badge cyclical-number">${number}</span>`,
+                `${(info.cycle_strength || 0).toFixed(2)}%`,
+                (info.avg_gap || 0).toFixed(1),
+                (info.dominant_cycle || 0).toFixed(1),
+                info.last_appearance || 'N/A',
+                info.next_expected || 'N/A',
+                `${((info.confidence || 0) * 100).toFixed(1)}%`
+            ]);
+        } catch (error) {
+            console.error(`Error adding cyclical pattern row for ${number}:`, error);
+        }
+    });
+}
+
+function updateTableForSeasonalEffects(data) {
+    if (!data || typeof data !== 'object') {
+        console.warn('Invalid data for seasonal effects');
+        return;
+    }
+
+    $('#resultsTableHeader').html(`
+        <th>Pattern Type</th>
+        <th>Period</th>
+        <th>Intensity</th>
+        <th>Top Numbers</th>
+        <th>Diversity Score</th>
+        <th>Total Appearances</th>
+        <th>Significance</th>
+    `);
+    
+    // Handle different seasonal effect structures
+    const monthlyPatterns = data.monthly_patterns || {};
+    const dowPatterns = data.day_of_week_patterns || {};
+    
+    // Add monthly patterns
+    Object.entries(monthlyPatterns).forEach(([month, info]) => {
+        if (!info || typeof info !== 'object') {
+            console.warn(`Invalid monthly pattern info for month ${month}`);
+            return;
+        }
+        
+        try {
+            const topNumbers = (info.top_numbers || []).slice(0, 3).map(n => n.number || n).join(', ');
+            resultsDataTable.row.add([
+                'Monthly',
+                `Month ${month}`,
+                `${((info.diversity_score || 0) * 100).toFixed(1)}%`,
+                topNumbers || 'N/A',
+                (info.diversity_score || 0).toFixed(3),
+                info.total_appearances || 0,
+                (info.diversity_score || 0) > 0.3 ? 'High' : (info.diversity_score || 0) > 0.15 ? 'Medium' : 'Low'
+            ]);
+        } catch (error) {
+            console.error(`Error adding monthly pattern row for month ${month}:`, error);
+        }
+    });
+    
+    // Add day-of-week patterns
+    Object.entries(dowPatterns).forEach(([dow, info]) => {
+        if (!info || typeof info !== 'object') {
+            console.warn(`Invalid DOW pattern info for day ${dow}`);
+            return;
+        }
+        
+        try {
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = dayNames[dow] || `Day ${dow}`;
+            const topNumbers = (info.top_numbers || []).slice(0, 3).map(n => n.number || n).join(', ');
+            
+            resultsDataTable.row.add([
+                'Day of Week',
+                dayName,
+                `${((info.diversity_score || 0) * 100).toFixed(1)}%`,
+                topNumbers || 'N/A',
+                (info.diversity_score || 0).toFixed(3),
+                info.total_appearances || 0,
+                (info.diversity_score || 0) > 0.3 ? 'High' : (info.diversity_score || 0) > 0.15 ? 'Medium' : 'Low'
+            ]);
+        } catch (error) {
+            console.error(`Error adding DOW pattern row for day ${dow}:`, error);
+        }
+    });
+}
+
+// Extract quick insights from analysis results
+function extractQuickInsights(results) {
+    if (!results || typeof results !== 'object') {
+        return {
+            top_hot_numbers: [],
+            top_cold_numbers: [],
+            cyclical_highlights: []
+        };
+    }
+    
+    // Extract hot numbers
+    const hotNumbers = results.hot_numbers || {};
+    const topHotNumbers = Object.entries(hotNumbers)
+        .map(([number, info]) => ({
+            number: number,
+            score: info.hotness_score || info.frequency_ratio || 0
+        }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 5);
+    
+    // Extract cold numbers
+    const coldNumbers = results.cold_numbers || {};
+    const topColdNumbers = Object.entries(coldNumbers)
+        .map(([number, info]) => ({
+            number: number,
+            days_absent: info.days_since_last_appearance || info.days_absent || 0
+        }))
+        .sort((a, b) => b.days_absent - a.days_absent)
+        .slice(0, 5);
+    
+    // Extract cyclical patterns
+    const cyclicalPatterns = results.cyclical_patterns || {};
+    const cyclicalHighlights = Object.entries(cyclicalPatterns)
+        .map(([number, info]) => ({
+            number: number,
+            next_expected: info.next_expected || 'N/A'
+        }))
+        .slice(0, 5);
+    
+    return {
+        top_hot_numbers: topHotNumbers,
+        top_cold_numbers: topColdNumbers,
+        cyclical_highlights: cyclicalHighlights
+    };
+}
+
+// Load recent analysis if available
+function loadRecentAnalysis() {
+    // This would be populated from server-side if recent data exists
+    {% if recent_analysis %}
+        try {
+            // Parse and clean the JSON data from server
+            let rawData = `{{ recent_analysis|safe }}`;
+            
+            // Replace numpy.float64() and similar patterns with plain numbers
+            rawData = rawData.replace(/np\.float64\(([^)]+)\)/g, '$1');
+            rawData = rawData.replace(/np\.int64\(([^)]+)\)/g, '$1');
+            rawData = rawData.replace(/np\.bool_\(([^)]+)\)/g, '$1');
+            rawData = rawData.replace(/numpy\.float64\(([^)]+)\)/g, '$1');
+            rawData = rawData.replace(/numpy\.int64\(([^)]+)\)/g, '$1');
+            rawData = rawData.replace(/numpy\.bool_\(([^)]+)\)/g, '$1');
+            
+            // Parse the cleaned JSON
+            currentAnalysisResults = JSON.parse(rawData);
+            
+            // Check if the data has the new predictive insights structure
+            let insights;
+            if (currentAnalysisResults.predictions || currentAnalysisResults.recommendations) {
+                // New format - use the data directly as it's already the predictive insights
+                insights = currentAnalysisResults;
+            } else {
+                // Old format - extract quick insights from analysis results
+                insights = extractQuickInsights(currentAnalysisResults);
+            }
+            
+            displayAnalysisResults({
+                analysis_results: currentAnalysisResults,
+                quick_insights: insights,
+                analysis_metadata: currentAnalysisResults.analysis_metadata || {}
+            });
+            
+            console.log('Recent analysis loaded successfully');
+        } catch (error) {
+            console.error('Failed to load recent analysis:', error);
+            console.warn('Raw data that failed to parse:', `{{ recent_analysis|safe }}`);
+        }
+    {% endif %}
+}
+
+// String helper
+String.prototype.toTitle = function() {
+    return this.replace(/\w\S*/g, (txt) => 
+        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    );
+};
+
+// Display expert predictive insights
+function displayExpertInsights(insights) {
+    if (!insights || typeof insights !== 'object') {
+        console.warn('Invalid predictive insights data');
+        return;
+    }
+    
+    const predictions = insights.predictions || {};
+    const timing_signals = insights.timing_signals || {};
+    const confidence_scores = insights.confidence_scores || {};
+    const recommendations = insights.recommendations || {};
+    
+    // Build high probability predictions display
+    let highProbHtml = '<div class="row mb-4"><div class="col-12"><h6 class="text-danger mb-3"><i class="fas fa-fire"></i> High Probability Predictions</h6><div class="d-flex flex-wrap gap-2">';
+    
+    (predictions.high_probability || []).forEach(pred => {
+        const badgeClass = pred.score >= 80 ? 'bg-danger' : pred.score >= 70 ? 'bg-warning' : 'bg-secondary';
+        highProbHtml += `
+            <div class="prediction-card border rounded p-3 mb-2" style="min-width: 200px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="number-badge hot-number fs-4">${pred.digit}</span>
+                    <span class="badge ${badgeClass}">${pred.score}%</span>
+                </div>
+                <small class="text-muted">${pred.rationale}</small>
+            </div>
+        `;
+    });
+    highProbHtml += '</div></div></div>';
+    
+    // Build medium probability predictions display
+    let mediumProbHtml = '<div class="row mb-4"><div class="col-12"><h6 class="text-warning mb-3"><i class="fas fa-chart-line"></i> Medium Probability Predictions</h6><div class="d-flex flex-wrap gap-2">';
+    
+    (predictions.medium_probability || []).forEach(pred => {
+        mediumProbHtml += `
+            <div class="prediction-card border rounded p-3 mb-2" style="min-width: 200px;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="number-badge cyclical-number fs-5">${pred.digit}</span>
+                    <span class="badge bg-info">${pred.score}%</span>
+                </div>
+                <small class="text-muted">${pred.rationale}</small>
+            </div>
+        `;
+    });
+    mediumProbHtml += '</div></div></div>';
+    
+    // Build timing signals display
+    let timingHtml = '<div class="row mb-4"><div class="col-md-6">';
+    timingHtml += '<h6 class="text-primary mb-3"><i class="fas fa-clock"></i> Overdue Analysis</h6>';
+    
+    Object.entries(timing_signals.overdue_analysis || {}).forEach(([digit, data]) => {
+        timingHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <span class="number-badge cold-number">${digit}</span>
+                <div class="text-end">
+                    <div class="small text-primary">${data.days_overdue} days overdue</div>
+                    <div class="small text-muted">${(data.probability_next_draw * 100).toFixed(1)}% probability</div>
+                </div>
+            </div>
+        `;
+    });
+    
+    timingHtml += '</div><div class="col-md-6">';
+    timingHtml += '<h6 class="text-success mb-3"><i class="fas fa-trending-up"></i> Momentum Signals</h6>';
+    
+    Object.entries(timing_signals.momentum_signals || {}).forEach(([digit, data]) => {
+        timingHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                <span class="number-badge hot-number">${digit}</span>
+                <div class="text-end">
+                    <div class="small text-success">${data.momentum} momentum</div>
+                    <div class="small text-muted">${(data.confidence * 100).toFixed(1)}% confidence</div>
+                </div>
+            </div>
+        `;
+    });
+    timingHtml += '</div></div>';
+    
+    // Build top picks summary
+    let topPicksHtml = '<div class="row"><div class="col-12"><h6 class="text-success mb-3"><i class="fas fa-star"></i> Top Analyst Picks</h6><div class="row">';
+    
+    (recommendations.top_picks || []).slice(0, 5).forEach((pick, index) => {
+        const rankClass = index === 0 ? 'text-warning' : index === 1 ? 'text-secondary' : 'text-primary';
+        topPicksHtml += `
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 bg-light">
+                    <div class="card-body text-center p-3">
+                        <div class="mb-2">
+                            <i class="fas fa-medal ${rankClass} fs-4"></i>
+                            <span class="badge bg-primary ms-2">#${index + 1}</span>
+                        </div>
+                        <div class="number-badge adaptive-number fs-3 mb-2">${pick.digit}</div>
+                        <div class="text-primary fw-bold">${pick.confidence}% confidence</div>
+                        <div class="small text-muted mt-1">${pick.rationale}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    topPicksHtml += '</div></div></div>';
+    
+    // Combine all content
+    const fullContent = highProbHtml + mediumProbHtml + timingHtml + topPicksHtml;
+    $('#expertInsightsContent').html(fullContent);
+    
+    // Update risk assessment
+    displayRiskAssessment(recommendations, confidence_scores);
+}
+
+// Display risk assessment
+function displayRiskAssessment(recommendations, confidence_scores) {
+    const riskLevel = recommendations.risk_assessment || 'MEDIUM';
+    const expectedROI = recommendations.expected_roi || 1.2;
+    const overallConf = confidence_scores.overall_confidence || 0.7;
+    const signalStrength = confidence_scores.signal_strength || 'MODERATE';
+    
+    const getRiskColor = (risk) => {
+        switch(risk.toUpperCase()) {
+            case 'LOW': return 'success';
+            case 'MEDIUM': return 'warning';
+            case 'HIGH': return 'danger';
+            default: return 'secondary';
+        }
+    };
+    
+    const riskColor = getRiskColor(riskLevel);
+    
+    const riskHtml = `
+        <div class="text-center mb-4">
+            <div class="risk-indicator p-4 rounded border">
+                <div class="fs-1 text-${riskColor} mb-2">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4 class="text-${riskColor} mb-2">${riskLevel} RISK</h4>
+                <div class="text-muted">Expected ROI: <strong class="text-${riskColor}">${expectedROI}x</strong></div>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <h6 class="mb-2">Confidence Metrics</h6>
+            <div class="progress mb-2" style="height: 20px;">
+                <div class="progress-bar bg-${riskColor}" style="width: ${overallConf * 100}%">
+                    ${(overallConf * 100).toFixed(1)}%
+                </div>
+            </div>
+            <small class="text-muted">Overall Confidence</small>
+        </div>
+        
+        <div class="mb-3">
+            <h6 class="mb-2">Signal Strength</h6>
+            <span class="badge bg-${signalStrength === 'STRONG' ? 'success' : 'warning'} fs-6">
+                ${signalStrength}
+            </span>
+        </div>
+        
+        <div class="alert alert-${riskColor} alert-sm">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Professional Assessment:</strong><br>
+            ${getRiskDescription(riskLevel, expectedROI, overallConf)}
+        </div>
+    `;
+    
+    $('#riskAssessmentContent').html(riskHtml);
+}
+
+// Get risk description
+function getRiskDescription(risk, roi, confidence) {
+    switch(risk.toUpperCase()) {
+        case 'LOW':
+            return `Excellent opportunity with ${(confidence * 100).toFixed(0)}% confidence. Strong signal alignment suggests ${roi}x return potential.`;
+        case 'MEDIUM':
+            return `Balanced risk-reward scenario. ${(confidence * 100).toFixed(0)}% confidence with ${roi}x expected return. Monitor closely.`;
+        case 'HIGH':
+            return `Elevated risk detected. ${(confidence * 100).toFixed(0)}% confidence suggests cautious approach. Consider smaller positions.`;
+        default:
+            return `Risk assessment pending. Review available data before making decisions.`;
+    }
+}
+
+// Generate predictive insights from analysis results
+function generatePredictiveInsights(analysisResults) {
+    if (!analysisResults || !currentAnalysisResults) {
+        console.warn('No analysis results available for predictive insights');
+        return;
+    }
+    
+    // Make AJAX call to get predictive insights
+    $.ajax({
+        url: '{% url "predictions_tracker:run_enhanced_analysis" %}',
+        method: 'POST',
+        data: JSON.stringify({
+            generate_insights: true,
+            analysis_results: currentAnalysisResults
+        }),
+        contentType: 'application/json',
+        success: function(response) {
+            if (response.status === 'success' && response.predictive_insights) {
+                displayExpertInsights(response.predictive_insights);
+            } else {
+                $('#expertInsightsContent').html('<div class="alert alert-warning">Unable to generate predictive insights at this time.</div>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to generate predictive insights:', error);
+            $('#expertInsightsContent').html('<div class="alert alert-danger">Error generating insights: ' + error + '</div>');
+        }
+    });
+}
+
+</script>
+{% endblock %}

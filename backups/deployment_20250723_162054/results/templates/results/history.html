@@ -1,0 +1,390 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+{% block title %}Dự đoán XSMB {{ selected_date|date:"d/m/Y" }}{% endblock %}
+
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-calendar-alt"></i> Lịch Sử Kết Quả Xổ Số Miền Bắc
+            </h4>
+        </div>
+        <div class="card-body">
+            <!-- Bộ lọc ngày -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <form method="get" class="form-inline">
+                        <div class="form-group mr-2">
+                            <label for="from_date" class="mr-2">Từ ngày:</label>
+                            <input type="date" id="from_date" name="from_date" class="form-control" 
+                                   value="{{ request.GET.from_date }}">
+                        </div>
+                        <div class="form-group mr-2">
+                            <label for="to_date" class="mr-2">Đến ngày:</label>
+                            <input type="date" id="to_date" name="to_date" class="form-control" 
+                                   value="{{ request.GET.to_date }}">
+                        </div>
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-filter"></i> Lọc
+                        </button>
+                    </form>
+                </div>
+                <div class="col-md-6 text-right">
+                    <a href="?export=excel" class="btn btn-success">
+                        <i class="fas fa-file-excel"></i> Xuất Excel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Danh sách kết quả -->
+            {% for result_pair in result_pairs %}
+            <div class="row mb-4">
+                <!-- Bảng 1 - Ngày đầu tiên -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-day"></i> Xổ số miền Bắc ngày {{ result_pair.0.ngay|date:"d/m/Y" }}
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                <table class="table table-bordered table-sm mb-0" style="table-layout: fixed;">
+                    <tbody>
+                        
+                        
+                        <!-- Giải đặc biệt -->
+                        <tr>
+                            <td class="first-col bg-light font-weight-bold text-danger">ĐB</td>
+                            <td class="p-1 text-center">
+                                <span class="xs mb_g0 font-weight-bold text-danger">{{ result_pair.0.giai_db }}</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải nhất -->
+                        <tr class="bg-f9">
+                            <td class="first-col bg-light font-weight-bold">G.1</td>
+                            <td class="p-1 text-center">
+                                <span class="xs mb_g1">{{ result_pair.0.giai_1 }}</span>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải nhì -->
+                        <tr>
+                            <td class="first-col bg-light font-weight-bold">G.2</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_2_split %}
+                                    <div class="col-6 px-1 text-center">
+                                        <span class="xs mb_g2{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải ba -->
+                        <tr class="bg-f9">
+                            <td class="first-col bg-light font-weight-bold">G.3</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_3_split %}
+                                    <div class="col-4 px-1 text-center">
+                                        <span class="xs mb_g3{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải tư -->
+                        <tr>
+                            <td class="first-col bg-light font-weight-bold">G.4</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_4_split %}
+                                    <div class="col-6 col-md-3 px-1 text-center">
+                                        <span class="xs mb_g4{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải năm -->
+                        <tr class="bg-f9">
+                            <td class="first-col bg-light font-weight-bold">G.5</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_5_split %}
+                                    <div class="col-4 px-1 text-center">
+                                        <span class="xs mb_g5{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải sáu -->
+                        <tr>
+                            <td class="first-col bg-light font-weight-bold">G.6</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_6_split %}
+                                    <div class="col-4 px-1 text-center">
+                                        <span class="xs mb_g6{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Giải bảy -->
+                        <tr class="bg-f9">
+                            <td class="first-col bg-light font-weight-bold">G.7</td>
+                            <td class="p-1">
+                                <div class="row mx-0">
+                                    {% for num in result_pair.0.giai_7_split %}
+                                    <div class="col-3 px-1 text-center">
+                                        <span class="xs mb_g7{{ forloop.counter }}">{{ num }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- Lô tô -->
+                        <tr>
+                            <td class="first-col bg-light font-weight-bold">Lô tô</td>
+                            <td class="p-1">
+                                <div class="d-flex flex-wrap">
+                                    {% for num in result_pair.0.loto_numbers %}
+                                    <span class="badge bg-primary mr-1 mb-1">{{ num }}</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <style>
+                .first-col {
+                    width: 40px;
+                    font-weight: bold;
+                    background-color: #f8f9fa;
+                    vertical-align: middle;
+                }
+                .bg-f9 {
+                    background-color: #f9f9f9;
+                }
+                .mdb6 {
+                    display: inline-block;
+                    padding: 2px 5px;
+                    margin-right: 3px;
+                    background-color: #e9ecef;
+                    border-radius: 3px;
+                    font-size: 0.85rem;
+                }
+                .xs {
+                    display: inline-block;
+                    width: 100%;
+                    padding: 3px 0;
+                }
+                .table {
+                    font-size: 0.9rem;
+                }
+            </style>           
+
+                    </div>
+                </div>
+                
+                <!-- Bảng 2 - Ngày tiếp theo -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header bg-secondary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-calendar-day"></i> Xổ số miền Bắc ngày {{ result_pair.1.ngay|date:"d/m/Y" }}
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <table class="table table-bordered table-sm mb-0" style="table-layout: fixed;">
+                                <tbody>
+                                    
+                                    <!-- Giải đặc biệt -->
+                                    <tr>
+                                        <td class="first-col bg-light font-weight-bold text-danger">ĐB</td>
+                                        <td class="p-1 text-center">
+                                            <span class="xs mb_g0 font-weight-bold text-danger">{{ result_pair.1.giai_db }}</span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải nhất -->
+                                    <tr class="bg-f9">
+                                        <td class="first-col bg-light font-weight-bold">G.1</td>
+                                        <td class="p-1 text-center">
+                                            <span class="xs mb_g1">{{ result_pair.1.giai_1 }}</span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải nhì -->
+                                    <tr>
+                                        <td class="first-col bg-light font-weight-bold">G.2</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_2_split %}
+                                                <div class="col-6 px-1 text-center">
+                                                    <span class="xs mb_g2{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải ba -->
+                                    <tr class="bg-f9">
+                                        <td class="first-col bg-light font-weight-bold">G.3</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_3_split %}
+                                                <div class="col-4 px-1 text-center">
+                                                    <span class="xs mb_g3{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải tư -->
+                                    <tr>
+                                        <td class="first-col bg-light font-weight-bold">G.4</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_4_split %}
+                                                <div class="col-6 col-md-3 px-1 text-center">
+                                                    <span class="xs mb_g4{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải năm -->
+                                    <tr class="bg-f9">
+                                        <td class="first-col bg-light font-weight-bold">G.5</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_5_split %}
+                                                <div class="col-4 px-1 text-center">
+                                                    <span class="xs mb_g5{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải sáu -->
+                                    <tr>
+                                        <td class="first-col bg-light font-weight-bold">G.6</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_6_split %}
+                                                <div class="col-4 px-1 text-center">
+                                                    <span class="xs mb_g6{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Giải bảy -->
+                                    <tr class="bg-f9">
+                                        <td class="first-col bg-light font-weight-bold">G.7</td>
+                                        <td class="p-1">
+                                            <div class="row mx-0">
+                                                {% for num in result_pair.1.giai_7_split %}
+                                                <div class="col-3 px-1 text-center">
+                                                    <span class="xs mb_g7{{ forloop.counter }}">{{ num }}</span>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <!-- Lô tô -->
+                                    <tr>
+                                        <td class="first-col bg-light font-weight-bold">Lô tô</td>
+                                        <td class="p-1">
+                                            <div class="d-flex flex-wrap">
+                                                {% for num in result_pair.1.loto_numbers %}
+                                                <span class="badge bg-primary mr-1 mb-1">{{ num }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-3">
+            {% empty %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> Không có dữ liệu kết quả xổ số trong khoảng thời gian này
+                {% if request.GET.from_date or request.GET.to_date %}
+                <p>Đang lọc từ {{ request.GET.from_date }} đến {{ request.GET.to_date }}</p>
+                {% endif %}
+                <p>Tổng số bản ghi trong database: {{ total_results|default:"0" }}</p>
+            </div>
+            {% endfor %}
+
+            <!-- Phân trang -->
+            {% if page_obj.paginator.num_pages > 1 %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <a class="page-link" href="#">{{ num }}</a>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.from_date %}&from_date={{ request.GET.from_date }}{% endif %}{% if request.GET.to_date %}&to_date={{ request.GET.to_date }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

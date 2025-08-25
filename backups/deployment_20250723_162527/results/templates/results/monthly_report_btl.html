@@ -1,0 +1,1222 @@
+{% extends "results/base.html" %}
+{% load static %}
+{% load xs_tags %}
+{% block title %}Báo cáo dự đoán xổ số theo tháng - {{ month_name }} {{ year }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<style>
+:root {
+    --bs-body-bg: #f8f9fa;
+    --table-sticky-top: 0px;
+}
+
+body {
+    background-color: var(--bs-body-bg);
+}
+
+.content {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
+    max-width: 100%;
+}
+
+.month-header {
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.report-table {
+    width: 100%;
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 100vh;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.date-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.75rem;
+    min-width: 35px !important;
+    max-width: 40px !important;
+    width: 35px !important;
+    padding: 0.25rem 0.125rem !important;
+    vertical-align: middle !important;
+    position: sticky;
+    top: var(--table-sticky-top);
+    background-color: #495057 !important;
+    color: #ffffff !important;
+    z-index: 10;
+    border-right: 1px solid #6c757d;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+    line-height: 1.1;
+}
+
+.date-header:hover {
+    background-color: #6c757d !important;
+}
+
+.date-header small {
+    font-size: 0.65rem;
+    opacity: 0.9;
+}
+
+.method-name {
+    min-width: 200px;
+    max-width: 200px;
+    width: 200px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 20;
+    border-right: 2px solid #dee2e6;
+    padding: 0.5rem 0.75rem;
+}
+.hit-cell {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    text-align: center;
+    position: relative;
+    min-width: 35px;
+    max-width: 40px;
+    width: 35px;
+    padding: 0.25rem 0.125rem;
+    font-size: 0.7rem;
+    vertical-align: middle;
+}
+
+.miss-cell {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    text-align: center;
+    position: relative;
+    min-width: 35px;
+    max-width: 40px;
+    width: 35px;
+    padding: 0.25rem 0.125rem;
+    font-size: 0.7rem;
+    vertical-align: middle;
+}
+
+.no-data-cell {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    text-align: center;
+    min-width: 35px;
+    max-width: 40px;
+    width: 35px;
+    padding: 0.25rem 0.125rem;
+    font-size: 0.7rem;
+    vertical-align: middle;
+    color: #6c757d;
+}
+
+.hit-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.6rem;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+}
+.weekend-col {
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.hit-rate-high {
+    color: #198754;
+    font-weight: 600;
+}
+
+.hit-rate-medium {
+    color: #fd7e14;
+    font-weight: 600;
+}
+
+.hit-rate-low {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.summary-row {
+    background-color: #e9ecef;
+    font-weight: 600;
+    position: sticky;
+    top: calc(var(--table-sticky-top) + 2.5rem);
+    z-index: 9;
+}
+
+.summary-row th,
+.summary-row td {
+    border-top: 2px solid #495057;
+    border-bottom: 2px solid #495057;
+}
+
+.hit-count-label {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.hit-rate-label {
+    font-size: 0.6rem;
+    line-height: 1;
+    margin-top: 1px;
+}
+
+.navigation-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.method-totals {
+    text-align: center;
+    font-weight: 600;
+    min-width: 80px;
+    padding: 0.5rem;
+    position: sticky;
+    right: 0;
+    background-color: #ffffff;
+    border-left: 2px solid #dee2e6;
+    z-index: 8;
+}
+
+.day-totals {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.7rem;
+    line-height: 1.1;
+}
+/* Tooltip styling */
+.tooltip-cell {
+    position: relative;
+    cursor: pointer;
+}
+.tooltip-cell:hover .tooltip-text {
+    visibility: visible;
+    opacity: 0.9;
+}
+.tooltip-text {
+    visibility: hidden;
+    width: 300px;
+    max-width: 90vw;
+    background-color: #333;
+    color: #fff;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1050;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -150px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-size: 12px;
+    line-height: 1.5;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Định dạng cho bảng tần suất */
+.table-responsive {
+    overflow: visible;
+    width: 100%;
+}
+
+.table {
+    margin-bottom: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.75rem;
+    width: auto;
+    min-width: 100%;
+}
+
+/* Cố định header của bảng khi scroll */
+.table thead th {
+    position: sticky;
+    top: var(--table-sticky-top);
+    background-color: #495057 !important;
+    color: #ffffff !important;
+    z-index: 10;
+    border-bottom: 2px solid #6c757d;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+/* Cố định cột đầu tiên khi scroll ngang */
+.table td:first-child,
+.table th:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 20;
+    border-right: 2px solid #dee2e6;
+}
+
+.table thead th:first-child {
+    z-index: 30;
+    background-color: #495057 !important;
+}
+
+/* Cột tổng kết sticky bên phải */
+.table td:last-child,
+.table th:last-child {
+    position: sticky;
+    right: 0;
+    background-color: #ffffff;
+    z-index: 15;
+    border-left: 2px solid #dee2e6;
+}
+
+.table thead th:last-child {
+    z-index: 25;
+    background-color: #495057 !important;
+}
+
+/* Mũi tên tooltip */
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+.tooltip-text .prediction-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    margin-top: 5px;
+}
+.tooltip-text .prediction-number {
+    text-align: center;
+    padding: 2px;
+    border-radius: 3px;
+}
+.tooltip-text .winning-number {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+.tooltip-text hr {
+    margin: 8px 0;
+    border-color: rgba(255,255,255,0.2);
+}
+.tooltip-text table {
+    width: 100%;
+    font-size: 11px;
+    margin-top: 5px;
+}
+.tooltip-text table th {
+    text-align: left;
+    font-weight: bold;
+    padding: 2px;
+}
+.tooltip-text table td {
+    padding: 2px;
+}
+.hit-count-high {
+    color: #ff5722;
+    font-weight: bold;
+    background-color: #fff3e0;
+    padding: 2px 4px;
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(255, 87, 34, 0.3);
+}
+/* Styles cho số dự đoán */
+.number-tag {
+    display: inline-block;
+    margin: 2px;
+    padding: 1px 3px;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+    font-size: 11px;
+}
+.number-tag.winning {
+    background-color: #d4edda;
+    color: #155724;
+    font-weight: bold;
+}
+/* Scroll cho danh sách số dự đoán */
+.numbers-container {
+    max-height: 80px;
+    overflow-y: auto;
+    margin: 5px 0;
+    padding: 3px;
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 3px;
+}
+/* Phong cách cho thẻ tóm tắt */
+.stat-card {
+    transition: all 0.3s;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+.stat-card .card-body {
+    padding: 20px;
+}
+.stat-card h6 {
+    font-size: 14px;
+    color: #6c757d;
+    margin-bottom: 10px;
+}
+.stat-card h2, .stat-card h4 {
+    margin-bottom: 0;
+    color: #343a40;
+}
+.stat-card small {
+    font-size: 14px;
+}
+/* Trend icons */
+.trend-icon {
+    margin-left: 5px;
+    font-size: 14px;
+}
+.trend-up {
+    color: #28a745;
+}
+.trend-down {
+    color: #dc3545;
+}
+.trend-stable {
+    color: #6c757d;
+}
+/* Responsive design */
+@media (max-width: 1200px) {
+    .method-name {
+        min-width: 150px;
+        max-width: 150px;
+        width: 150px;
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .navigation-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .navigation-buttons form {
+        width: 100%;
+    }
+    
+    .method-name {
+        min-width: 120px;
+        max-width: 120px;
+        width: 120px;
+        font-size: 0.75rem;
+    }
+    
+    .date-header {
+        min-width: 30px !important;
+        max-width: 35px !important;
+        width: 30px !important;
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 0.25rem;
+    }
+    
+    .container-fluid {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+    
+    .table-container {
+        max-height: 100vh;
+    }
+    
+    .date-header {
+        min-width: 28px !important;
+        max-width: 32px !important;
+        width: 28px !important;
+        font-size: 0.65rem;
+    }
+    
+    .method-name {
+        min-width: 100px;
+        max-width: 100px;
+        width: 100px;
+        font-size: 0.7rem;
+    }
+    
+    .hit-count-label {
+        font-size: 0.6rem;
+    }
+    
+    .hit-rate-label {
+        font-size: 0.55rem;
+    }
+    
+    .month-header {
+        font-size: 1.5rem;
+    }
+}
+     /* Hiệu ứng cho số trúng */
+    .card.border-success {
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+        transition: transform 0.3s;
+    }
+    
+    .card.border-success:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Badge cho số trúng */
+    .badge.bg-success {
+        z-index: 1;
+    }
+    
+    /* Animation cho số trúng */
+    @keyframes pulse-success {
+        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    
+    .card.border-success {
+        animation: pulse-success 2s infinite;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="content">
+    <div class="container-fluid">
+        <h1 class="month-header">Báo cáo dự đoán tháng {{ month }} {{ year }}</h1>
+        
+        <!-- Navigation buttons -->
+        <div class="navigation-buttons">
+            <a href="?year={{ prev_month.year }}&month={{ prev_month.month }}" class="btn btn-outline-primary">&larr; Tháng trước</a>
+            <form method="get" class="d-flex" action="">
+                <select name="month" class="form-select me-2" style="width: auto;">
+                    {% for m in "1,2,3,4,5,6,7,8,9,10,11,12"|split:"," %}
+                    <option value="{{ m }}" {% if month == m|add:0 %}selected{% endif %}>
+                        Tháng {{ m }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <select name="year" class="form-select me-2">
+                    {% for y in "2020,2021,2022,2023,2024,2025,2026"|split:"," %}
+                    <option value="{{ y }}" {% if year == y|add:0 %}selected{% endif %}>
+                        {{ y }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn btn-primary">Xem</button>
+            </form>
+            <a href="?year={{ next_month.year }}&month={{ next_month.month }}" class="btn btn-outline-primary">Tháng sau &rarr;</a>
+        </div>
+        
+        {% if has_data %}
+        
+        <!-- Thống kê tóm tắt tháng -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Thống kê tháng {{ month_name }} {{ year }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="card stat-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Tổng số ngày</h6>
+                                        <h2 class="mb-0">{{ monthly_stats.total_days }}</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Ngày có trúng</h6>
+                                        <h2 class="mb-0">
+                                            {{ monthly_stats.days_with_hits }}
+                                            <small class="text-muted">({{ monthly_stats.days_hit_rate|floatformat:1 }}%)</small>
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Phương pháp hiệu quả nhất</h6>
+                                        <h4 class="mb-0">
+                                            {% with best_method=methods|first %}
+                                            {% with perf=method_performance|get_item_dict:best_method.id %}
+                                            {{ best_method.name }}
+                                            <small class="text-muted">({{ perf.hit_rate|floatformat:1 }}%)</small>
+                                            {% endwith %}
+                                            {% endwith %}
+                                        </h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card stat-card mb-3">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title">Số xuất hiện nhiều nhất</h6>
+                                        <h2 class="mb-0">
+                                            {% if top_numbers %}
+                                            {{ top_numbers.0.0 }}
+                                            <small class="text-muted">({{ top_numbers.0.1 }} lần)</small>
+                                            {% else %}
+                                            -
+                                            {% endif %}
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Biểu đồ hiệu suất -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Top 10 Phương Pháp Theo Tỷ Lệ Trúng</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="methodPerformanceChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Tỷ Lệ Trúng Theo Ngày</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="dailyHitRateChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bộ lọc phương pháp -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Bộ lọc phương pháp</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Tìm phương pháp</span>
+                            <input type="text" class="form-control" id="methodSearch" placeholder="Nhập tên phương pháp...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">Tỷ lệ trúng tối thiểu</span>
+                            <input type="number" class="form-control" id="minHitRate" min="0" max="100" step="5" value="0">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100" id="applyFilter">Áp dụng bộ lọc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bảng báo cáo chính -->
+        <div class="report-table">
+            <div class="table-container">
+                <table class="table table-bordered table-striped table-hover table-sm" id="monthlyReportTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="method-name">Phương pháp</th>
+                            {% for day in days_in_month %}
+                            <th class="date-header {% if day.weekday >= 5 %}weekend-col{% endif %}">
+                                {{ day.day }}<br>
+                                <small>{{ day|date:"D" }}</small>
+                            </th>
+                            {% endfor %}
+                            <th class="method-totals">Tổng kết</th>
+                        </tr>
+                        <!-- Day Totals Row -->
+                        <tr class="summary-row">
+                            <th class="method-name">Tỷ lệ trúng/ngày</th>
+                            {% for day in days_in_month %}
+                            <td class="day-totals {% if day.weekday >= 5 %}weekend-col{% endif %}">
+                                {% with total=day_totals|get_item_dict:day %}
+                                {% if total.total > 0 %}
+                                <div class="
+                                    {% if total.hit_rate >= 20 %}hit-rate-high
+                                    {% elif total.hit_rate >= 10 %}hit-rate-medium
+                                    {% else %}hit-rate-low{% endif %}
+                                    ">
+                                    {{ total.hits }}/{{ total.total }}<br>
+                                    <small>{{ total.hit_rate|floatformat:0 }}%</small>
+                                </div>
+                                {% else %}
+                                -
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                            {% endfor %}
+                            <th class="method-totals"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method in methods|sort_methods_numerical %}
+                        <tr class="method-row" data-method-id="{{ method.id }}" data-method-name="{{ method.name }}">
+                            <td class="method-name tooltip-cell">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-2">{{ forloop.counter }}</span>
+                                    <div>
+                                        <div class="fw-bold">{{ method.name|last_two_chars }}</div>
+                                        {% with perf=method_performance|get_item_dict:method.id %}
+                                        {% if perf.total_predictions > 0 %}
+                                        <small class="
+                                            {% if perf.hit_rate >= 20 %}text-success
+                                            {% elif perf.hit_rate >= 10 %}text-warning
+                                            {% else %}text-danger{% endif %}
+                                            ">
+                                            {{ perf.total_hits }}/{{ perf.total_predictions }} ({{ perf.hit_rate|floatformat:1 }}%)
+                                        </small>
+                                        {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                                
+                                {% comment %} {% if method.description %}
+                                {% with perf=method_performance|get_item_dict:method.id %}
+                                {% if perf.days_used > 5 %}
+                                    {% if perf.trend == 'up' %}
+                                    <i class="bi bi-arrow-up-circle-fill trend-icon trend-up" title="Xu hướng tăng"></i>
+                                    {% elif perf.trend == 'down' %}
+                                    <i class="bi bi-arrow-down-circle-fill trend-icon trend-down" title="Xu hướng giảm"></i>
+                                    {% else %}
+                                    <i class="bi bi-dash-circle-fill trend-icon trend-stable" title="Xu hướng ổn định"></i>
+                                    {% endif %}
+                                {% endif %}
+                                {% endwith %}
+                                {% endif %} {% endcomment %}
+                                
+                                <div class="tooltip-text">
+                                    <strong>{{ method.name }}</strong><br>
+                                    {% if method.description %}<p>{{ method.description }}</p>{% endif %}
+                                </div>
+                            </td>
+                            {% for day in days_in_month %}
+                            {% with method_data=report_data|get_item_dict:method.id %}
+                            {% with day_data=method_data|get_item_dict:day %}
+                            {% if day_data %}
+                                {% if day_data.is_hit %}
+                                <td class="hit-cell tooltip-cell"
+                                    data-hit-rate="{{ day_data.hit_rate|floatformat:0 }}"
+                                    data-method="{{ method.name }}"
+                                    data-date="{{ day|date:'d/m/Y' }}">
+                                    <div class="hit-count-label {% if day_data.hit_count > 0 %}hit-count-high{% endif %}">
+                                        {% for num in day_data.predicted_numbers %}
+                                            <div class="prediction-number">{{ num }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    {% comment %} <div class="hit-rate-label">{{ day_data.hit_rate|floatformat:1 }}%</div> {% endcomment %}
+                                    <!-- <div class="tooltip-text">
+                                        <strong>{{ method.name }}</strong> - {{ day|date:"d/m/Y" }}<br>
+                                        <strong>Kết quả ngày sau:</strong> - {{ day_data.prize_next_day }}<br>
+                                        <strong>Dự đoán:</strong>
+                                        <div class="prediction-grid">
+                                            {% for num in day_data.predicted_numbers %}
+                                            <div class="prediction-number {% if num in day_data.winning_numbers %}winning-number{% endif %}">
+                                                {{ num }}
+                                            </div>
+                                            {% endfor %}  
+                                        </div>
+                                        {% if day_data.winning_numbers %}
+                                        <hr>
+                                        <strong>Số trúng:</strong>
+                                        <div class="prediction-grid">
+                                            {% for num in day_data.winning_numbers %}
+                                            <div class="prediction-number winning-number">{{ num }}</div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div> -->
+                                </td>
+                                {% else %}
+                                <td class="miss-cell tooltip-cell">
+                                    <div class="hit-count-label">
+                                        {% for num in day_data.predicted_numbers %}
+                                            <div class="prediction-number">{{ num }}</div>
+                                        {% endfor %}
+                                        </div>
+                                    {% comment %} <div class="hit-rate-label">0.0%</div> {% endcomment %}
+                                    <!-- <div class="tooltip-text">
+                                        <strong>{{ method.name }}</strong> - {{ day|date:"d/m/Y" }}<br>
+                                        
+                                        <strong>Dự đoán:</strong>
+                                        <div class="prediction-grid">
+                                            {% for num in day_data.predicted_numbers %}
+                                            <div class="prediction-number">{{ num }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    </div> -->
+                                </td>
+                                {% endif %}
+                            {% else %}
+                                <td class="no-data-cell">-</td>
+                            {% endif %}
+                            {% endwith %}
+                            {% endwith %}
+                            {% endfor %}
+                            
+                            <!-- Method Totals Column -->
+                            <td class="method-totals">
+                                {% with perf=method_performance|get_item_dict:method.id %}
+                                {% if perf.total_predictions > 0 %}
+                                <div class="
+                                    {% if perf.hit_rate >= 20 %}hit-rate-high
+                                    {% elif perf.hit_rate >= 10 %}hit-rate-medium
+                                    {% else %}hit-rate-low{% endif %}
+                                    ">
+                                    {{ perf.total_hits }}/{{ perf.total_predictions }}<br>
+                                    <small>{{ perf.hit_rate|floatformat:1 }}%</small>
+                                </div>
+                                {% else %}
+                                -
+                                {% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Top Numbers -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <ul class="nav nav-tabs card-header-tabs" id="topNumbersTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active text-dark" id="month-numbers-tab" data-bs-toggle="tab" data-bs-target="#month-numbers" type="button" role="tab" aria-controls="month-numbers" aria-selected="true">
+                            Top 20 Số Cả Tháng
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-dark" id="latest-day-numbers-tab" data-bs-toggle="tab" data-bs-target="#latest-day-numbers" type="button" role="tab" aria-controls="latest-day-numbers" aria-selected="false">
+                            Top 20 Số Ngày {{ latest_prediction_date|date:"d/m/Y" }}
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link text-dark" id="top10-methods-numbers-tab" data-bs-toggle="tab" data-bs-target="#top10-methods-numbers" type="button" role="tab" aria-controls="top10-methods-numbers" aria-selected="false">
+                            Top 20 Số Từ 10 Phương Pháp Tốt Nhất
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                {% if has_next_day_results %}
+                <div class="alert alert-success mb-3">
+                    <i class="bi bi-info-circle-fill"></i> 
+                    Số trúng ngày {{ next_day_date|date:"d/m/Y" }} được đánh dấu màu xanh.
+                    <strong>Số trúng:</strong> 
+                    {% for number in next_day_all_numbers %}
+                    <span class="badge bg-success">{{ number }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="tab-content" id="topNumbersTabContent">
+                    <!-- Top Numbers Monthly -->
+                    <div class="tab-pane fade show active" id="month-numbers" role="tabpanel" aria-labelledby="month-numbers-tab">
+                        <div class="row">
+                            {% for number, count, is_hit in top_numbers %}
+                            <div class="col-md-3 col-sm-4 col-6 mb-3 text-center">
+                                <div class="card {% if is_hit %}border-success{% endif %}">
+                                    <div class="card-body p-2 {% if is_hit %}bg-success bg-opacity-10{% endif %}">
+                                        <h3 class="mb-0 {% if is_hit %}text-success{% endif %}">{{ number }}</h3>
+                                        <small class="text-muted">{{ count }} lần</small>
+                                        {% if is_hit %}
+                                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Top Numbers Latest Day -->
+                    <div class="tab-pane fade" id="latest-day-numbers" role="tabpanel" aria-labelledby="latest-day-numbers-tab">
+                        <div class="row">
+                            {% for number, count, is_hit in latest_day_top_numbers %}
+                            <div class="col-md-3 col-sm-4 col-6 mb-3 text-center">
+                                <div class="card {% if is_hit %}border-success{% endif %}">
+                                    <div class="card-body p-2 {% if is_hit %}bg-success bg-opacity-10{% endif %}">
+                                        <h3 class="mb-0 {% if is_hit %}text-success{% endif %}">{{ number }}</h3>
+                                        <small class="text-muted">{{ count }} lần</small>
+                                        {% if is_hit %}
+                                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    Không có dữ liệu số cho ngày mới nhất.
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Top Numbers from Top 10 Methods -->
+                    <div class="tab-pane fade" id="top10-methods-numbers" role="tabpanel" aria-labelledby="top10-methods-numbers-tab">
+                        <div class="alert alert-info mb-3">
+                            Các số xuất hiện nhiều nhất từ 10 phương pháp hiệu quả nhất vào ngày {{ latest_prediction_date|date:"d/m/Y" }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p><strong>10 phương pháp hiệu quả nhất:</strong></p>
+                            <div class="row">
+                                {% for method in methods|slice:":10" %}
+                                <div class="col-md-6">
+                                    <div class="badge bg-primary mb-2">{{ forloop.counter }}. {{ method.name }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            {% for number, count, is_hit in top10_methods_latest_day_numbers %}
+                            <div class="col-md-3 col-sm-4 col-6 mb-3 text-center">
+                                <div class="card {% if is_hit %}border-success{% endif %}">
+                                    <div class="card-body p-2 {% if is_hit %}bg-success bg-opacity-10{% endif %}">
+                                        <h3 class="mb-0 {% if is_hit %}text-success{% endif %}">{{ number }}</h3>
+                                        <small class="text-muted">{{ count }} lần</small>
+                                        {% if is_hit %}
+                                        <span class="position-absolute top-0 end-0 translate-middle badge rounded-pill bg-success">
+                                            <i class="bi bi-check"></i>
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    Không có dữ liệu số từ top 10 phương pháp cho ngày mới nhất.
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Chú thích</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="hit-cell p-2 me-2" style="min-width: 60px;">
+                                <div class="hit-count-label">2/10</div>
+                                <div class="hit-rate-label">20.0%</div>
+                            </div>
+                            <span>Có trúng (số trúng/tổng số)</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="miss-cell p-2 me-2" style="min-width: 60px;">
+                                <div class="hit-count-label">0/10</div>
+                                <div class="hit-rate-label">0.0%</div>
+                            </div>
+                            <span>Không trúng</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="no-data-cell p-2 me-2" style="min-width: 60px;">-</div>
+                            <span>Không có dữ liệu</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-arrow-up-circle-fill trend-icon trend-up me-2"></i>
+                            <span>Xu hướng tăng</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-arrow-down-circle-fill trend-icon trend-down me-2"></i>
+                            <span>Xu hướng giảm</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-dash-circle-fill trend-icon trend-stable me-2"></i>
+                            <span>Xu hướng ổn định</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {% else %}
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">Không có dữ liệu!</h4>
+            <p>Không có dữ liệu dự đoán nào cho tháng {{ month_name }} {{ year }}.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Đảm bảo thêm Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if has_data %}
+    // Biểu đồ hiệu suất phương pháp
+    const methodCtx = document.getElementById('methodPerformanceChart').getContext('2d');
+    const methodChart = new Chart(methodCtx, {
+        type: 'bar',
+        data: {
+            labels: [
+                {% for method in methods|slice:":10" %}
+                "{{ method.name }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Tỷ lệ trúng (%)',
+                data: [
+                    {% for method in methods|slice:":10" %}
+                    {{ method_performance|get_item_dict:method.id|get_item_dict:'hit_rate'|floatformat:1 }},
+                    {% endfor %}
+                ],
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(153, 102, 255, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(201, 203, 207, 0.7)',
+                    'rgba(255, 99, 71, 0.7)',
+                    'rgba(46, 139, 87, 0.7)',
+                    'rgba(139, 69, 19, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 205, 86, 1)',
+                    'rgba(201, 203, 207, 1)',
+                    'rgba(255, 99, 71, 1)',
+                    'rgba(46, 139, 87, 1)',
+                    'rgba(139, 69, 19, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Tỷ lệ trúng: ${context.raw}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tỷ lệ trúng (%)'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Biểu đồ tỷ lệ trúng theo ngày
+    const dailyCtx = document.getElementById('dailyHitRateChart').getContext('2d');
+    const dailyChart = new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: [
+                {% for day in days_in_month %}
+                "{{ day.day }}",
+                {% endfor %}
+            ],
+            datasets: [{
+                label: 'Tỷ lệ phương pháp trúng (%)',
+                data: [
+                    {% for day in days_in_month %}
+                    {% with total=day_totals|get_item_dict:day %}
+                    {% if total.total > 0 %}
+                    {{ total.hits|divide:total.total|multiply:100|floatformat:1 }},
+                    {% else %}
+                    0,
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
+                ],
+                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Tỷ lệ trúng: ${context.raw}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Tỷ lệ trúng (%)'
+                    }
+                }
+            }
+        }
+    });
+    
+    // Chức năng lọc phương pháp
+    const methodSearch = document.getElementById('methodSearch');
+    const minHitRate = document.getElementById('minHitRate');
+    const applyFilter = document.getElementById('applyFilter');
+    
+    applyFilter.addEventListener('click', function() {
+        const searchTerm = methodSearch.value.toLowerCase();
+        const minRate = parseFloat(minHitRate.value) || 0;
+        
+        // Get all method rows
+        const methodRows = document.querySelectorAll('.method-row');
+        
+        methodRows.forEach(row => {
+            const methodName = row.dataset.methodName.toLowerCase();
+            let hitRateCell = row.querySelector('.method-totals div');
+            let hitRate = 0;
+            
+            if (hitRateCell) {
+                // Extract hit rate from text like "5/10<br><small>50.0%</small>"
+                const hitRateText = hitRateCell.innerHTML;
+                const match = hitRateText.match(/(\d+\.\d+)%/);
+                if (match) {
+                    hitRate = parseFloat(match[1]);
+                }
+            }
+            
+            // Show/hide based on criteria
+            const nameMatch = methodName.includes(searchTerm);
+            const rateMatch = hitRate >= minRate;
+            
+            row.style.display = (nameMatch && rateMatch) ? '' : 'none';
+        });
+    });
+    
+    // Thêm sự kiện click cho các ô ngày
+    const dateHeaders = document.querySelectorAll('.date-header');
+    dateHeaders.forEach(header => {
+        header.addEventListener('click', function(event) {
+            // Lấy số ngày từ header
+            const dayElement = this.querySelector('br')?.previousSibling;
+            if (!dayElement) return;
+            const day = dayElement.textContent.trim();
+            if (!day || isNaN(day)) return;
+            
+            // Lấy năm và tháng từ URL hiện tại
+            const urlParams = new URLSearchParams(window.location.search);
+            let year = urlParams.get('year') || {{ year }};
+            let month = urlParams.get('month') || {{ month }};
+            
+            // Tạo chuỗi ngày định dạng YYYY-MM-DD
+            const paddedDay = day.padStart(2, '0');
+            const paddedMonth = month.toString().padStart(2, '0');
+            const dateStr = `${year}-${paddedMonth}-${paddedDay}`;
+            
+            // Chuyển đến trang phân tích ngày
+            window.location.href = `/analysis_btl/daily/?date=${dateStr}`;
+        });
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

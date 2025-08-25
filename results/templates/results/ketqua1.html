@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kết Quả Xổ Số Theo Ngày</title>
+    <style>
+      .result-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .result-header {
+        cursor: pointer;
+        background-color: #f5f5f5;
+        padding: 10px;
+        font-weight: bold;
+      }
+      .result-content {
+        display: none;
+        padding: 10px;
+        background-color: #f9f9f9;
+      }
+      .show-all,
+      .hide-all {
+        margin: 10px 5px;
+        padding: 8px 15px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .hide-all {
+        background-color: #f44336;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Kết Quả Xổ Số Theo Ngày</h1>
+
+    <div>
+      <button class="show-all">Hiển Thị Tất Cả</button>
+      <button class="hide-all">Ẩn Tất Cả</button>
+    </div>
+
+    {% for result in page_obj %}
+    <div class="result-container">
+      <div
+        class="result-header"
+        onclick="toggleResult('result-{{ result.ngay|date:'Y-m-d' }}')"
+      >
+        Kết quả ngày: {{ result.ngay|date:"d/m/Y" }}
+      </div>
+
+      <div id="result-{{ result.ngay|date:'Y-m-d' }}" class="result-content">
+        <table>
+          <tr>
+            <th>Giải</th>
+            <th>Số Trúng</th>
+          </tr>
+          <tr>
+            <td>Đặc biệt</td>
+            <td>{{ result.giai_db }}</td>
+          </tr>
+          <tr>
+            <td>Giải nhất</td>
+            <td>{{ result.giai_1 }}</td>
+          </tr>
+          <tr>
+            <td>Giải nhì</td>
+            <td>{{ result.giai_2 }}</td>
+          </tr>
+          <tr>
+            <td>Giải ba</td>
+            <td>{{ result.giai_3|default:"-"|linebreaksbr }}</td>
+          </tr>
+          <tr>
+            <td>Giải tư</td>
+            <td>{{ result.giai_4 }}</td>
+          </tr>
+          <tr>
+            <td>Giải năm</td>
+            <td>{{ result.giai_5|default:"-"|linebreaksbr }}</td>
+          </tr>
+          <tr>
+            <td>Giải sáu</td>
+            <td>{{ result.giai_6 }}</td>
+          </tr>
+          <tr>
+            <td>Giải bảy</td>
+            <td>{{ result.giai_7 }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Phân trang -->
+    <div class="pagination">
+      <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page=1">&laquo; đầu</a>
+        <a href="?page={{ page_obj.previous_page_number }}">trước</a>
+        {% endif %}
+
+        <span class="current">
+          Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">tiếp</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">cuối &raquo;</a>
+        {% endif %}
+      </span>
+    </div>
+
+    <script>
+      // Hiển thị/ẩn kết quả khi click vào header
+      function toggleResult(id) {
+        const content = document.getElementById(id);
+        if (content.style.display === "block") {
+          content.style.display = "none";
+        } else {
+          content.style.display = "block";
+        }
+      }
+
+      // Hiển thị tất cả kết quả
+      document
+        .querySelector(".show-all")
+        .addEventListener("click", function () {
+          const allContents = document.querySelectorAll(".result-content");
+          allContents.forEach((content) => {
+            content.style.display = "block";
+          });
+        });
+
+      // Ẩn tất cả kết quả
+      document
+        .querySelector(".hide-all")
+        .addEventListener("click", function () {
+          const allContents = document.querySelectorAll(".result-content");
+          allContents.forEach((content) => {
+            content.style.display = "none";
+          });
+        });
+    </script>
+  </body>
+</html>

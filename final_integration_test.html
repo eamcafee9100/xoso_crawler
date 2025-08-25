@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 FINAL loadMethodAnalysis Integration Test</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { border: 1px solid #333; margin: 10px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #001100; border-color: #00ff00; }
+        .error { background: #110000; border-color: #ff0000; color: #ff0000; }
+        .info { background: #000011; border-color: #0088ff; color: #0088ff; }
+        .warning { background: #111100; border-color: #ffff00; color: #ffff00; }
+        pre { background: #000; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 10px 20px; margin: 5px; cursor: pointer; border-radius: 3px; }
+        button:hover { background: #00ff00; color: #000; }
+        input { background: #333; color: #00ff00; border: 1px solid #00ff00; padding: 5px; border-radius: 3px; }
+        .d-none { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 FINAL loadMethodAnalysis Integration Test</h1>
+        <p>Test cuối cùng để kiểm tra toàn bộ function loadMethodAnalysis</p>
+
+        <!-- Test Controls -->
+        <div class="test-section info">
+            <h3>📋 Test Controls</h3>
+            <label>Analysis Date: 
+                <input type="date" id="analysisDatePicker" value="2025-07-30">
+            </label>
+            <button onclick="loadMethodAnalysis()">🚀 Test loadMethodAnalysis (Simple)</button>
+            <button onclick="loadMethodAnalysisReal()">⚡ Test loadMethodAnalysis (Real V2)</button>
+            <button onclick="clearResults()">🧹 Clear Results</button>
+        </div>
+
+        <!-- Loading/Error Display -->
+        <div id="analysisLoading" class="test-section warning d-none">
+            <h3>⏳ Loading...</h3>
+            <p>Đang xử lý phân tích...</p>
+        </div>
+
+        <div id="analysisError" class="test-section error d-none">
+            <h3>❌ Error</h3>
+            <p id="errorMessage"></p>
+        </div>
+
+        <!-- Results Display -->
+        <div id="analysisResults" class="test-section success d-none">
+            <h3>📊 Analysis Results - <span id="predictionAnalysisDate">N/A</span></h3>
+            <div id="resultsContent">
+                <!-- Content will be populated by renderAnalysisResults() -->
+            </div>
+        </div>
+
+        <!-- Console Output -->
+        <div class="test-section info">
+            <h3>📝 Console Output</h3>
+            <pre id="consoleOutput"></pre>
+            <button onclick="clearConsole()">Clear Console</button>
+        </div>
+    </div>
+
+    <script>
+        // ✅ CONSOLE CAPTURE
+        let consoleOutput = [];
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+
+        console.log = function(...args) {
+            const message = args.join(' ');
+            consoleOutput.push(`[LOG] ${new Date().toLocaleTimeString()}: ${message}`);
+            updateConsoleDisplay();
+            originalConsoleLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            const message = args.join(' ');
+            consoleOutput.push(`[ERROR] ${new Date().toLocaleTimeString()}: ${message}`);
+            updateConsoleDisplay();
+            originalConsoleError.apply(console, args);
+        };
+
+        function updateConsoleDisplay() {
+            const consoleDiv = document.getElementById('consoleOutput');
+            consoleDiv.textContent = consoleOutput.slice(-20).join('\\n'); // Show last 20 lines
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+
+        function clearConsole() {
+            consoleOutput = [];
+            updateConsoleDisplay();
+        }
+
+        // ✅ UTILITY FUNCTIONS
+        function showLoading() {
+            document.getElementById('analysisLoading').classList.remove('d-none');
+            document.getElementById('analysisError').classList.add('d-none');
+            document.getElementById('analysisResults').classList.add('d-none');
+            console.log('🔄 Loading started...');
+        }
+
+        function hideLoading() {
+            document.getElementById('analysisLoading').classList.add('d-none');
+            console.log('✅ Loading finished.');
+        }
+
+        function showError(message) {
+            document.getElementById('analysisError').classList.remove('d-none');
+            document.getElementById('errorMessage').textContent = message;
+            console.log('❌ Error:', message);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            return new Date(dateStr).toLocaleDateString('vi-VN');
+        }
+
+        function clearResults() {
+            document.getElementById('analysisResults').classList.add('d-none');
+            document.getElementById('analysisError').classList.add('d-none');
+            document.getElementById('analysisLoading').classList.add('d-none');
+            console.log('🧹 Results cleared');
+        }
+
+        // ✅ MAIN loadMethodAnalysis FUNCTION (SIMPLE ENDPOINT)
+        function loadMethodAnalysis() {
+            const dateInput = document.getElementById('analysisDatePicker');
+            const analysisDate = dateInput.value;
+            
+            if (!analysisDate) {
+                showError('Vui lòng chọn ngày phân tích');
+                return;
+            }
+            
+            console.log('📅 Current Analysis Date:', analysisDate);
+            
+            // Show loading
+            showLoading();
+            
+            // ✅ SỬA: Sử dụng simple endpoint để test
+            const apiUrl = `/pre-lokhung/api/simple-test/?analysis_date=${analysisDate}&limit=15`;
+            
+            console.log('🔍 Calling Simple API:', apiUrl);
+            
+            fetch(apiUrl)
+                .then(response => {
+                    console.log('📡 Response status:', response.status);
+                    console.log('📡 Response URL:', response.url);
+                    
+                    // ✅ KIỂM TRA STATUS CODE TRƯỚC
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    // ✅ KIỂM TRA CONTENT-TYPE
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error(`Expected JSON but got: ${contentType}`);
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading();
+                    
+                    // ✅ VALIDATE DATA STRUCTURE
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Invalid response format');
+                    }
+                    
+                    console.log('📊 Data structure validation passed');
+                    console.log('📊 Test mode:', data.test_mode);
+                    
+                    if (data.success) {
+                        renderAnalysisResults(data);
+                    } else {
+                        showError(data.error || 'Lỗi không xác định');
+                    }
+                })
+                .catch(error => {
+                    hideLoading();
+                    
+                    // ✅ ENHANCED ERROR HANDLING
+                    let errorMessage = 'Lỗi kết nối';
+                    
+                    if (error.name === 'SyntaxError') {
+                        errorMessage = 'Lỗi định dạng dữ liệu từ server';
+                    } else if (error.message.includes('HTTP 404')) {
+                        errorMessage = 'API không tồn tại - Kiểm tra URL routing';
+                    } else if (error.message.includes('HTTP 500')) {
+                        errorMessage = 'Lỗi server nội bộ';
+                    } else if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Không thể kết nối đến server';
+                    } else {
+                        errorMessage = error.message;
+                    }
+                    
+                    showError(errorMessage);
+                    console.error('Analysis API Error:', error);
+                });
+        }
+
+        // ✅ REAL V2 ENDPOINT TEST
+        function loadMethodAnalysisReal() {
+            const dateInput = document.getElementById('analysisDatePicker');
+            const analysisDate = dateInput.value;
+            
+            if (!analysisDate) {
+                showError('Vui lòng chọn ngày phân tích');
+                return;
+            }
+            
+            console.log('📅 Testing REAL V2 API with date:', analysisDate);
+            
+            // Show loading
+            showLoading();
+            
+            // ✅ REAL V2 ENDPOINT
+            const apiUrl = `/pre-lokhung/api/method-analysis-v2/?analysis_date=${analysisDate}&limit=5`;
+            
+            console.log('🔍 Calling REAL V2 API:', apiUrl);
+            console.log('⚠️ Warning: This may take a long time or timeout');
+            
+            // Set longer timeout for real endpoint
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+            
+            fetch(apiUrl, { signal: controller.signal })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    console.log('📡 REAL V2 Response status:', response.status);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        throw new Error(`Expected JSON but got: ${contentType}`);
+                    }
+                    
+                    return response.json();
+                })
+                .then(data => {
+                    hideLoading();
+                    console.log('✅ REAL V2 API succeeded!');
+                    
+                    if (data.success) {
+                        renderAnalysisResults(data);
+                    } else {
+                        showError(data.error || 'Real V2 API returned success=false');
+                    }
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    hideLoading();
+                    
+                    let errorMessage = 'Real V2 API Error';
+                    
+                    if (error.name === 'AbortError') {
+                        errorMessage = 'Real V2 API timed out (>30 seconds)';
+                    } else {
+                        errorMessage = `Real V2 API: ${error.message}`;
+                    }
+                    
+                    showError(errorMessage);
+                    console.error('Real V2 API Error:', error);
+                });
+        }
+
+        // ✅ RENDER RESULTS FUNCTION
+        function renderAnalysisResults(data) {
+            console.log('🔍 Rendering V2 Analysis Results:', data);
+            
+            // Set analysis date
+            document.getElementById('predictionAnalysisDate').textContent = formatDate(data.analysis_date);
+            
+            // Create HTML content
+            const container = document.getElementById('resultsContent');
+            container.innerHTML = `
+                <div style="margin: 10px 0;">
+                    <h4>📊 Hybrid Analysis</h4>
+                    <p><strong>Short-term Trend:</strong> ${data.hybrid_analysis?.short_term_insights?.trend_strength || 'N/A'}</p>
+                    <p><strong>Long-term Stability:</strong> ${data.hybrid_analysis?.long_term_stability?.consistency_score || 'N/A'}</p>
+                    <p><strong>Forward Validation:</strong> ${data.hybrid_analysis?.forward_validation?.confidence_score || 'N/A'}</p>
+                </div>
+                
+                <div style="margin: 10px 0;">
+                    <h4>🎯 Intelligent Selections</h4>
+                    <p><strong>Optimal Numbers:</strong> ${data.intelligent_selections?.optimal_numbers?.join(', ') || 'N/A'}</p>
+                    <p><strong>Strategy:</strong> ${data.intelligent_selections?.selection_strategy?.approach || 'N/A'}</p>
+                </div>
+                
+                <div style="margin: 10px 0;">
+                    <h4>📈 Optimal Methods</h4>
+                    <p><strong>Day 1 Methods:</strong> ${data.optimal_methods?.day_1?.length || 0}</p>
+                    <p><strong>Day 2 Methods:</strong> ${data.optimal_methods?.day_2?.length || 0}</p>
+                    <p><strong>Day 3 Methods:</strong> ${data.optimal_methods?.day_3?.length || 0}</p>
+                    <p><strong>Total Qualified:</strong> ${data.optimal_methods?.summary?.total_qualified_methods || 0}</p>
+                </div>
+                
+                <div style="margin: 10px 0;">
+                    <h4>🎲 Performance Prediction</h4>
+                    <p><strong>Expected Hit Rate:</strong> ${data.performance_prediction?.expected_hit_rate || 'N/A'}</p>
+                    <p><strong>Confidence Level:</strong> ${data.performance_prediction?.confidence_level || 'N/A'}</p>
+                    <p><strong>Overall Confidence:</strong> ${data.performance_prediction?.overall_confidence_score || 'N/A'}</p>
+                </div>
+                
+                <div style="margin: 10px 0;">
+                    <h4>📋 Metadata</h4>
+                    <p><strong>Test Mode:</strong> ${data.test_mode || 'false'}</p>
+                    <p><strong>Processing Time:</strong> ${data.metadata?.processing_time_ms || 'N/A'} ms</p>
+                    <p><strong>API Version:</strong> ${data.metadata?.api_version || 'N/A'}</p>
+                </div>
+            `;
+            
+            // Show results
+            document.getElementById('analysisResults').classList.remove('d-none');
+            
+            console.log('✅ Analysis results rendered successfully');
+        }
+
+        // ✅ INITIALIZE
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Final Integration Test loaded');
+            console.log('📋 Available tests:');
+            console.log('   1. loadMethodAnalysis() - Uses simple-test endpoint');
+            console.log('   2. loadMethodAnalysisReal() - Uses real method-analysis-v2 endpoint');
+            console.log('✅ Ready for testing!');
+        });
+    </script>
+</body>
+</html>

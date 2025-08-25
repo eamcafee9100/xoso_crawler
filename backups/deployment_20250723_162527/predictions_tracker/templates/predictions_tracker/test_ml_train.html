@@ -1,0 +1,456 @@
+{% extends 'predictions_tracker/base.html' %}
+{% load static %}
+{% load pre_xs_tags %}
+
+{% block title %}Test ML Training & Prediction{% endblock %}
+
+{% block extra_css %}
+<style>
+    .training-data-point {
+        font-size: 0.85rem;
+        border-left: 3px solid #007bff;
+        padding-left: 10px;
+        margin-bottom: 5px;
+    }
+    
+    .metrics-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+    }
+    
+    .prediction-result {
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+    
+    .prediction-result.has-hits {
+        border-left: 4px solid #28a745;
+        background-color: #f8fff9;
+    }
+    
+    .prediction-result.no-hits {
+        border-left: 4px solid #dc3545;
+        background-color: #fff8f8;
+    }
+    
+    .hit-number {
+        background-color: #28a745;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        margin: 2px;
+    }
+    
+    .predicted-number {
+        background-color: #007bff;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        margin: 2px;
+    }
+    
+    .actual-number {
+        background-color: #6c757d;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 0.85rem;
+        margin: 2px;
+    }
+    
+    .method-performance {
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .performance-excellent { background-color: #d4edda; border-left: 4px solid #28a745; }
+    .performance-good { background-color: #d1ecf1; border-left: 4px solid #17a2b8; }
+    .performance-average { background-color: #fff3cd; border-left: 4px solid #ffc107; }
+    .performance-poor { background-color: #f8d7da; border-left: 4px solid #dc3545; }
+    
+    .training-summary {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .prediction-result {
+            font-size: 0.9rem;
+        }
+        
+        .hit-number, .predicted-number, .actual-number {
+            font-size: 0.75rem;
+            padding: 1px 4px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">
+                <i class="fas fa-robot"></i> Test ML Training & Prediction
+            </h2>
+            
+            <!-- ✅ FORM SECTION -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-cogs"></i> Cấu hình Test
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="row g-3">
+                        {% csrf_token %}
+                        
+                        <!-- Target Date -->
+                        <div class="col-md-3">
+                            <label for="target_date" class="form-label">Ngày dự đoán</label>
+                            <input type="date" class="form-control" id="target_date" name="target_date" 
+                                   max="{{ max_date|date:'Y-m-d' }}" 
+                                   value="{{ form_data.target_date|default:'' }}" required>
+                            <div class="form-text">Ngày để test dự đoán ML</div>
+                        </div>
+                        
+                        <!-- Months Back -->
+                        <div class="col-md-2">
+                            <label for="months_back" class="form-label">Tháng training</label>
+                            <select class="form-select" id="months_back" name="months_back">
+                                <option value="1" {% if form_data.months_back == 1 %}selected{% endif %}>1 tháng</option>
+                                <option value="2" {% if form_data.months_back == 2 %}selected{% endif %}>2 tháng</option>
+                                <option value="3" {% if form_data.months_back == 3 or not form_data.months_back %}selected{% endif %}>3 tháng</option>
+                                <option value="6" {% if form_data.months_back == 6 %}selected{% endif %}>6 tháng</option>
+                                <option value="12" {% if form_data.months_back == 12 %}selected{% endif %}>12 tháng</option>
+                            </select>
+                            <div class="form-text">Số tháng dữ liệu training</div>
+                        </div>
+                        
+                        <!-- Methods Selection -->
+                        <div class="col-md-5">
+                            <label class="form-label">Phương pháp</label>
+                            <div class="border rounded p-2" style="max-height: 120px; overflow-y: auto;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="select_all_methods">
+                                    <label class="form-check-label fw-bold" for="select_all_methods">
+                                        Chọn tất cả
+                                    </label>
+                                </div>
+                                <hr class="my-2">
+                                {% for method in methods %}
+                                <div class="form-check">
+                                    <input class="form-check-input method-checkbox" type="checkbox" 
+                                           name="method_ids" value="{{ method.id }}" id="method_{{ method.id }}"
+                                           {% if not form_data.method_ids or method.id|stringformat:"s" in form_data.method_ids %}checked{% endif %}>
+                                    <label class="form-check-label" for="method_{{ method.id }}">
+                                        {{ method.name }} <small class="text-muted">({{ method.get_category_display }})</small>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-play"></i> Chạy Test
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- ✅ RESULTS SECTION -->
+            {% if has_results %}
+            <div class="results-section">
+                
+                <!-- Training Info -->
+                <div class="training-summary">
+                    <h5><i class="fas fa-database"></i> Thông tin Training Data</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Khoảng thời gian:</strong><br>
+                            {{ test_results.training_info.start_date|date:"d/m/Y" }} - {{ test_results.training_info.end_date|date:"d/m/Y" }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Tổng ngày:</strong><br>
+                            {{ test_results.training_info.total_days }} ngày
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Sessions:</strong><br>
+                            {{ test_results.training_info.sessions_count }}
+                        </div>
+                        <div class="col-md-2">
+                            <strong>Evaluations:</strong><br>
+                            {{ test_results.training_info.evaluations_count }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Ngày test:</strong><br>
+                            {{ test_results.target_date|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Overall Metrics -->
+                {% if test_results.overall_metrics and not test_results.overall_metrics.no_valid_methods %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-line"></i> Tổng quan Performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-primary">{{ test_results.overall_metrics.avg_hit_rate }}%</h4>
+                                    <small class="text-muted">Hit Rate trung bình</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-success">{{ test_results.overall_metrics.avg_accuracy }}%</h4>
+                                    <small class="text-muted">Accuracy trung bình</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-info">{{ test_results.overall_metrics.valid_methods }}/{{ test_results.overall_metrics.total_methods }}</h4>
+                                    <small class="text-muted">Methods có dữ liệu</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h4 class="text-warning">{{ test_results.overall_metrics.best_method.name }}</h4>
+                                    <small class="text-muted">Method tốt nhất</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Methods Ranking -->
+                        <hr>
+                        <h6>Xếp hạng Methods:</h6>
+                        <div class="row">
+                            {% for method in test_results.overall_metrics.methods_ranking %}
+                            <div class="col-md-4 mb-2">
+                                <div class="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                                    <span>{{ forloop.counter }}. {{ method.name }}</span>
+                                    <span class="badge bg-primary">{{ method.hit_rate }}%</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Method Results -->
+                <div class="row">
+                    {% for method_result in test_results.method_results %}
+                    <div class="col-lg-6 mb-4">
+                        <div class="method-performance 
+                            {% if method_result.error %}
+                                performance-poor
+                            {% elif method_result.metrics.avg_hit_rate >= 25 %}
+                                performance-excellent
+                            {% elif method_result.metrics.avg_hit_rate >= 15 %}
+                                performance-good
+                            {% elif method_result.metrics.avg_hit_rate >= 5 %}
+                                performance-average
+                            {% else %}
+                                performance-poor
+                            {% endif %}">
+                            
+                            <h6>
+                                <i class="fas fa-cog"></i> {{ method_result.method.name }}
+                                <small class="text-muted">({{ method_result.method.category }})</small>
+                            </h6>
+                            
+                            {% if method_result.error %}
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle"></i> {{ method_result.error }}
+                                </div>
+                            {% else %}
+                                <!-- Metrics -->
+                                <div class="row mb-3">
+                                    <div class="col-4">
+                                        <div class="text-center">
+                                            <h5 class="mb-1">{{ method_result.metrics.avg_hit_rate }}%</h5>
+                                            <small class="text-muted">Hit Rate</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-center">
+                                            <h5 class="mb-1">{{ method_result.metrics.accuracy }}%</h5>
+                                            <small class="text-muted">Accuracy</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="text-center">
+                                            <h5 class="mb-1">{{ method_result.metrics.days_with_hits }}/3</h5>
+                                            <small class="text-muted">Ngày có hit</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Predictions & Comparison -->
+                                <div class="predictions-section">
+                                    <h6><i class="fas fa-crystal-ball"></i> Dự đoán & So sánh</h6>
+                                    {% for comp in method_result.comparison %}
+                                    <div class="prediction-result {% if comp.hit_count > 0 %}has-hits{% else %}no-hits{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <strong>Ngày {{ comp.day }} - {{ comp.date|date:"d/m/Y" }}</strong>
+                                            <span class="badge {% if comp.hit_count > 0 %}bg-success{% else %}bg-danger{% endif %}">
+                                                {{ comp.hit_count }} hit ({{ comp.hit_rate|floatformat:1 }}%)
+                                            </span>
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Dự đoán:</small><br>
+                                                {% for num in comp.predicted_numbers %}
+                                                    <span class="predicted-number">{{ num }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            {% if comp.has_actual %}
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Thực tế:</small><br>
+                                                {% for num in comp.actual_numbers %}
+                                                    <span class="actual-number">{{ num }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <div class="col-md-4">
+                                                <small class="text-muted">Trúng:</small><br>
+                                                {% for num in comp.hit_numbers %}
+                                                    <span class="hit-number">{{ num }}</span>
+                                                {% endfor %}
+                                                {% if not comp.hit_numbers %}
+                                                    <span class="text-muted">Không có</span>
+                                                {% endif %}
+                                            </div>
+                                            {% else %}
+                                            <div class="col-md-8">
+                                                <small class="text-muted">Chưa có kết quả thực tế</small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Training Data Summary -->
+                                <div class="mt-3">
+                                    <h6><i class="fas fa-database"></i> Training Data ({{ method_result.training_data|length }} points)</h6>
+                                    <div class="training-data-summary">
+                                        <small class="text-muted">
+                                            Từ {{ method_result.training_data.0.date|date:"d/m/Y" }} 
+                                            đến {% with last_data=method_result.training_data|last %}{{ last_data.date|date:"d/m/Y" }}{% endwith %}
+                                            - Avg Hit Rate: {{ method_result.training_data|avg_hit_rate|floatformat:1 }}%
+                                        </small>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Warnings -->
+                {% if test_results.warnings %}
+                <div class="alert alert-warning">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Cảnh báo:</h6>
+                    <ul class="mb-0">
+                        {% for warning in test_results.warnings %}
+                        <li>{{ warning }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ SELECT ALL METHODS FUNCTIONALITY
+    const selectAllCheckbox = document.getElementById('select_all_methods');
+    const methodCheckboxes = document.querySelectorAll('.method-checkbox');
+    
+    selectAllCheckbox.addEventListener('change', function() {
+        methodCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+    
+    // ✅ UPDATE SELECT ALL WHEN INDIVIDUAL CHECKBOXES CHANGE
+    methodCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const checkedCount = document.querySelectorAll('.method-checkbox:checked').length;
+            const totalCount = methodCheckboxes.length;
+            
+            selectAllCheckbox.checked = checkedCount === totalCount;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+        });
+    });
+    
+    // ✅ FORM VALIDATION
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        const checkedMethods = document.querySelectorAll('.method-checkbox:checked');
+        
+        if (checkedMethods.length === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một phương pháp để test!');
+            return;
+        }
+        
+        // ✅ SHOW LOADING
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+        
+        // ✅ SHOW PROGRESS MESSAGE
+        const progressAlert = document.createElement('div');
+        progressAlert.className = 'alert alert-info mt-3';
+        progressAlert.innerHTML = `
+            <i class="fas fa-info-circle"></i> 
+            Đang thực hiện training ML models và prediction... 
+            Quá trình này có thể mất vài phút, vui lòng đợi.
+        `;
+        form.parentNode.insertBefore(progressAlert, form.nextSibling);
+    });
+    
+    // ✅ PERFORMANCE ANALYSIS
+    console.log('🤖 ML Training Test Results Analysis');
+    
+    {% if has_results %}
+    const results = {{ test_results|safe }};
+    console.log('📊 Test Results:', results);
+    
+    // ✅ LOG PERFORMANCE INSIGHTS
+    if (results.overall_metrics && !results.overall_metrics.no_valid_methods) {
+        console.log('🏆 Best Method:', results.overall_metrics.best_method);
+        console.log('📈 Average Hit Rate:', results.overall_metrics.avg_hit_rate + '%');
+        console.log('🎯 Average Accuracy:', results.overall_metrics.avg_accuracy + '%');
+    }
+    {% endif %}
+});
+</script>
+{% endblock %}

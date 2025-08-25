@@ -1,0 +1,122 @@
+{
+  "timestamp": "2025-07-31T16:30:36.111596",
+  "hot_cold_analysis": {
+    "hot_numbers": {
+      "56": {
+        "frequency": 27,
+        "expected": 0.84,
+        "ratio": 32.14,
+        "recent_30_days": 12,
+        "hotness_score": 45.0
+      },
+      "06": {
+        "frequency": 28,
+        "expected": 0.84,
+        "ratio": 33.33,
+        "recent_30_days": 9,
+        "hotness_score": 43.33
+      },
+      "21": {
+        "frequency": 28,
+        "expected": 0.84,
+        "ratio": 33.33,
+        "recent_30_days": 9,
+        "hotness_score": 43.33
+      },
+      "68": {
+        "frequency": 28,
+        "expected": 0.84,
+        "ratio": 33.33,
+        "recent_30_days": 7,
+        "hotness_score": 41.11
+      },
+      "30": {
+        "frequency": 27,
+        "expected": 0.84,
+        "ratio": 32.14,
+        "recent_30_days": 7,
+        "hotness_score": 39.64
+      },
+      "19": {
+        "frequency": 26,
+        "expected": 0.84,
+        "ratio": 30.95,
+        "recent_30_days": 8,
+        "hotness_score": 39.21
+      },
+      "94": {
+        "frequency": 25,
+        "expected": 0.84,
+        "ratio": 29.76,
+        "recent_30_days": 8,
+        "hotness_score": 37.7
+      },
+      "11": {
+        "frequency": 24,
+        "expected": 0.84,
+        "ratio": 28.57,
+        "recent_30_days": 9,
+        "hotness_score": 37.14
+      },
+      "78": {
+        "frequency": 25,
+        "expected": 0.84,
+        "ratio": 29.76,
+        "recent_30_days": 7,
+        "hotness_score": 36.71
+      },
+      "72": {
+        "frequency": 26,
+        "expected": 0.84,
+        "ratio": 30.95,
+        "recent_30_days": 5,
+        "hotness_score": 36.11
+      }
+    },
+    "cold_numbers": {},
+    "summary": {
+      "total_records": 2007,
+      "total_days": 84,
+      "expected_freq": 0.84,
+      "hot_count": 100,
+      "cold_count": 0
+    }
+  },
+  "seasonal_patterns": {
+    "monthly": {
+      "2": {
+        "total": 663,
+        "unique_numbers": 100
+      },
+      "3": {
+        "total": 733,
+        "unique_numbers": 100
+      },
+      "4": {
+        "total": 716,
+        "unique_numbers": 100
+      },
+      "5": {
+        "total": 735,
+        "unique_numbers": 100
+      },
+      "6": {
+        "total": 718,
+        "unique_numbers": 100
+      },
+      "7": {
+        "total": 576,
+        "unique_numbers": 100
+      }
+    },
+    "day_of_week": {
+      "0": 593,
+      "1": 591,
+      "2": 605,
+      "3": 597,
+      "4": 565,
+      "5": 595,
+      "6": 595
+    }
+  }
+}

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Prediction API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        pre { white-space: pre-wrap; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Ultimate Prediction API Test</h1>
+    
+    <button onclick="testAPI()">🎯 Test Ultimate Prediction API</button>
+    <button onclick="clearResults()">🧹 Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function addResult(content, type = 'info') {
+            const div = document.createElement('div');
+            div.className = 'result ' + type;
+            div.innerHTML = content;
+            document.getElementById('results').appendChild(div);
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function testAPI() {
+            addResult('<h3>🧪 Starting Ultimate Prediction API Test...</h3>');
+            
+            const url = '/analytic-frequence/ajax-prediction/';
+            const payload = {
+                prediction_date: '2025-08-13',
+                prediction_horizon: 8,
+                use_real_data: true
+            };
+
+            try {
+                addResult('<p>📡 Sending request to: ' + url + '</p>');
+                addResult('<p>📦 Payload: <pre>' + JSON.stringify(payload, null, 2) + '</pre></p>');
+                
+                const startTime = performance.now();
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') || 'test'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const endTime = performance.now();
+                const responseTime = (endTime - startTime).toFixed(2);
+                
+                addResult(`<p>⏱️ Response time: ${responseTime}ms</p>`);
+                addResult(`<p>📊 Status: ${response.status} ${response.statusText}</p>`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const predData = data.prediction_data;
+                        const predictions = predData.predictions;
+                        
+                        addResult(`<h4>✅ Success: ${predictions.length} predictions generated</h4>`, 'success');
+                        addResult(`<p>🎯 Confidence Score: ${predData.confidence_score}</p>`);
+                        addResult(`<p>⚡ Processing Time: ${predData.processing_time_ms}ms</p>`);
+                        addResult(`<p>📊 Data Source: ${predData.data_source}</p>`);
+                        
+                        // Check for fallback predictions
+                        let fallbackCount = 0;
+                        let realCount = 0;
+                        let analysisResults = '<h4>🔍 Prediction Analysis:</h4>';
+                        
+                        predictions.forEach((pred, i) => {
+                            const source = (pred.analysis_source || '').toLowerCase();
+                            const predType = (pred.prediction_type || '').toLowerCase();
+                            const strategy = (pred.prediction_strategy || '').toLowerCase();
+                            
+                            const isFallback = source.includes('fallback') || 
+                                             predType.includes('fallback') || 
+                                             strategy.includes('fallback');
+                            
+                            if (isFallback) {
+                                fallbackCount++;
+                                analysisResults += `<p style="color: red;">❌ Prediction ${i+1}: Number ${pred.number} - FALLBACK DETECTED</p>`;
+                                analysisResults += `<p style="margin-left: 20px; font-size: 12px;">Source: ${pred.analysis_source || 'N/A'}</p>`;
+                            } else {
+                                realCount++;
+                                analysisResults += `<p style="color: green;">✅ Prediction ${i+1}: Number ${pred.number} - Real Prediction</p>`;
+                                analysisResults += `<p style="margin-left: 20px; font-size: 12px;">Source: ${pred.analysis_source || 'N/A'}, Strategy: ${pred.prediction_strategy || 'N/A'}</p>`;
+                            }
+                        });
+                        
+                        analysisResults += `<h4>📊 Summary:</h4>`;
+                        analysisResults += `<p>Real predictions: ${realCount}</p>`;
+                        analysisResults += `<p>Fallback predictions: ${fallbackCount}</p>`;
+                        
+                        if (fallbackCount === 0) {
+                            analysisResults += `<h3 style="color: green;">🎉 SUCCESS: NO FALLBACK PREDICTIONS DETECTED!</h3>`;
+                            addResult(analysisResults, 'success');
+                        } else {
+                            analysisResults += `<h3 style="color: red;">⚠️ WARNING: ${fallbackCount} fallback predictions found</h3>`;
+                            addResult(analysisResults, 'warning');
+                        }
+                        
+                        // Show sample predictions
+                        let samplePreds = '<h4>🎲 Sample Predictions:</h4>';
+                        predictions.slice(0, 3).forEach((pred, i) => {
+                            samplePreds += `<p>${i+1}. Number: ${pred.number}, Confidence: ${pred.confidence.toFixed(3)}</p>`;
+                        });
+                        addResult(samplePreds);
+                        
+                        // Show insights
+                        if (predData.revolutionary_insights) {
+                            const insights = predData.revolutionary_insights;
+                            let insightHtml = '<h4>🔬 Revolutionary Insights:</h4>';
+                            insightHtml += `<p>Information Entropy: ${insights.information_entropy}</p>`;
+                            insightHtml += `<p>Quantum Entanglement: ${insights.quantum_entanglement_score}</p>`;
+                            insightHtml += `<p>Consciousness Level: ${insights.consciousness_level}</p>`;
+                            addResult(insightHtml);
+                        }
+                        
+                    } else {
+                        addResult(`<h4>❌ API Error: ${data.error || 'Unknown error'}</h4>`, 'error');
+                    }
+                } else {
+                    addResult(`<h4>❌ HTTP Error: ${response.status} - ${response.statusText}</h4>`, 'error');
+                }
+                
+            } catch (error) {
+                addResult(`<h4>❌ Request Error: ${error.message}</h4>`, 'error');
+                console.error('API Test Error:', error);
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

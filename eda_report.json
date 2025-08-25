@@ -1,0 +1,2713 @@
+{
+  "analysis_date": "2025-07-25T02:11:26.018496+00:00",
+  "data_summary": {
+    "total_records": 361,
+    "date_range": {
+      "start_date": "2024-07-25",
+      "end_date": "2025-07-24",
+      "total_days": 361
+    },
+    "total_numbers_extracted": 8586,
+    "unique_numbers_seen": 100,
+    "avg_numbers_per_day": 23.78393351800554
+  },
+  "number_frequency_analysis": {
+    "individual_stats": {
+      "00": {
+        "total_appearances": 76,
+        "frequency_rate": 0.21052631578947367,
+        "last_seen": "2025-07-20",
+        "avg_gap": 4.733333333333333,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.721409529854097,
+        "days_since_last": 4
+      },
+      "01": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.238095238095238,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 3.5943707563058727,
+        "days_since_last": 0
+      },
+      "02": {
+        "total_appearances": 82,
+        "frequency_rate": 0.22714681440443213,
+        "last_seen": "2025-07-18",
+        "avg_gap": 4.419753086419753,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 3.7642378191058508,
+        "days_since_last": 6
+      },
+      "03": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.078651685393258,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 3.8401331879439864,
+        "days_since_last": 1
+      },
+      "04": {
+        "total_appearances": 76,
+        "frequency_rate": 0.21052631578947367,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.786666666666667,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.750560200883915,
+        "days_since_last": 0
+      },
+      "05": {
+        "total_appearances": 79,
+        "frequency_rate": 0.2188365650969529,
+        "last_seen": "2025-07-17",
+        "avg_gap": 4.5,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.5036610888670476,
+        "days_since_last": 7
+      },
+      "06": {
+        "total_appearances": 94,
+        "frequency_rate": 0.26038781163434904,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.849462365591398,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 4.079706495238759,
+        "days_since_last": 2
+      },
+      "07": {
+        "total_appearances": 87,
+        "frequency_rate": 0.2409972299168975,
+        "last_seen": "2025-07-17",
+        "avg_gap": 4.0813953488372094,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.5081801957082765,
+        "days_since_last": 7
+      },
+      "08": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.126436781609195,
+        "min_gap": 1,
+        "max_gap": 21,
+        "gap_std": 3.811068567385502,
+        "days_since_last": 1
+      },
+      "09": {
+        "total_appearances": 95,
+        "frequency_rate": 0.2631578947368421,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.8191489361702127,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 2.9677800499070894,
+        "days_since_last": 0
+      },
+      "10": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-16",
+        "avg_gap": 3.9770114942528734,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.373245006433879,
+        "days_since_last": 8
+      },
+      "11": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.044444444444444,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.536825667525774,
+        "days_since_last": 0
+      },
+      "12": {
+        "total_appearances": 78,
+        "frequency_rate": 0.21606648199445982,
+        "last_seen": "2025-07-22",
+        "avg_gap": 4.688311688311688,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.355202114861256,
+        "days_since_last": 2
+      },
+      "13": {
+        "total_appearances": 103,
+        "frequency_rate": 0.2853185595567867,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.5588235294117645,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 2.3538601146725706,
+        "days_since_last": 0
+      },
+      "14": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.285714285714286,
+        "min_gap": 1,
+        "max_gap": 11,
+        "gap_std": 3.092122974559052,
+        "days_since_last": 0
+      },
+      "15": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-14",
+        "avg_gap": 3.933333333333333,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 3.4762687531956504,
+        "days_since_last": 10
+      },
+      "16": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.089887640449438,
+        "min_gap": 1,
+        "max_gap": 12,
+        "gap_std": 3.22782999927649,
+        "days_since_last": 0
+      },
+      "17": {
+        "total_appearances": 82,
+        "frequency_rate": 0.22714681440443213,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.432098765432099,
+        "min_gap": 1,
+        "max_gap": 24,
+        "gap_std": 4.3770960315325205,
+        "days_since_last": 1
+      },
+      "18": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-19",
+        "avg_gap": 4.238095238095238,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.610893068595977,
+        "days_since_last": 5
+      },
+      "19": {
+        "total_appearances": 99,
+        "frequency_rate": 0.2742382271468144,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.693877551020408,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.1311736186139867,
+        "days_since_last": 0
+      },
+      "20": {
+        "total_appearances": 80,
+        "frequency_rate": 0.22160664819944598,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.531645569620253,
+        "min_gap": 1,
+        "max_gap": 24,
+        "gap_std": 4.539100014063388,
+        "days_since_last": 1
+      },
+      "21": {
+        "total_appearances": 89,
+        "frequency_rate": 0.24653739612188366,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.136363636363637,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 3.8233190548319826,
+        "days_since_last": 0
+      },
+      "22": {
+        "total_appearances": 94,
+        "frequency_rate": 0.26038781163434904,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.89247311827957,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 3.1604490139389183,
+        "days_since_last": 2
+      },
+      "23": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-22",
+        "avg_gap": 4.022222222222222,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 3.6756791595500578,
+        "days_since_last": 2
+      },
+      "24": {
+        "total_appearances": 95,
+        "frequency_rate": 0.2631578947368421,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.8617021276595747,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.4598027979400463,
+        "days_since_last": 0
+      },
+      "25": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.01123595505618,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 3.4915447855167248,
+        "days_since_last": 3
+      },
+      "26": {
+        "total_appearances": 82,
+        "frequency_rate": 0.22714681440443213,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.469135802469136,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 4.0706307933331125,
+        "days_since_last": 1
+      },
+      "27": {
+        "total_appearances": 74,
+        "frequency_rate": 0.20498614958448755,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.835616438356165,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 4.223267898593626,
+        "days_since_last": 3
+      },
+      "28": {
+        "total_appearances": 75,
+        "frequency_rate": 0.2077562326869806,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.905405405405405,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 4.632928321876614,
+        "days_since_last": 0
+      },
+      "29": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.056179775280899,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 3.7726381868699206,
+        "days_since_last": 1
+      },
+      "30": {
+        "total_appearances": 79,
+        "frequency_rate": 0.2188365650969529,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.653846153846154,
+        "min_gap": 1,
+        "max_gap": 26,
+        "gap_std": 5.239952346321097,
+        "days_since_last": 1
+      },
+      "31": {
+        "total_appearances": 83,
+        "frequency_rate": 0.2299168975069252,
+        "last_seen": "2025-07-13",
+        "avg_gap": 4.2317073170731705,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 3.3433544586669126,
+        "days_since_last": 11
+      },
+      "32": {
+        "total_appearances": 95,
+        "frequency_rate": 0.2631578947368421,
+        "last_seen": "2025-07-16",
+        "avg_gap": 3.7872340425531914,
+        "min_gap": 1,
+        "max_gap": 15,
+        "gap_std": 2.7555450494760865,
+        "days_since_last": 8
+      },
+      "33": {
+        "total_appearances": 71,
+        "frequency_rate": 0.19667590027700832,
+        "last_seen": "2025-07-24",
+        "avg_gap": 5.114285714285714,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.24110112771556,
+        "days_since_last": 0
+      },
+      "34": {
+        "total_appearances": 75,
+        "frequency_rate": 0.2077562326869806,
+        "last_seen": "2025-07-03",
+        "avg_gap": 4.54054054054054,
+        "min_gap": 1,
+        "max_gap": 33,
+        "gap_std": 4.965255468752649,
+        "days_since_last": 21
+      },
+      "35": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.114942528735632,
+        "min_gap": 1,
+        "max_gap": 16,
+        "gap_std": 3.1456055366335036,
+        "days_since_last": 3
+      },
+      "36": {
+        "total_appearances": 89,
+        "frequency_rate": 0.24653739612188366,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.113636363636363,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.6538641382098307,
+        "days_since_last": 1
+      },
+      "37": {
+        "total_appearances": 75,
+        "frequency_rate": 0.2077562326869806,
+        "last_seen": "2025-07-20",
+        "avg_gap": 4.851351351351352,
+        "min_gap": 1,
+        "max_gap": 21,
+        "gap_std": 3.9031603010908595,
+        "days_since_last": 4
+      },
+      "38": {
+        "total_appearances": 77,
+        "frequency_rate": 0.21329639889196675,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.7105263157894735,
+        "min_gap": 1,
+        "max_gap": 21,
+        "gap_std": 3.9696738215258294,
+        "days_since_last": 3
+      },
+      "39": {
+        "total_appearances": 101,
+        "frequency_rate": 0.27977839335180055,
+        "last_seen": "2025-07-16",
+        "avg_gap": 3.55,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 2.8508770580296865,
+        "days_since_last": 8
+      },
+      "40": {
+        "total_appearances": 79,
+        "frequency_rate": 0.2188365650969529,
+        "last_seen": "2025-07-15",
+        "avg_gap": 4.5,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.316782990215675,
+        "days_since_last": 9
+      },
+      "41": {
+        "total_appearances": 78,
+        "frequency_rate": 0.21606648199445982,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.688311688311688,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 4.426190470898035,
+        "days_since_last": 1
+      },
+      "42": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-14",
+        "avg_gap": 4.142857142857143,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.4439140839584073,
+        "days_since_last": 10
+      },
+      "43": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-19",
+        "avg_gap": 4.114942528735632,
+        "min_gap": 1,
+        "max_gap": 24,
+        "gap_std": 4.089305613303548,
+        "days_since_last": 5
+      },
+      "44": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-20",
+        "avg_gap": 4.2023809523809526,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.6180097195924943,
+        "days_since_last": 4
+      },
+      "45": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-20",
+        "avg_gap": 4.01123595505618,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 2.977422088424787,
+        "days_since_last": 4
+      },
+      "46": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-19",
+        "avg_gap": 4.238095238095238,
+        "min_gap": 1,
+        "max_gap": 21,
+        "gap_std": 4.156518253409902,
+        "days_since_last": 5
+      },
+      "47": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-19",
+        "avg_gap": 3.891304347826087,
+        "min_gap": 1,
+        "max_gap": 15,
+        "gap_std": 3.1048927788640253,
+        "days_since_last": 5
+      },
+      "48": {
+        "total_appearances": 86,
+        "frequency_rate": 0.23822714681440443,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.235294117647059,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.516840356053342,
+        "days_since_last": 1
+      },
+      "49": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-23",
+        "avg_gap": 3.988888888888889,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 3.6651343599577917,
+        "days_since_last": 1
+      },
+      "50": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.126436781609195,
+        "min_gap": 1,
+        "max_gap": 20,
+        "gap_std": 3.6790947090537567,
+        "days_since_last": 3
+      },
+      "51": {
+        "total_appearances": 76,
+        "frequency_rate": 0.21052631578947367,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.8,
+        "min_gap": 1,
+        "max_gap": 23,
+        "gap_std": 4.016632088371217,
+        "days_since_last": 1
+      },
+      "52": {
+        "total_appearances": 81,
+        "frequency_rate": 0.22437673130193905,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.55,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.552815784698103,
+        "days_since_last": 0
+      },
+      "53": {
+        "total_appearances": 97,
+        "frequency_rate": 0.26869806094182824,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.75,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.6026610535362145,
+        "days_since_last": 2
+      },
+      "54": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.0,
+        "min_gap": 1,
+        "max_gap": 26,
+        "gap_std": 4.0943918893799385,
+        "days_since_last": 0
+      },
+      "55": {
+        "total_appearances": 77,
+        "frequency_rate": 0.21329639889196675,
+        "last_seen": "2025-07-15",
+        "avg_gap": 4.657894736842105,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.5413074881689917,
+        "days_since_last": 9
+      },
+      "56": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.183908045977011,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.687595658240054,
+        "days_since_last": 0
+      },
+      "57": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-16",
+        "avg_gap": 4.045977011494253,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.519757195051273,
+        "days_since_last": 8
+      },
+      "58": {
+        "total_appearances": 100,
+        "frequency_rate": 0.2770083102493075,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.4646464646464645,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 2.61430845796677,
+        "days_since_last": 2
+      },
+      "59": {
+        "total_appearances": 78,
+        "frequency_rate": 0.21606648199445982,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.7272727272727275,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 3.156672436866357,
+        "days_since_last": 0
+      },
+      "60": {
+        "total_appearances": 82,
+        "frequency_rate": 0.22714681440443213,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.45679012345679,
+        "min_gap": 1,
+        "max_gap": 27,
+        "gap_std": 4.527145511999369,
+        "days_since_last": 3
+      },
+      "61": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.0,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.308144528994932,
+        "days_since_last": 3
+      },
+      "62": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.172413793103448,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 3.664702388856455,
+        "days_since_last": 1
+      },
+      "63": {
+        "total_appearances": 89,
+        "frequency_rate": 0.24653739612188366,
+        "last_seen": "2025-07-19",
+        "avg_gap": 3.9886363636363638,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 3.4591588513217615,
+        "days_since_last": 5
+      },
+      "64": {
+        "total_appearances": 86,
+        "frequency_rate": 0.23822714681440443,
+        "last_seen": "2025-07-19",
+        "avg_gap": 4.152941176470589,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.2666078190683705,
+        "days_since_last": 5
+      },
+      "65": {
+        "total_appearances": 76,
+        "frequency_rate": 0.21052631578947367,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.8,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.089009660052174,
+        "days_since_last": 1
+      },
+      "66": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.044444444444444,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.43158891319106,
+        "days_since_last": 0
+      },
+      "67": {
+        "total_appearances": 87,
+        "frequency_rate": 0.2409972299168975,
+        "last_seen": "2025-07-18",
+        "avg_gap": 4.151162790697675,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 3.2547548111149527,
+        "days_since_last": 6
+      },
+      "68": {
+        "total_appearances": 94,
+        "frequency_rate": 0.26038781163434904,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.913978494623656,
+        "min_gap": 1,
+        "max_gap": 20,
+        "gap_std": 3.3558035557692976,
+        "days_since_last": 0
+      },
+      "69": {
+        "total_appearances": 86,
+        "frequency_rate": 0.23822714681440443,
+        "last_seen": "2025-07-22",
+        "avg_gap": 4.223529411764706,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.7176098285552026,
+        "days_since_last": 2
+      },
+      "70": {
+        "total_appearances": 77,
+        "frequency_rate": 0.21329639889196675,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.7631578947368425,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 4.038852172314071,
+        "days_since_last": 1
+      },
+      "71": {
+        "total_appearances": 78,
+        "frequency_rate": 0.21606648199445982,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.675324675324675,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.7048285742684244,
+        "days_since_last": 0
+      },
+      "72": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-17",
+        "avg_gap": 3.858695652173913,
+        "min_gap": 1,
+        "max_gap": 34,
+        "gap_std": 4.8265153550558395,
+        "days_since_last": 7
+      },
+      "73": {
+        "total_appearances": 78,
+        "frequency_rate": 0.21606648199445982,
+        "last_seen": "2025-07-08",
+        "avg_gap": 4.51948051948052,
+        "min_gap": 1,
+        "max_gap": 13,
+        "gap_std": 3.1565655741084298,
+        "days_since_last": 16
+      },
+      "74": {
+        "total_appearances": 89,
+        "frequency_rate": 0.24653739612188366,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.125,
+        "min_gap": 1,
+        "max_gap": 16,
+        "gap_std": 3.1145279081923625,
+        "days_since_last": 1
+      },
+      "75": {
+        "total_appearances": 99,
+        "frequency_rate": 0.2742382271468144,
+        "last_seen": "2025-07-19",
+        "avg_gap": 3.663265306122449,
+        "min_gap": 1,
+        "max_gap": 12,
+        "gap_std": 2.7772541039998644,
+        "days_since_last": 5
+      },
+      "76": {
+        "total_appearances": 86,
+        "frequency_rate": 0.23822714681440443,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.188235294117647,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.2773522945029483,
+        "days_since_last": 3
+      },
+      "77": {
+        "total_appearances": 83,
+        "frequency_rate": 0.2299168975069252,
+        "last_seen": "2025-07-14",
+        "avg_gap": 4.280487804878049,
+        "min_gap": 1,
+        "max_gap": 20,
+        "gap_std": 3.663512875822152,
+        "days_since_last": 10
+      },
+      "78": {
+        "total_appearances": 94,
+        "frequency_rate": 0.26038781163434904,
+        "last_seen": "2025-07-24",
+        "avg_gap": 3.849462365591398,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 3.942997703999451,
+        "days_since_last": 0
+      },
+      "79": {
+        "total_appearances": 88,
+        "frequency_rate": 0.24376731301939059,
+        "last_seen": "2025-07-22",
+        "avg_gap": 4.137931034482759,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.155627754342928,
+        "days_since_last": 2
+      },
+      "80": {
+        "total_appearances": 82,
+        "frequency_rate": 0.22714681440443213,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.469135802469136,
+        "min_gap": 1,
+        "max_gap": 30,
+        "gap_std": 4.698532525708206,
+        "days_since_last": 0
+      },
+      "81": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.966666666666667,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.321478920936007,
+        "days_since_last": 2
+      },
+      "82": {
+        "total_appearances": 83,
+        "frequency_rate": 0.2299168975069252,
+        "last_seen": "2025-07-21",
+        "avg_gap": 4.390243902439025,
+        "min_gap": 1,
+        "max_gap": 27,
+        "gap_std": 4.520295958260664,
+        "days_since_last": 3
+      },
+      "83": {
+        "total_appearances": 67,
+        "frequency_rate": 0.18559556786703602,
+        "last_seen": "2025-07-22",
+        "avg_gap": 5.454545454545454,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 4.123773713708511,
+        "days_since_last": 2
+      },
+      "84": {
+        "total_appearances": 75,
+        "frequency_rate": 0.2077562326869806,
+        "last_seen": "2025-07-20",
+        "avg_gap": 4.837837837837838,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.8730776470644015,
+        "days_since_last": 4
+      },
+      "85": {
+        "total_appearances": 80,
+        "frequency_rate": 0.22160664819944598,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.481012658227848,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 3.7782212662241776,
+        "days_since_last": 0
+      },
+      "86": {
+        "total_appearances": 92,
+        "frequency_rate": 0.2548476454293629,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.0,
+        "min_gap": 1,
+        "max_gap": 15,
+        "gap_std": 3.084879822048748,
+        "days_since_last": 0
+      },
+      "87": {
+        "total_appearances": 74,
+        "frequency_rate": 0.20498614958448755,
+        "last_seen": "2025-07-15",
+        "avg_gap": 4.8493150684931505,
+        "min_gap": 1,
+        "max_gap": 22,
+        "gap_std": 4.668962610648745,
+        "days_since_last": 9
+      },
+      "88": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.2976190476190474,
+        "min_gap": 1,
+        "max_gap": 25,
+        "gap_std": 4.01123351739409,
+        "days_since_last": 0
+      },
+      "89": {
+        "total_appearances": 81,
+        "frequency_rate": 0.22437673130193905,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.525,
+        "min_gap": 1,
+        "max_gap": 19,
+        "gap_std": 3.9842659298796805,
+        "days_since_last": 1
+      },
+      "90": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-20",
+        "avg_gap": 3.891304347826087,
+        "min_gap": 1,
+        "max_gap": 15,
+        "gap_std": 3.0978832946662793,
+        "days_since_last": 4
+      },
+      "91": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.891304347826087,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 3.2752581104366563,
+        "days_since_last": 2
+      },
+      "92": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-22",
+        "avg_gap": 3.9347826086956523,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.4978389223424893,
+        "days_since_last": 2
+      },
+      "93": {
+        "total_appearances": 73,
+        "frequency_rate": 0.20221606648199447,
+        "last_seen": "2025-07-15",
+        "avg_gap": 4.833333333333333,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 4.365266951236265,
+        "days_since_last": 9
+      },
+      "94": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-23",
+        "avg_gap": 4.011111111111111,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.394421712962622,
+        "days_since_last": 1
+      },
+      "95": {
+        "total_appearances": 80,
+        "frequency_rate": 0.22160664819944598,
+        "last_seen": "2025-07-22",
+        "avg_gap": 4.227848101265823,
+        "min_gap": 1,
+        "max_gap": 15,
+        "gap_std": 3.8383453947413115,
+        "days_since_last": 2
+      },
+      "96": {
+        "total_appearances": 85,
+        "frequency_rate": 0.23545706371191136,
+        "last_seen": "2025-07-24",
+        "avg_gap": 4.333333333333333,
+        "min_gap": 1,
+        "max_gap": 18,
+        "gap_std": 3.5400206258927405,
+        "days_since_last": 0
+      },
+      "97": {
+        "total_appearances": 93,
+        "frequency_rate": 0.25761772853185594,
+        "last_seen": "2025-07-23",
+        "avg_gap": 3.9456521739130435,
+        "min_gap": 1,
+        "max_gap": 17,
+        "gap_std": 3.3762731268135138,
+        "days_since_last": 1
+      },
+      "98": {
+        "total_appearances": 91,
+        "frequency_rate": 0.2520775623268698,
+        "last_seen": "2025-07-20",
+        "avg_gap": 3.933333333333333,
+        "min_gap": 1,
+        "max_gap": 14,
+        "gap_std": 2.9657301892713632,
+        "days_since_last": 4
+      },
+      "99": {
+        "total_appearances": 90,
+        "frequency_rate": 0.24930747922437674,
+        "last_seen": "2025-07-15",
+        "avg_gap": 3.9887640449438204,
+        "min_gap": 1,
+        "max_gap": 16,
+        "gap_std": 3.265393559990676,
+        "days_since_last": 9
+      }
+    },
+    "top_10_frequent": [
+      [
+        "13",
+        {
+          "total_appearances": 103,
+          "frequency_rate": 0.2853185595567867,
+          "last_seen": "2025-07-24",
+          "avg_gap": 3.5588235294117645,
+          "min_gap": 1,
+          "max_gap": 13,
+          "gap_std": 2.3538601146725706,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "39",
+        {
+          "total_appearances": 101,
+          "frequency_rate": 0.27977839335180055,
+          "last_seen": "2025-07-16",
+          "avg_gap": 3.55,
+          "min_gap": 1,
+          "max_gap": 13,
+          "gap_std": 2.8508770580296865,
+          "days_since_last": 8
+        }
+      ],
+      [
+        "58",
+        {
+          "total_appearances": 100,
+          "frequency_rate": 0.2770083102493075,
+          "last_seen": "2025-07-22",
+          "avg_gap": 3.4646464646464645,
+          "min_gap": 1,
+          "max_gap": 13,
+          "gap_std": 2.61430845796677,
+          "days_since_last": 2
+        }
+      ],
+      [
+        "19",
+        {
+          "total_appearances": 99,
+          "frequency_rate": 0.2742382271468144,
+          "last_seen": "2025-07-24",
+          "avg_gap": 3.693877551020408,
+          "min_gap": 1,
+          "max_gap": 19,
+          "gap_std": 3.1311736186139867,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "75",
+        {
+          "total_appearances": 99,
+          "frequency_rate": 0.2742382271468144,
+          "last_seen": "2025-07-19",
+          "avg_gap": 3.663265306122449,
+          "min_gap": 1,
+          "max_gap": 12,
+          "gap_std": 2.7772541039998644,
+          "days_since_last": 5
+        }
+      ],
+      [
+        "53",
+        {
+          "total_appearances": 97,
+          "frequency_rate": 0.26869806094182824,
+          "last_seen": "2025-07-22",
+          "avg_gap": 3.75,
+          "min_gap": 1,
+          "max_gap": 18,
+          "gap_std": 3.6026610535362145,
+          "days_since_last": 2
+        }
+      ],
+      [
+        "09",
+        {
+          "total_appearances": 95,
+          "frequency_rate": 0.2631578947368421,
+          "last_seen": "2025-07-24",
+          "avg_gap": 3.8191489361702127,
+          "min_gap": 1,
+          "max_gap": 13,
+          "gap_std": 2.9677800499070894,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "24",
+        {
+          "total_appearances": 95,
+          "frequency_rate": 0.2631578947368421,
+          "last_seen": "2025-07-24",
+          "avg_gap": 3.8617021276595747,
+          "min_gap": 1,
+          "max_gap": 19,
+          "gap_std": 3.4598027979400463,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "32",
+        {
+          "total_appearances": 95,
+          "frequency_rate": 0.2631578947368421,
+          "last_seen": "2025-07-16",
+          "avg_gap": 3.7872340425531914,
+          "min_gap": 1,
+          "max_gap": 15,
+          "gap_std": 2.7555450494760865,
+          "days_since_last": 8
+        }
+      ],
+      [
+        "06",
+        {
+          "total_appearances": 94,
+          "frequency_rate": 0.26038781163434904,
+          "last_seen": "2025-07-22",
+          "avg_gap": 3.849462365591398,
+          "min_gap": 1,
+          "max_gap": 25,
+          "gap_std": 4.079706495238759,
+          "days_since_last": 2
+        }
+      ]
+    ],
+    "bottom_10_frequent": [
+      [
+        "65",
+        {
+          "total_appearances": 76,
+          "frequency_rate": 0.21052631578947367,
+          "last_seen": "2025-07-23",
+          "avg_gap": 4.8,
+          "min_gap": 1,
+          "max_gap": 22,
+          "gap_std": 4.089009660052174,
+          "days_since_last": 1
+        }
+      ],
+      [
+        "28",
+        {
+          "total_appearances": 75,
+          "frequency_rate": 0.2077562326869806,
+          "last_seen": "2025-07-24",
+          "avg_gap": 4.905405405405405,
+          "min_gap": 1,
+          "max_gap": 23,
+          "gap_std": 4.632928321876614,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "34",
+        {
+          "total_appearances": 75,
+          "frequency_rate": 0.2077562326869806,
+          "last_seen": "2025-07-03",
+          "avg_gap": 4.54054054054054,
+          "min_gap": 1,
+          "max_gap": 33,
+          "gap_std": 4.965255468752649,
+          "days_since_last": 21
+        }
+      ],
+      [
+        "37",
+        {
+          "total_appearances": 75,
+          "frequency_rate": 0.2077562326869806,
+          "last_seen": "2025-07-20",
+          "avg_gap": 4.851351351351352,
+          "min_gap": 1,
+          "max_gap": 21,
+          "gap_std": 3.9031603010908595,
+          "days_since_last": 4
+        }
+      ],
+      [
+        "84",
+        {
+          "total_appearances": 75,
+          "frequency_rate": 0.2077562326869806,
+          "last_seen": "2025-07-20",
+          "avg_gap": 4.837837837837838,
+          "min_gap": 1,
+          "max_gap": 18,
+          "gap_std": 3.8730776470644015,
+          "days_since_last": 4
+        }
+      ],
+      [
+        "27",
+        {
+          "total_appearances": 74,
+          "frequency_rate": 0.20498614958448755,
+          "last_seen": "2025-07-21",
+          "avg_gap": 4.835616438356165,
+          "min_gap": 1,
+          "max_gap": 19,
+          "gap_std": 4.223267898593626,
+          "days_since_last": 3
+        }
+      ],
+      [
+        "87",
+        {
+          "total_appearances": 74,
+          "frequency_rate": 0.20498614958448755,
+          "last_seen": "2025-07-15",
+          "avg_gap": 4.8493150684931505,
+          "min_gap": 1,
+          "max_gap": 22,
+          "gap_std": 4.668962610648745,
+          "days_since_last": 9
+        }
+      ],
+      [
+        "93",
+        {
+          "total_appearances": 73,
+          "frequency_rate": 0.20221606648199447,
+          "last_seen": "2025-07-15",
+          "avg_gap": 4.833333333333333,
+          "min_gap": 1,
+          "max_gap": 18,
+          "gap_std": 4.365266951236265,
+          "days_since_last": 9
+        }
+      ],
+      [
+        "33",
+        {
+          "total_appearances": 71,
+          "frequency_rate": 0.19667590027700832,
+          "last_seen": "2025-07-24",
+          "avg_gap": 5.114285714285714,
+          "min_gap": 1,
+          "max_gap": 22,
+          "gap_std": 4.24110112771556,
+          "days_since_last": 0
+        }
+      ],
+      [
+        "83",
+        {
+          "total_appearances": 67,
+          "frequency_rate": 0.18559556786703602,
+          "last_seen": "2025-07-22",
+          "avg_gap": 5.454545454545454,
+          "min_gap": 1,
+          "max_gap": 18,
+          "gap_std": 4.123773713708511,
+          "days_since_last": 2
+        }
+      ]
+    ],
+    "never_appeared": [],
+    "frequency_distribution": {
+      "mean": 85.86,
+      "median": 87.0,
+      "std": 7.2856296913856395
+    }
+  },
+  "day_of_week_analysis": {
+    "Monday": {
+      "total_lottery_days": 52,
+      "total_numbers": 1236,
+      "avg_numbers_per_day": 23.76923076923077,
+      "top_10_numbers": [
+        [
+          "25",
+          21
+        ],
+        [
+          "19",
+          21
+        ],
+        [
+          "75",
+          20
+        ],
+        [
+          "73",
+          18
+        ],
+        [
+          "50",
+          17
+        ],
+        [
+          "76",
+          17
+        ],
+        [
+          "57",
+          16
+        ],
+        [
+          "08",
+          16
+        ],
+        [
+          "68",
+          16
+        ],
+        [
+          "65",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Tuesday": {
+      "total_lottery_days": 51,
+      "total_numbers": 1216,
+      "avg_numbers_per_day": 23.84313725490196,
+      "top_10_numbers": [
+        [
+          "72",
+          20
+        ],
+        [
+          "66",
+          19
+        ],
+        [
+          "06",
+          19
+        ],
+        [
+          "24",
+          19
+        ],
+        [
+          "54",
+          19
+        ],
+        [
+          "39",
+          18
+        ],
+        [
+          "47",
+          18
+        ],
+        [
+          "09",
+          18
+        ],
+        [
+          "62",
+          18
+        ],
+        [
+          "15",
+          17
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Wednesday": {
+      "total_lottery_days": 51,
+      "total_numbers": 1217,
+      "avg_numbers_per_day": 23.862745098039216,
+      "top_10_numbers": [
+        [
+          "62",
+          21
+        ],
+        [
+          "98",
+          19
+        ],
+        [
+          "49",
+          19
+        ],
+        [
+          "58",
+          19
+        ],
+        [
+          "86",
+          18
+        ],
+        [
+          "78",
+          17
+        ],
+        [
+          "18",
+          17
+        ],
+        [
+          "50",
+          17
+        ],
+        [
+          "40",
+          16
+        ],
+        [
+          "06",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Thursday": {
+      "total_lottery_days": 52,
+      "total_numbers": 1234,
+      "avg_numbers_per_day": 23.73076923076923,
+      "top_10_numbers": [
+        [
+          "53",
+          20
+        ],
+        [
+          "56",
+          18
+        ],
+        [
+          "23",
+          18
+        ],
+        [
+          "58",
+          18
+        ],
+        [
+          "75",
+          17
+        ],
+        [
+          "66",
+          17
+        ],
+        [
+          "32",
+          17
+        ],
+        [
+          "14",
+          17
+        ],
+        [
+          "88",
+          17
+        ],
+        [
+          "96",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Friday": {
+      "total_lottery_days": 51,
+      "total_numbers": 1216,
+      "avg_numbers_per_day": 23.84313725490196,
+      "top_10_numbers": [
+        [
+          "97",
+          23
+        ],
+        [
+          "74",
+          20
+        ],
+        [
+          "39",
+          19
+        ],
+        [
+          "44",
+          19
+        ],
+        [
+          "68",
+          18
+        ],
+        [
+          "32",
+          17
+        ],
+        [
+          "99",
+          17
+        ],
+        [
+          "22",
+          16
+        ],
+        [
+          "16",
+          16
+        ],
+        [
+          "50",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Saturday": {
+      "total_lottery_days": 52,
+      "total_numbers": 1227,
+      "avg_numbers_per_day": 23.596153846153847,
+      "top_10_numbers": [
+        [
+          "13",
+          23
+        ],
+        [
+          "46",
+          21
+        ],
+        [
+          "29",
+          19
+        ],
+        [
+          "15",
+          18
+        ],
+        [
+          "01",
+          18
+        ],
+        [
+          "57",
+          17
+        ],
+        [
+          "22",
+          16
+        ],
+        [
+          "89",
+          16
+        ],
+        [
+          "61",
+          16
+        ],
+        [
+          "07",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    },
+    "Sunday": {
+      "total_lottery_days": 52,
+      "total_numbers": 1240,
+      "avg_numbers_per_day": 23.846153846153847,
+      "top_10_numbers": [
+        [
+          "09",
+          19
+        ],
+        [
+          "03",
+          19
+        ],
+        [
+          "90",
+          19
+        ],
+        [
+          "92",
+          19
+        ],
+        [
+          "48",
+          17
+        ],
+        [
+          "00",
+          17
+        ],
+        [
+          "61",
+          17
+        ],
+        [
+          "67",
+          16
+        ],
+        [
+          "22",
+          16
+        ],
+        [
+          "08",
+          16
+        ]
+      ],
+      "unique_numbers_appeared": 100
+    }
+  },
+  "temporal_patterns": {
+    "monthly_patterns": {
+      "January": {
+        "total_numbers": 656,
+        "top_5_numbers": [
+          [
+            "13",
+            11
+          ],
+          [
+            "17",
+            11
+          ],
+          [
+            "91",
+            11
+          ],
+          [
+            "51",
+            11
+          ],
+          [
+            "88",
+            10
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "February": {
+        "total_numbers": 663,
+        "top_5_numbers": [
+          [
+            "58",
+            13
+          ],
+          [
+            "91",
+            13
+          ],
+          [
+            "41",
+            12
+          ],
+          [
+            "24",
+            12
+          ],
+          [
+            "42",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "March": {
+        "total_numbers": 733,
+        "top_5_numbers": [
+          [
+            "61",
+            15
+          ],
+          [
+            "25",
+            13
+          ],
+          [
+            "44",
+            13
+          ],
+          [
+            "68",
+            12
+          ],
+          [
+            "17",
+            12
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "April": {
+        "total_numbers": 716,
+        "top_5_numbers": [
+          [
+            "35",
+            12
+          ],
+          [
+            "77",
+            12
+          ],
+          [
+            "60",
+            12
+          ],
+          [
+            "49",
+            11
+          ],
+          [
+            "92",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "May": {
+        "total_numbers": 735,
+        "top_5_numbers": [
+          [
+            "58",
+            14
+          ],
+          [
+            "30",
+            14
+          ],
+          [
+            "24",
+            12
+          ],
+          [
+            "57",
+            12
+          ],
+          [
+            "09",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "June": {
+        "total_numbers": 718,
+        "top_5_numbers": [
+          [
+            "21",
+            17
+          ],
+          [
+            "39",
+            14
+          ],
+          [
+            "34",
+            13
+          ],
+          [
+            "08",
+            11
+          ],
+          [
+            "19",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "July": {
+        "total_numbers": 742,
+        "top_5_numbers": [
+          [
+            "16",
+            16
+          ],
+          [
+            "56",
+            14
+          ],
+          [
+            "92",
+            13
+          ],
+          [
+            "48",
+            13
+          ],
+          [
+            "11",
+            12
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "August": {
+        "total_numbers": 746,
+        "top_5_numbers": [
+          [
+            "13",
+            14
+          ],
+          [
+            "49",
+            13
+          ],
+          [
+            "72",
+            12
+          ],
+          [
+            "23",
+            12
+          ],
+          [
+            "14",
+            12
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "September": {
+        "total_numbers": 706,
+        "top_5_numbers": [
+          [
+            "69",
+            15
+          ],
+          [
+            "11",
+            14
+          ],
+          [
+            "43",
+            12
+          ],
+          [
+            "87",
+            12
+          ],
+          [
+            "98",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "October": {
+        "total_numbers": 729,
+        "top_5_numbers": [
+          [
+            "36",
+            13
+          ],
+          [
+            "75",
+            12
+          ],
+          [
+            "72",
+            11
+          ],
+          [
+            "38",
+            11
+          ],
+          [
+            "35",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "November": {
+        "total_numbers": 709,
+        "top_5_numbers": [
+          [
+            "81",
+            13
+          ],
+          [
+            "02",
+            13
+          ],
+          [
+            "46",
+            12
+          ],
+          [
+            "26",
+            11
+          ],
+          [
+            "64",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      },
+      "December": {
+        "total_numbers": 733,
+        "top_5_numbers": [
+          [
+            "95",
+            12
+          ],
+          [
+            "06",
+            12
+          ],
+          [
+            "49",
+            12
+          ],
+          [
+            "10",
+            12
+          ],
+          [
+            "60",
+            11
+          ]
+        ],
+        "unique_numbers": 100
+      }
+    },
+    "yearly_patterns": {
+      "2024": {
+        "total_numbers": 3789,
+        "unique_numbers": 100
+      },
+      "2025": {
+        "total_numbers": 4797,
+        "unique_numbers": 100
+      }
+    }
+  },
+  "statistical_insights": {
+    "digit_distributions": {
+      "first_digit": {
+        "7": 865,
+        "6": 869,
+        "9": 882,
+        "2": 860,
+        "1": 892,
+        "5": 863,
+        "0": 852,
+        "8": 810,
+        "3": 833,
+        "4": 860
+      },
+      "second_digit": {
+        "3": 847,
+        "8": 875,
+        "7": 836,
+        "5": 850,
+        "2": 872,
+        "6": 882,
+        "4": 847,
+        "0": 824,
+        "9": 899,
+        "1": 854
+      }
+    },
+    "sum_patterns": {
+      "9": 889,
+      "8": 770,
+      "10": 751,
+      "7": 678,
+      "11": 673,
+      "12": 613,
+      "6": 594,
+      "13": 535,
+      "5": 516,
+      "4": 435,
+      "14": 427,
+      "15": 339,
+      "3": 336,
+      "16": 266,
+      "2": 253,
+      "1": 173,
+      "17": 172,
+      "18": 90,
+      "0": 76
+    },
+    "most_common_transitions": {
+      "73": {
+        "99": 32,
+        "32": 25,
+        "36": 25,
+        "63": 25,
+        "19": 25
+      },
+      "68": {
+        "19": 33,
+        "24": 31,
+        "14": 29,
+        "97": 28,
+        "22": 28
+      },
+      "97": {
+        "74": 32,
+        "22": 31,
+        "10": 29,
+        "68": 28,
+        "94": 28
+      },
+      "75": {
+        "03": 34,
+        "16": 33,
+        "50": 31,
+        "11": 30,
+        "64": 30
+      },
+      "22": {
+        "97": 31,
+        "74": 30,
+        "24": 29,
+        "29": 29,
+        "48": 29
+      },
+      "15": {
+        "06": 30,
+        "09": 30,
+        "21": 28,
+        "01": 28,
+        "86": 27
+      },
+      "66": {
+        "56": 35,
+        "74": 29,
+        "09": 28,
+        "78": 28,
+        "53": 27
+      },
+      "56": {
+        "66": 35,
+        "79": 29,
+        "36": 29,
+        "29": 28,
+        "86": 27
+      },
+      "02": {
+        "24": 29,
+        "03": 26,
+        "35": 26,
+        "09": 26,
+        "15": 25
+      },
+      "92": {
+        "39": 35,
+        "53": 31,
+        "43": 30,
+        "44": 30,
+        "54": 30
+      },
+      "86": {
+        "78": 31,
+        "18": 31,
+        "13": 29,
+        "22": 27,
+        "15": 27
+      },
+      "74": {
+        "97": 32,
+        "22": 30,
+        "99": 30,
+        "66": 29,
+        "29": 29
+      },
+      "96": {
+        "39": 36,
+        "99": 32,
+        "91": 28,
+        "66": 26,
+        "16": 26
+      },
+      "16": {
+        "75": 33,
+        "23": 30,
+        "29": 30,
+        "06": 29,
+        "15": 27
+      },
+      "32": {
+        "54": 32,
+        "09": 30,
+        "92": 29,
+        "62": 29,
+        "43": 29
+      },
+      "60": {
+        "13": 29,
+        "45": 27,
+        "72": 25,
+        "20": 25,
+        "15": 24
+      },
+      "99": {
+        "73": 32,
+        "96": 32,
+        "74": 30,
+        "47": 30,
+        "24": 30
+      },
+      "11": {
+        "19": 31,
+        "75": 30,
+        "23": 30,
+        "92": 28,
+        "77": 28
+      },
+      "52": {
+        "19": 33,
+        "03": 27,
+        "06": 27,
+        "51": 26,
+        "81": 25
+      },
+      "21": {
+        "72": 30,
+        "15": 28,
+        "06": 28,
+        "48": 28,
+        "94": 28
+      },
+      "62": {
+        "92": 29,
+        "32": 29,
+        "13": 28,
+        "98": 28,
+        "10": 28
+      },
+      "59": {
+        "19": 28,
+        "76": 26,
+        "17": 25,
+        "91": 25,
+        "18": 25
+      },
+      "30": {
+        "75": 28,
+        "03": 27,
+        "39": 26,
+        "79": 26,
+        "45": 26
+      },
+      "03": {
+        "75": 34,
+        "09": 30,
+        "97": 27,
+        "52": 27,
+        "30": 27
+      },
+      "23": {
+        "16": 30,
+        "11": 30,
+        "92": 29,
+        "69": 29,
+        "49": 28
+      },
+      "43": {
+        "09": 30,
+        "92": 30,
+        "32": 29,
+        "47": 28,
+        "61": 27
+      },
+      "39": {
+        "96": 36,
+        "92": 35,
+        "78": 32,
+        "13": 30,
+        "18": 30
+      },
+      "55": {
+        "91": 29,
+        "24": 26,
+        "99": 25,
+        "19": 25,
+        "11": 24
+      },
+      "67": {
+        "13": 30,
+        "92": 29,
+        "58": 29,
+        "48": 28,
+        "53": 28
+      },
+      "36": {
+        "89": 29,
+        "56": 29,
+        "39": 28,
+        "27": 28,
+        "29": 28
+      },
+      "13": {
+        "10": 33,
+        "81": 31,
+        "58": 31,
+        "39": 30,
+        "67": 30
+      },
+      "37": {
+        "66": 25,
+        "68": 24,
+        "36": 24,
+        "14": 24,
+        "39": 23
+      },
+      "28": {
+        "68": 25,
+        "13": 25,
+        "57": 25,
+        "86": 24,
+        "26": 22
+      },
+      "26": {
+        "20": 26,
+        "67": 25,
+        "16": 25,
+        "78": 25,
+        "01": 25
+      },
+      "87": {
+        "13": 28,
+        "75": 27,
+        "24": 26,
+        "32": 25,
+        "99": 24
+      },
+      "47": {
+        "99": 30,
+        "72": 30,
+        "43": 28,
+        "13": 28,
+        "89": 28
+      },
+      "70": {
+        "47": 27,
+        "99": 27,
+        "94": 26,
+        "91": 26,
+        "39": 24
+      },
+      "89": {
+        "36": 29,
+        "47": 28,
+        "79": 28,
+        "06": 26,
+        "39": 25
+      },
+      "12": {
+        "13": 28,
+        "22": 24,
+        "46": 24,
+        "17": 24,
+        "39": 23
+      },
+      "24": {
+        "54": 32,
+        "91": 32,
+        "68": 31,
+        "13": 30,
+        "99": 30
+      },
+      "82": {
+        "66": 26,
+        "61": 26,
+        "75": 26,
+        "36": 25,
+        "47": 25
+      },
+      "79": {
+        "46": 30,
+        "19": 29,
+        "56": 29,
+        "91": 29,
+        "89": 28
+      },
+      "41": {
+        "68": 28,
+        "76": 25,
+        "74": 24,
+        "13": 24,
+        "75": 24
+      },
+      "72": {
+        "47": 30,
+        "06": 30,
+        "21": 30,
+        "93": 30,
+        "81": 29
+      },
+      "90": {
+        "44": 31,
+        "07": 30,
+        "58": 30,
+        "92": 29,
+        "09": 29
+      },
+      "50": {
+        "75": 31,
+        "90": 28,
+        "24": 28,
+        "76": 28,
+        "68": 27
+      },
+      "29": {
+        "16": 30,
+        "49": 30,
+        "22": 29,
+        "74": 29,
+        "36": 28
+      },
+      "94": {
+        "53": 29,
+        "19": 29,
+        "58": 29,
+        "97": 28,
+        "39": 28
+      },
+      "53": {
+        "54": 32,
+        "92": 31,
+        "57": 31,
+        "10": 30,
+        "94": 29
+      },
+      "19": {
+        "91": 34,
+        "76": 34,
+        "68": 33,
+        "52": 33,
+        "06": 32
+      },
+      "83": {
+        "53": 27,
+        "25": 22,
+        "24": 22,
+        "79": 21,
+        "50": 21
+      },
+      "80": {
+        "58": 30,
+        "90": 27,
+        "97": 26,
+        "14": 24,
+        "71": 24
+      },
+      "84": {
+        "47": 28,
+        "96": 25,
+        "86": 25,
+        "50": 24,
+        "42": 24
+      },
+      "69": {
+        "58": 32,
+        "23": 29,
+        "39": 29,
+        "74": 28,
+        "09": 28
+      },
+      "51": {
+        "66": 26,
+        "52": 26,
+        "78": 25,
+        "20": 25,
+        "85": 24
+      },
+      "46": {
+        "79": 30,
+        "15": 27,
+        "49": 27,
+        "29": 27,
+        "16": 25
+      },
+      "88": {
+        "58": 34,
+        "10": 30,
+        "45": 27,
+        "13": 26,
+        "47": 26
+      },
+      "48": {
+        "22": 29,
+        "67": 28,
+        "21": 28,
+        "53": 28,
+        "58": 27
+      },
+      "65": {
+        "49": 28,
+        "75": 26,
+        "06": 26,
+        "35": 25,
+        "78": 25
+      },
+      "77": {
+        "11": 28,
+        "10": 28,
+        "13": 26,
+        "32": 26,
+        "19": 25
+      },
+      "38": {
+        "04": 25,
+        "99": 25,
+        "69": 24,
+        "35": 24,
+        "98": 24
+      },
+      "45": {
+        "94": 28,
+        "88": 27,
+        "13": 27,
+        "90": 27,
+        "75": 27
+      },
+      "35": {
+        "13": 29,
+        "32": 28,
+        "75": 28,
+        "02": 26,
+        "07": 26
+      },
+      "18": {
+        "86": 31,
+        "39": 30,
+        "32": 29,
+        "96": 26,
+        "13": 25
+      },
+      "57": {
+        "53": 31,
+        "92": 29,
+        "14": 28,
+        "11": 28,
+        "19": 28
+      },
+      "40": {
+        "75": 28,
+        "46": 24,
+        "11": 24,
+        "49": 24,
+        "23": 24
+      },
+      "25": {
+        "81": 31,
+        "98": 29,
+        "09": 28,
+        "15": 27,
+        "50": 27
+      },
+      "08": {
+        "19": 30,
+        "32": 29,
+        "99": 29,
+        "49": 28,
+        "21": 27
+      },
+      "17": {
+        "53": 27,
+        "25": 26,
+        "59": 25,
+        "16": 25,
+        "62": 25
+      },
+      "14": {
+        "68": 29,
+        "57": 28,
+        "42": 28,
+        "58": 28,
+        "86": 27
+      },
+      "06": {
+        "19": 32,
+        "49": 31,
+        "15": 30,
+        "72": 30,
+        "13": 29
+      },
+      "71": {
+        "19": 28,
+        "24": 27,
+        "39": 27,
+        "53": 26,
+        "68": 25
+      },
+      "49": {
+        "06": 31,
+        "29": 30,
+        "13": 29,
+        "22": 28,
+        "08": 28
+      },
+      "91": {
+        "19": 34,
+        "24": 32,
+        "55": 29,
+        "79": 29,
+        "96": 28
+      },
+      "00": {
+        "50": 27,
+        "06": 26,
+        "30": 22,
+        "75": 22,
+        "86": 22
+      },
+      "04": {
+        "13": 30,
+        "67": 27,
+        "82": 25,
+        "38": 25,
+        "90": 24
+      },
+      "61": {
+        "10": 30,
+        "13": 28,
+        "32": 28,
+        "09": 27,
+        "94": 27
+      },
+      "81": {
+        "13": 31,
+        "25": 31,
+        "72": 29,
+        "06": 29,
+        "20": 28
+      },
+      "09": {
+        "63": 34,
+        "32": 30,
+        "03": 30,
+        "43": 30,
+        "15": 30
+      },
+      "76": {
+        "19": 34,
+        "50": 28,
+        "90": 26,
+        "96": 26,
+        "45": 26
+      },
+      "20": {
+        "81": 28,
+        "63": 27,
+        "06": 26,
+        "26": 26,
+        "97": 26
+      },
+      "42": {
+        "07": 28,
+        "14": 28,
+        "97": 28,
+        "78": 27,
+        "58": 27
+      },
+      "07": {
+        "90": 30,
+        "10": 29,
+        "42": 28,
+        "78": 26,
+        "81": 26
+      },
+      "64": {
+        "75": 30,
+        "13": 29,
+        "86": 27,
+        "03": 26,
+        "69": 25
+      },
+      "31": {
+        "98": 31,
+        "09": 28,
+        "39": 27,
+        "25": 27,
+        "32": 27
+      },
+      "78": {
+        "39": 32,
+        "86": 31,
+        "32": 29,
+        "09": 29,
+        "53": 29
+      },
+      "98": {
+        "31": 31,
+        "25": 29,
+        "63": 29,
+        "53": 29,
+        "39": 28
+      },
+      "05": {
+        "31": 25,
+        "79": 25,
+        "25": 24,
+        "03": 24,
+        "40": 23
+      },
+      "33": {
+        "42": 23,
+        "81": 23,
+        "62": 23,
+        "13": 22,
+        "88": 22
+      },
+      "34": {
+        "54": 25,
+        "97": 24,
+        "31": 24,
+        "08": 23,
+        "58": 23
+      },
+      "93": {
+        "72": 30,
+        "06": 26,
+        "03": 24,
+        "79": 23,
+        "35": 23
+      },
+      "44": {
+        "90": 31,
+        "92": 30,
+        "98": 27,
+        "32": 26,
+        "23": 26
+      },
+      "54": {
+        "32": 32,
+        "24": 32,
+        "53": 32,
+        "92": 30,
+        "43": 27
+      },
+      "27": {
+        "36": 28,
+        "39": 24,
+        "17": 24,
+        "57": 24,
+        "88": 23
+      },
+      "63": {
+        "09": 34,
+        "98": 29,
+        "20": 27,
+        "72": 27,
+        "36": 26
+      },
+      "01": {
+        "15": 28,
+        "09": 28,
+        "98": 27,
+        "57": 27,
+        "06": 27
+      },
+      "10": {
+        "13": 33,
+        "61": 30,
+        "85": 30,
+        "88": 30,
+        "53": 30
+      },
+      "85": {
+        "10": 30,
+        "58": 28,
+        "13": 25,
+        "19": 25,
+        "72": 25
+      },
+      "58": {
+        "88": 34,
+        "69": 32,
+        "13": 31,
+        "90": 30,
+        "80": 30
+      },
+      "95": {
+        "07": 26,
+        "06": 26,
+        "66": 25,
+        "53": 25,
+        "57": 25
+      }
+    }
+  },
+  "data_quality": {
+    "total_records": 361,
+    "records_with_no_numbers": 0,
+    "records_with_few_numbers": 0,
+    "date_gaps": 1,
+    "quality_score": 90,
+    "issues": [
+      "Found 1 date gaps, largest gap: 5 days"
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4>Kết quả dự đoán cho ngày {{ next_day|date:"d/m/Y" }}</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Phương pháp</th>
+                        <th>Số dự đoán</th>
+                        <th>Độ tin cậy</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr>
+                        <td>{{ pred.method|title }}</td>
+                        <td>{{ pred.numbers|join:", " }}</td>
+                        <td>{{ pred.confidence|floatformat:1 }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-success mt-3">
+            <h5>Kết quả tổng hợp:</h5>
+            <div class="d-flex flex-wrap">
+                {% for num, conf in final_prediction %}
+                <div class="mr-3 mb-2">
+                    <span class="badge badge-pill badge-primary p-2" style="font-size: 1.2em">
+                        {{ num }} <small>({{ conf|floatformat:1 }}%)</small>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            <input type="hidden" name="prediction_id" value="{{ prediction.id }}">
+            <div class="form-group">
+                <label>Kết quả thực tế (các số trúng, cách nhau bằng dấu phẩy)</label>
+                <input type="text" name="actual_numbers" class="form-control">
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" name="is_correct" class="form-check-input" id="isCorrect">
+                <label class="form-check-label" for="isCorrect">Dự đoán chính xác</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

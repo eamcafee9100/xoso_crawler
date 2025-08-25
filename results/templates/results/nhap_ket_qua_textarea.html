@@ -1,0 +1,63 @@
+
+{% extends 'results/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Nhập kết quả xổ số qua Text Area</h2>
+    
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="mb-3">
+                    {{ form.data_input.label_tag }}
+                    {{ form.data_input }}
+                    <small class="text-muted">Dán dữ liệu theo định dạng mẫu ở placeholder</small>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-upload me-2"></i> Nhập dữ liệu
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-lg" >
+                        <i class="fas fa-upload me-2"></i><a href="{% url 'ket-qua' %}" class="btn btn-primary">
+    <i class="fas fa-save"></i>  Xem kết quả
+</a>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    {% if messages %}
+    <div class="mt-4">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    textarea.form-control {
+        font-family: monospace;
+        white-space: pre;
+        overflow-wrap: normal;
+        overflow-x: scroll;
+    }
+    .card {
+        border-radius: 10px;
+    }
+    .btn-primary {
+        padding: 10px 30px;
+        font-size: 18px;
+    }
+    .alert {
+        border-radius: 8px;
+    }
+</style>
+{% endblock %}

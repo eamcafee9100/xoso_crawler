@@ -1,0 +1,149 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+{% block title %}Dự đoán Bạch Thủ Lô{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Dự đoán Bạch Thủ Lô</h1>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Nhập thông tin dự đoán</h3>
+        </div>
+        <div class="card-body">
+            <form method="post" action="">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.prediction_date.id_for_label }}" class="form-label">{{ form.prediction_date.label }}</label>
+                        {{ form.prediction_date }}
+                        {% if form.prediction_date.errors %}
+                        <div class="text-danger">
+                            {% for error in form.prediction_date.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if form.prediction_date.help_text %}
+                        <div class="form-text text-muted">{{ form.prediction_date.help_text }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="{{ form.region_code.id_for_label }}" class="form-label">{{ form.region_code.label }}</label>
+                        {{ form.region_code }}
+                        {% if form.region_code.errors %}
+                        <div class="text-danger">
+                            {% for error in form.region_code.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if form.region_code.help_text %}
+                        <div class="form-text text-muted">{{ form.region_code.help_text }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.history_days.id_for_label }}" class="form-label">{{ form.history_days.label }}</label>
+                    {{ form.history_days }}
+                    {% if form.history_days.errors %}
+                    <div class="text-danger">
+                        {% for error in form.history_days.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if form.history_days.help_text %}
+                    <div class="form-text text-muted">{{ form.history_days.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label">{{ form.method_codes.label }}</label>
+                    
+                    <div class="row">
+                        {% for method in available_methods %}
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="method_codes" value="{{ method.code }}" id="method_{{ method.code }}">
+                                <label class="form-check-label" for="method_{{ method.code }}" data-bs-toggle="tooltip" title="{{ method.description }}">
+                                    {{ method.name }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if form.method_codes.errors %}
+                    <div class="text-danger">
+                        {% for error in form.method_codes.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    {% if form.method_codes.help_text %}
+                    <div class="form-text text-muted">{{ form.method_codes.help_text }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Thực hiện dự đoán</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0">Hướng dẫn sử dụng</h3>
+        </div>
+        <div class="card-body">
+            <h4>Các bước dự đoán:</h4>
+            <ol>
+                <li><strong>Chọn ngày dự đoán</strong> - Ngày bạn muốn dự đoán kết quả xổ số</li>
+                <li><strong>Chọn khu vực</strong> - Miền Bắc, Miền Nam hoặc Miền Trung</li>
+                <li><strong>Chọn số ngày dữ liệu lịch sử</strong> - Hệ thống sẽ lấy dữ liệu của bấy nhiêu ngày trước ngày dự đoán để phân tích</li>
+                <li><strong>Chọn phương pháp</strong> - Các phương pháp dự đoán khác nhau sẽ cho kết quả khác nhau. Bạn có thể chọn một hoặc nhiều phương pháp.</li>
+            </ol>
+            
+            <h4 class="mt-4">Các phương pháp dự đoán</h4>
+            <div class="row">
+                {% for method in available_methods %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="mb-0">{{ method.name }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ method.description }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Kích hoạt tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+{% endblock %}

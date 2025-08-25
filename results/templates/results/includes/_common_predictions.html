@@ -1,0 +1,75 @@
+{% if common_predictions %}
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h4 class="mb-0">SỐ TRÙNG GIỮA CÁC KỲ DỰ ĐOÁN</h4>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Nhóm so sánh</th>
+                        <th>Số trùng</th>
+                        <th>Số lượng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>7 ngày vs 10 ngày</td>
+                        <td>
+                            {% for num in common_predictions.7_vs_10 %}
+                            <span class="badge bg-primary me-1">{{ num }}</span>
+                            {% empty %}
+                            <span class="text-muted">Không có</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ common_predictions.7_vs_10|length }}</td>
+                    </tr>
+                    <tr>
+                        <td>7 ngày vs 20 ngày</td>
+                        <td>
+                            {% for num in common_predictions.7_vs_20 %}
+                            <span class="badge bg-warning text-dark me-1">{{ num }}</span>
+                            {% empty %}
+                            <span class="text-muted">Không có</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ common_predictions.7_vs_20|length }}</td>
+                    </tr>
+                    <tr>
+                        <td>10 ngày vs 20 ngày</td>
+                        <td>
+                            {% for num in common_predictions.10_vs_20 %}
+                            <span class="badge bg-danger me-1">{{ num }}</span>
+                            {% empty %}
+                            <span class="text-muted">Không có</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ common_predictions.10_vs_20|length }}</td>
+                    </tr>
+                    <tr class="table-success">
+                        <td><strong>Cả 3 kỳ</strong></td>
+                        <td>
+                            {% for num in common_predictions.all_three %}
+                            <span class="badge bg-success me-1">{{ num }}</span>
+                            {% empty %}
+                            <span class="text-muted">Không có</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ common_predictions.all_three|length }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-info mt-3">
+            <h5><i class="fas fa-lightbulb"></i> Gợi ý chọn số</h5>
+            <ul class="mb-0">
+                <li>Ưu tiên các số xuất hiện trong <strong>cả 3 kỳ</strong> (màu xanh lá)</li>
+                <li>Số xuất hiện trong <strong>2 kỳ</strong> cũng có độ tin cậy cao</li>
+                <li>Kết hợp với số nóng từ phân tích bên dưới</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,257 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block page_title %}Phân tích Chạm{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Phân tích</li>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Filter Section -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="card-title mb-0">Bộ lọc</h5>
+    </div>
+    <div class="card-body">
+      <form method="get" class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label">Từ ngày</label>
+          <input type="date" class="form-control" name="from_date" value="{{ request.GET.from_date }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Đến ngày</label>
+          <input type="date" class="form-control" name="to_date" value="{{ request.GET.to_date }}">
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Loại chạm</label>
+          <select class="form-select" name="cham_type">
+            <option value="">Tất cả</option>
+            <option value="dau" {% if request.GET.cham_type == 'dau' %}selected{% endif %}>Chạm đầu</option>
+            <option value="duoi" {% if request.GET.cham_type == 'duoi' %}selected{% endif %}>Chạm đuôi</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">&nbsp;</label>
+          <div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-search"></i> Lọc
+            </button>
+            <a href="{% url 'chamde:cham_analysis' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-undo"></i> Reset
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Analysis Results -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-primary">{{ analysis.total_days }}</h3>
+          <p class="text-muted">Tổng số ngày</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-success">{{ analysis.hit_days }}</h3>
+          <p class="text-muted">Số ngày trúng</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-body text-center">
+          <h3 class="text-info">{{ analysis.hit_rate|floatformat:1 }}%</h3>
+          <p class="text-muted">Tỷ lệ trúng</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Analysis -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Chi tiết phân tích</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="analysisTable" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Ngày</th>
+                  <th>Loại</th>
+                  <th>Dự đoán</th>
+                  <th>Kết quả</th>
+                  <th>Trúng/Trượt</th>
+                  <th>Ghi chú</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in analysis_records %}
+                <tr class="{% if record.is_hit %}table-success{% endif %}">
+                  <td>{{ record.date|date:"d/m/Y" }}</td>
+                  <td>
+                    <span class="badge bg-{{ record.cham_type|lower }}">
+                      {{ record.get_cham_type_display }}
+                    </span>
+                  </td>
+                  <td>
+                    {% for num in record.predicted_numbers %}
+                      <span class="number-badge cham-{{ record.cham_type|lower }} {% if num in record.winning_numbers %}hit{% endif %}">
+                        {{ num }}
+                      </span>
+                    {% endfor %}
+                  </td>
+                  <td>
+                    {% if record.actual_result %}
+                      {% for num in record.actual_result.numbers %}
+                        <span class="number-badge bg-secondary text-white">{{ num }}</span>
+                      {% endfor %}
+                    {% else %}
+                      <span class="text-muted">Chưa có kết quả</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if record.is_hit %}
+                      <span class="badge bg-success">
+                        <i class="fas fa-check"></i> Trúng {{ record.hit_count }}/{{ record.predicted_count }}
+                      </span>
+                    {% elif record.actual_result %}
+                      <span class="badge bg-danger">
+                        <i class="fas fa-times"></i> Trượt
+                      </span>
+                    {% else %}
+                      <span class="badge bg-warning">
+                        <i class="fas fa-clock"></i> Chờ
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if record.confidence_score %}
+                      <small class="text-muted">Độ tin cậy: {{ record.confidence_score|floatformat:1 }}%</small>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">Không có dữ liệu</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Thống kê nhanh</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Chạm đầu:</span>
+              <span class="fw-bold">{{ analysis.cham_dau_count }} lần</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-primary" style="width: {{ analysis.cham_dau_percentage }}%"></div>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>Chạm đuôi:</span>
+              <span class="fw-bold">{{ analysis.cham_duoi_count }} lần</span>
+            </div>
+            <div class="progress" style="height: 5px;">
+              <div class="progress-bar bg-success" style="width: {{ analysis.cham_duoi_percentage }}%"></div>
+            </div>
+          </div>
+          
+          <hr>
+          
+          <div class="mb-2">
+            <div class="d-flex justify-content-between">
+              <span>Streak hiện tại:</span>
+              <span class="fw-bold text-{{ analysis.current_streak_type }}">
+                {{ analysis.current_streak }} {{ analysis.current_streak_type|title }}
+              </span>
+            </div>
+          </div>
+          
+          <div class="mb-2">
+            <div class="d-flex justify-content-between">
+              <span>Streak dài nhất:</span>
+              <span class="fw-bold">{{ analysis.longest_streak }} ngày</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">Biểu đồ tần suất</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="frequencyChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block cham_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize DataTable
+    $('#analysisTable').DataTable({
+        order: [[0, 'desc']],
+        pageLength: 25,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.11.5/i18n/vi.json'
+        }
+    });
+
+    // Frequency Chart
+    const freqCtx = document.getElementById('frequencyChart').getContext('2d');
+    new Chart(freqCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ frequency_labels|safe }},
+            datasets: [{
+                label: 'Tần suất xuất hiện',
+                data: {{ frequency_data|safe }},
+                backgroundColor: 'rgba(0, 123, 255, 0.6)',
+                borderColor: '#007bff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

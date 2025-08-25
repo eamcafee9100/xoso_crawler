@@ -1,0 +1,158 @@
+<!-- templates/results/number_frequency.html -->
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+{% block extra_css %}
+<style>
+    /* Định dạng cho bảng tần suất */
+    .table-responsive {
+        overflow-x: auto;
+        max-height: 70vh;
+    }
+    
+    /* Cố định header của bảng khi scroll */
+    .table thead th {
+        position: sticky;
+        top: 0;
+        background-color: #0d6efd;
+        color: white;
+        z-index: 1;
+    }
+    
+    /* Cố định cột đầu tiên khi scroll ngang */
+    .table td:first-child,
+    .table th:first-child {
+        position: sticky;
+        left: 0;
+        background-color: white;
+        z-index: 2;
+    }
+    
+    .table thead th:first-child {
+        z-index: 3;
+    }
+    
+    /* Style cho ô dữ liệu có giá trị */
+    td.bg-secondary {
+        background-color: #6c757d !important;
+        color: white !important;
+        font-weight: bold;
+    }
+    
+    /* Hover effect cho các ô có dữ liệu */
+    td.bg-secondary:hover {
+        background-color: #5a6268 !important;
+    }
+</style>
+{% endblock %}
+{% block title %}Thống Kê Tần Suất Lô Tô{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Thống Kê Tần Suất Lô Tô</h3>
+            <div class="d-flex">
+                <a href="{% url 'number_frequency_heatmap' %}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-fire"></i> Heatmap
+                </a>
+                <a href="{% url 'number_frequency' %}?update_stats=1" class="btn btn-outline-light">
+                    <i class="fas fa-sync-alt"></i> Cập nhật dữ liệu
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="get" class="row g-3 mb-4">
+                <div class="col-md-2">
+                    <label for="view_type" class="form-label">Loại xem</label>
+                    <select name="view_type" id="view_type" class="form-select">
+                        
+                        <option value="day_of_month" {% if view_type == 'day_of_month' %}selected{% endif %}>Theo ngày trong tháng</option>
+                        <option value="day_of_week" {% if view_type == 'day_of_week' %}selected{% endif %}>Theo thứ trong tuần</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="year" class="form-label">Năm</label>
+                    <select name="year" id="year" class="form-select">
+                        <option value="">Tất cả</option>
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="month" class="form-label">Tháng</label>
+                    <select name="month" id="month" class="form-select">
+                        <option value="">Tất cả</option>
+                        {% for m in months %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 day-range-field" {% if view_type != 'month' %}style="display:none;"{% endif %}>
+                    <label for="day_range" class="form-label">Số ngày</label>
+                    <select name="day_range" id="day_range" class="form-select">
+                        {% for dr in day_ranges %}
+                        <option value="{{ dr }}" {% if dr == day_range %}selected{% endif %}>{{ dr }} ngày</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 align-self-end">
+                    <button type="submit" class="btn btn-primary w-100">Xem thống kê</button>
+                </div>
+            </form>
+            
+            <div class="table-responsive">
+                {% if view_type == 'month' %}
+                    {% include "results/partials/monthly_frequency_table.html" %}
+                {% elif view_type == 'day_of_month' %}
+                    {% include "results/partials/day_of_month_frequency_table.html" %}
+                {% elif view_type == 'day_of_week' %}
+                    {% include "results/partials/day_of_week_frequency_table.html" %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hiển thị/ẩn trường day_range tùy theo view_type
+        const viewTypeSelect = document.getElementById('view_type');
+        const dayRangeField = document.querySelector('.day-range-field');
+        
+        viewTypeSelect.addEventListener('change', function() {
+            if (this.value === 'month') {
+                dayRangeField.style.display = 'block';
+            } else {
+                dayRangeField.style.display = 'none';
+            }
+        });
+        
+        // Highlight cells with value > 0
+        const highlightCells = function() {
+            const cells = document.querySelectorAll('td.frequency-cell');
+            cells.forEach(cell => {
+                const value = parseInt(cell.textContent.trim());
+                if (value > 0) {
+                    cell.classList.add('table-success');
+                    cell.classList.add('fw-bold');
+                }
+            });
+        };
+        
+        highlightCells();
+    });
+</script>
+{% endblock %}

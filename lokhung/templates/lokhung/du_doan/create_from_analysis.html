@@ -1,0 +1,279 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Tạo dự đoán từ phân tích{% endblock %}
+
+{% block page_title %}Tạo dự đoán từ phân tích số liệu{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'lokhung:phan_tich_list' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Quay lại phân tích
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Form -->
+    <div class="col-lg-8">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-magic text-primary me-2"></i>
+                    Tạo dự đoán từ phân tích
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Analysis Info -->
+                    <div class="alert alert-info">
+                        <h6 class="alert-heading">
+                            <i class="fas fa-chart-line me-2"></i>
+                            Phân tích nguồn
+                        </h6>
+                        <p class="mb-0">
+                            Dựa trên phân tích ngày <strong>{{ analysis.ngay_phan_tich|date:"d/m/Y" }}</strong>
+                            với <strong>{{ analysis.so_2d_xuat_hien|length }}</strong> số 2D xuất hiện.
+                        </p>
+                    </div>
+                    
+                    <!-- Suggested Numbers -->
+                    <div class="mb-4">
+                        <label class="form-label">Số được gợi ý từ phân tích:</label>
+                        <div class="suggested-numbers-container p-3 border rounded bg-light">
+                            {% for so, info in suggested_numbers.items %}
+                            <div class="suggested-number-item d-inline-block me-2 mb-2">
+                                <div class="card border-primary">
+                                    <div class="card-body p-2 text-center">
+                                        <h6 class="mb-1">{{ so }}</h6>
+                                        <small class="text-muted">XS: {{ info.xac_suat|floatformat:3 }}</small>
+                                        <br>
+                                        <button type="button" class="btn btn-sm btn-primary mt-1" 
+                                                onclick="selectNumber('{{ so }}', {{ info.xac_suat }})">
+                                            Chọn
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Prediction Form -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phuong_phap" class="form-label">
+                                    Phương pháp <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="phuong_phap" name="phuong_phap" required>
+                                    <option value="">Chọn phương pháp...</option>
+                                    {% for method in available_methods %}
+                                    <option value="{{ method.pk }}">{{ method.ten_phuong_phap }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="ngay_du_doan" class="form-label">
+                                    Ngày dự đoán <span class="text-danger">*</span>
+                                </label>
+                                <input type="date" class="form-control" id="ngay_du_doan" name="ngay_du_doan" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="so_du_doan" class="form-label">
+                                    Số dự đoán <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="so_du_doan" name="so_du_doan" 
+                                       placeholder="Chọn từ gợi ý hoặc nhập thủ công" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="diem_tin_cay" class="form-label">
+                                    Điểm tin cậy (%) <span class="text-danger">*</span>
+                                </label>
+                                <input type="number" class="form-control" id="diem_tin_cay" name="diem_tin_cay" 
+                                       min="0" max="100" step="0.1" required>
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar" id="confidence-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ghi_chu" class="form-label">Ghi chú</label>
+                        <textarea class="form-control" id="ghi_chu" name="ghi_chu" rows="3" 
+                                  placeholder="Ghi chú về dự đoán này..."></textarea>
+                    </div>
+                    
+                    <input type="hidden" name="analysis_id" value="{{ analysis.pk }}">
+                    <input type="hidden" name="ngay_phan_tich" value="{{ analysis.ngay_phan_tich|date:'Y-m-d' }}">
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'lokhung:phan_tich_detail' analysis.pk %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Tạo dự đoán
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Analysis Summary -->
+        <div class="card card-custom mb-4">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-chart-pie text-info me-2"></i>
+                    Tóm tắt phân tích
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Ngày phân tích:</small>
+                    <div><strong>{{ analysis.ngay_phan_tich|date:"d/m/Y" }}</strong></div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Số 2D xuất hiện:</small>
+                    <div><strong>{{ analysis.so_2d_xuat_hien|length }}</strong> số</div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Top đầu số:</small>
+                    <div>
+                        {% for dau, count in analysis.thong_ke_dau.items|slice:":3" %}
+                            <span class="badge bg-info me-1">{{ dau }}: {{ count }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Top đuôi số:</small>
+                    <div>
+                        {% for duoi, count in analysis.thong_ke_duoi.items|slice:":3" %}
+                            <span class="badge bg-warning me-1">{{ duoi }}: {{ count }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Tips -->
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    Gợi ý
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-light">
+                    <ul class="mb-0">
+                        <li>Chọn số có xác suất cao từ phân tích</li>
+                        <li>Điểm tin cậy nên từ 60-80% cho số từ phân tích</li>
+                        <li>Ghi chú lý do chọn số này</li>
+                        <li>Kiểm tra chu kỳ xuất hiện của số</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Set default prediction date (tomorrow)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    $('#ngay_du_doan').val(tomorrow.toISOString().split('T')[0]);
+    
+    // Update confidence bar
+    $('#diem_tin_cay').on('input', updateConfidenceBar);
+    
+    // Auto-suggest note
+    $('#so_du_doan').on('change', autoSuggestNote);
+});
+
+function selectNumber(number, probability) {
+    $('#so_du_doan').val(number);
+    
+    // Calculate confidence based on probability
+    const confidence = Math.round(probability * 80 + 20); // Scale to 20-100
+    $('#diem_tin_cay').val(confidence);
+    updateConfidenceBar();
+    
+    // Auto-suggest note
+    autoSuggestNote();
+}
+
+function updateConfidenceBar() {
+    const value = $('#diem_tin_cay').val();
+    $('#confidence-bar').css('width', value + '%');
+    
+    if (value >= 70) {
+        $('#confidence-bar').removeClass('bg-warning bg-danger').addClass('bg-success');
+    } else if (value >= 40) {
+        $('#confidence-bar').removeClass('bg-success bg-danger').addClass('bg-warning');
+    } else {
+        $('#confidence-bar').removeClass('bg-success bg-warning').addClass('bg-danger');
+    }
+}
+
+function autoSuggestNote() {
+    const number = $('#so_du_doan').val();
+    const analysisDate = '{{ analysis.ngay_phan_tich|date:"d/m/Y" }}';
+    
+    if (number) {
+        const note = `Số ${number} được chọn dựa trên phân tích ngày ${analysisDate}. ` +
+                    `Số này xuất hiện trong kết quả và có khả năng tiếp tục xu hướng.`;
+        $('#ghi_chu').val(note);
+    }
+}
+
+// Form validation
+$('.needs-validation').on('submit', function(e) {
+    if (!this.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    $(this).addClass('was-validated');
+});
+</script>
+
+<style>
+.suggested-number-item {
+    max-width: 120px;
+}
+
+.suggested-number-item .card {
+    transition: all 0.3s ease;
+}
+
+.suggested-number-item .card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.suggested-numbers-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+</style>
+{% endblock %}

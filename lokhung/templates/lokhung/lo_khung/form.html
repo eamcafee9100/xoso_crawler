@@ -1,0 +1,597 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'lokhung:lo_khung_list' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Quay lại
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-th-large text-primary me-2"></i>
+                    {{ title }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.ten_lo_khung.id_for_label }}" class="form-label">
+                                    Tên lô khung <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ten_lo_khung }}
+                                {% if form.ten_lo_khung.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ten_lo_khung.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.phuong_phap_chinh.id_for_label }}" class="form-label">
+                                    Phương pháp chính <span class="text-danger">*</span>
+                                </label>
+                                {{ form.phuong_phap_chinh }}
+                                {% if form.phuong_phap_chinh.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phuong_phap_chinh.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.ngay_bat_dau.id_for_label }}" class="form-label">
+                                    Ngày bắt đầu <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ngay_bat_dau }}
+                                {% if form.ngay_bat_dau.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ngay_bat_dau.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.ngay_ket_thuc.id_for_label }}" class="form-label">
+                                    Ngày kết thúc <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ngay_ket_thuc }}
+                                {% if form.ngay_ket_thuc.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ngay_ket_thuc.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.ngay_co_kha_nang_cao_nhat.id_for_label }}" class="form-label">
+                                    Ngày có khả năng cao nhất <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ngay_co_kha_nang_cao_nhat }}
+                                {% if form.ngay_co_kha_nang_cao_nhat.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ngay_co_kha_nang_cao_nhat.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Numbers Input Section -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            Danh sách số <span class="text-danger">*</span>
+                        </label>
+                        
+                        <!-- Input Methods -->
+                        <div class="card border-light mb-3">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6>Nhập số thủ công</h6>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="manual-number" 
+                                                   placeholder="Nhập số (VD: 12)" maxlength="3">
+                                            <button class="btn btn-outline-primary" type="button" onclick="addNumber()">
+                                                <i class="fas fa-plus"></i> Thêm
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h6>Nhập hàng loạt</h6>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="bulk-numbers" 
+                                                   placeholder="VD: 12, 34, 56, 78">
+                                            <button class="btn btn-outline-success" type="button" onclick="addBulkNumbers()">
+                                                <i class="fas fa-list"></i> Thêm tất cả
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Smart Suggestions -->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6>Gợi ý thông minh</h6>
+                                        <div class="btn-group flex-wrap" role="group">
+                                            <button type="button" class="btn btn-outline-info btn-sm" onclick="suggestFromMethod()">
+                                                <i class="fas fa-lightbulb me-1"></i>Từ phương pháp
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="suggestHotNumbers()">
+                                                <i class="fas fa-fire me-1"></i>Số nóng
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="suggestColdNumbers()">
+                                                <i class="fas fa-snowflake me-1"></i>Số lạnh
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="suggestPatterns()">
+                                                <i class="fas fa-chart-line me-1"></i>Theo mẫu
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Current Numbers Display -->
+                        <div class="mb-3">
+                            <label class="form-label">Các số đã chọn (<span id="numbers-count">0</span> số)</label>
+                            <div class="border rounded p-3 min-height-100" id="selected-numbers" 
+                                 style="min-height: 100px; background-color: #f8f9fa;">
+                                <div class="text-muted text-center py-3">
+                                    <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                                    <br>Chưa có số nào được chọn
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden input for form submission -->
+                        {{ form.danh_sach_so }}
+                        {% if form.danh_sach_so.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.danh_sach_so.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.diem_tin_cay_tong.id_for_label }}" class="form-label">
+                                    Điểm tin cậy tổng (%) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.diem_tin_cay_tong }}
+                                {% if form.diem_tin_cay_tong.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.diem_tin_cay_tong.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar" id="confidence-bar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.phuong_phap_phu.id_for_label }}" class="form-label">
+                                    Phương pháp phụ
+                                </label>
+                                {{ form.phuong_phap_phu }}
+                                {% if form.phuong_phap_phu.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phuong_phap_phu.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Có thể chọn nhiều phương pháp</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'lokhung:lo_khung_list' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                        <button type="button" class="btn btn-outline-info me-md-2" onclick="previewFrame()">
+                            <i class="fas fa-eye me-2"></i>Xem trước
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu lô khung
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xem trước lô khung</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="preview-content">
+                <!-- Preview content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedNumbers = [];
+
+$(document).ready(function() {
+    // Load existing numbers if editing
+    {% if lo_khung and lo_khung.danh_sach_so %}
+        selectedNumbers = {{ lo_khung.danh_sach_so|safe }};
+        updateNumbersDisplay();
+    {% endif %}
+    
+    // Update confidence bar
+    $('#{{ form.diem_tin_cay_tong.id_for_label }}').on('input', function() {
+        updateConfidenceBar();
+    });
+    
+    // Auto-set end date when start date changes
+    $('#{{ form.ngay_bat_dau.id_for_label }}').on('change', function() {
+        const startDate = new Date($(this).val());
+        if (startDate) {
+            const endDate = new Date(startDate);
+            endDate.setDate(endDate.getDate() + 2); // Default 3 days
+            $('#{{ form.ngay_ket_thuc.id_for_label }}').val(endDate.toISOString().split('T')[0]);
+            
+            // Set best probability date to middle day
+            const bestDate = new Date(startDate);
+            bestDate.setDate(bestDate.getDate() + 1);
+            $('#{{ form.ngay_co_kha_nang_cao_nhat.id_for_label }}').val(bestDate.toISOString().split('T')[0]);
+        }
+    });
+    
+    // Manual number input
+    $('#manual-number').on('keypress', function(e) {
+        if (e.which === 13) {
+            addNumber();
+        }
+    });
+    
+    // Bulk numbers input
+    $('#bulk-numbers').on('keypress', function(e) {
+        if (e.which === 13) {
+            addBulkNumbers();
+        }
+    });
+    
+    // Initialize confidence bar
+    updateConfidenceBar();
+});
+
+function addNumber() {
+    const numberInput = $('#manual-number');
+    const number = numberInput.val().trim();
+    
+    if (validateNumber(number)) {
+        if (!selectedNumbers.includes(number)) {
+            selectedNumbers.push(number);
+            updateNumbersDisplay();
+            numberInput.val('');
+            
+            // Auto-calculate confidence
+            autoCalculateConfidence();
+        } else {
+            alert('Số này đã được thêm rồi!');
+        }
+    }
+}
+
+function addBulkNumbers() {
+    const bulkInput = $('#bulk-numbers');
+    const numbersText = bulkInput.val().trim();
+    
+    if (numbersText) {
+        const numbers = numbersText.split(/[,\s]+/).filter(n => n.trim());
+        let addedCount = 0;
+        
+        numbers.forEach(number => {
+            const cleanNumber = number.trim();
+            if (validateNumber(cleanNumber) && !selectedNumbers.includes(cleanNumber)) {
+                selectedNumbers.push(cleanNumber);
+                addedCount++;
+            }
+        });
+        
+        if (addedCount > 0) {
+            updateNumbersDisplay();
+            bulkInput.val('');
+            autoCalculateConfidence();
+            alert(`Đã thêm ${addedCount} số.`);
+        } else {
+            alert('Không có số hợp lệ nào được thêm.');
+        }
+    }
+}
+
+function validateNumber(number) {
+    if (!number || !/^\d{2,3}$/.test(number)) {
+        alert('Số phải có 2 hoặc 3 chữ số!');
+        return false;
+    }
+    return true;
+}
+
+function removeNumber(number) {
+    const index = selectedNumbers.indexOf(number);
+    if (index > -1) {
+        selectedNumbers.splice(index, 1);
+        updateNumbersDisplay();
+        autoCalculateConfidence();
+    }
+}
+
+function updateNumbersDisplay() {
+    const container = $('#selected-numbers');
+    const countSpan = $('#numbers-count');
+    
+    countSpan.text(selectedNumbers.length);
+    
+    if (selectedNumbers.length === 0) {
+        container.html(`
+            <div class="text-muted text-center py-3">
+                <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                <br>Chưa có số nào được chọn
+            </div>
+        `);
+    } else {
+        let html = '<div class="d-flex flex-wrap gap-2">';
+        selectedNumbers.forEach(number => {
+            html += `
+                <span class="badge bg-primary fs-6 px-3 py-2 position-relative number-item">
+                    ${number}
+                    <button type="button" class="btn-close btn-close-white ms-2" 
+                            onclick="removeNumber('${number}')" 
+                            style="font-size: 0.7em;"></button>
+                </span>
+            `;
+        });
+        html += '</div>';
+        
+        // Add summary
+        html += `
+            <div class="mt-3 p-2 bg-light rounded">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Tổng ${selectedNumbers.length} số | 
+                    Đầu số: ${getHeadStats()} | 
+                    Đuôi số: ${getTailStats()}
+                </small>
+            </div>
+        `;
+        
+        container.html(html);
+    }
+    
+    // Update hidden form field
+    $('#{{ form.danh_sach_so.id_for_label }}').val(JSON.stringify(selectedNumbers));
+}
+
+function getHeadStats() {
+    const heads = selectedNumbers.map(n => n.charAt(0));
+    const unique = [...new Set(heads)];
+    return unique.join(', ');
+}
+
+function getTailStats() {
+    const tails = selectedNumbers.map(n => n.charAt(n.length - 1));
+    const unique = [...new Set(tails)];
+    return unique.join(', ');
+}
+
+function autoCalculateConfidence() {
+    if (selectedNumbers.length === 0) return;
+    
+    // Simple confidence calculation based on number count
+    let baseConfidence = 50; // Base confidence
+    
+    // Adjust based on count
+    if (selectedNumbers.length <= 5) {
+        baseConfidence += 20; // Fewer numbers = higher confidence
+    } else if (selectedNumbers.length <= 10) {
+        baseConfidence += 10;
+    } else {
+        baseConfidence -= (selectedNumbers.length - 10) * 2; // Too many numbers = lower confidence
+    }
+    
+    // Ensure within bounds
+    baseConfidence = Math.max(20, Math.min(95, baseConfidence));
+    
+    $('#{{ form.diem_tin_cay_tong.id_for_label }}').val(baseConfidence);
+    updateConfidenceBar();
+}
+
+function updateConfidenceBar() {
+    const value = $('#{{ form.diem_tin_cay_tong.id_for_label }}').val() || 0;
+    const bar = $('#confidence-bar');
+    
+    bar.css('width', value + '%');
+    
+    if (value >= 70) {
+        bar.removeClass('bg-warning bg-danger').addClass('bg-success');
+    } else if (value >= 40) {
+        bar.removeClass('bg-success bg-danger').addClass('bg-warning');
+    } else {
+        bar.removeClass('bg-success bg-warning').addClass('bg-danger');
+    }
+}
+
+function suggestFromMethod() {
+    const methodId = $('#{{ form.phuong_phap_chinh.id_for_label }}').val();
+    if (!methodId) {
+        alert('Vui lòng chọn phương pháp chính trước.');
+        return;
+    }
+    
+    // This would be an API call to get suggestions from the method
+    alert('Tính năng gợi ý từ phương pháp đang được phát triển.');
+}
+
+function suggestHotNumbers() {
+    // Simulate hot numbers suggestion
+    const hotNumbers = ['12', '34', '56', '78', '90'];
+    
+    if (confirm(`Thêm các số nóng: ${hotNumbers.join(', ')}?`)) {
+        hotNumbers.forEach(number => {
+            if (!selectedNumbers.includes(number)) {
+                selectedNumbers.push(number);
+            }
+        });
+        updateNumbersDisplay();
+        autoCalculateConfidence();
+    }
+}
+
+function suggestColdNumbers() {
+    // Simulate cold numbers suggestion
+    const coldNumbers = ['01', '23', '45', '67', '89'];
+    
+    if (confirm(`Thêm các số lạnh: ${coldNumbers.join(', ')}?`)) {
+        coldNumbers.forEach(number => {
+            if (!selectedNumbers.includes(number)) {
+                selectedNumbers.push(number);
+            }
+        });
+        updateNumbersDisplay();
+        autoCalculateConfidence();
+    }
+}
+
+function suggestPatterns() {
+    alert('Tính năng gợi ý theo mẫu đang được phát triển.');
+}
+
+function previewFrame() {
+    if (selectedNumbers.length === 0) {
+        alert('Vui lòng chọn ít nhất một số.');
+        return;
+    }
+    
+    const previewData = {
+        name: $('#{{ form.ten_lo_khung.id_for_label }}').val() || 'Lô khung mới',
+        startDate: $('#{{ form.ngay_bat_dau.id_for_label }}').val(),
+        endDate: $('#{{ form.ngay_ket_thuc.id_for_label }}').val(),
+        bestDate: $('#{{ form.ngay_co_kha_nang_cao_nhat.id_for_label }}').val(),
+        confidence: $('#{{ form.diem_tin_cay_tong.id_for_label }}').val(),
+        numbers: selectedNumbers
+    };
+    
+    let previewHtml = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Thông tin cơ bản</h6>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Tên:</span>
+                        <strong>${previewData.name}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Thời gian:</span>
+                        <strong>${previewData.startDate} - ${previewData.endDate}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Ngày tốt nhất:</span>
+                        <strong>${previewData.bestDate}</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Tin cậy:</span>
+                        <strong>${previewData.confidence}%</strong>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Các số (${previewData.numbers.length} số)</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    ${previewData.numbers.map(n => `<span class="badge bg-primary fs-6">${n}</span>`).join('')}
+                </div>
+                
+                <div class="mt-3">
+                    <h6>Phân tích nhanh</h6>
+                    <small class="text-muted">
+                        Đầu số: ${getHeadStats()}<br>
+                        Đuôi số: ${getTailStats()}
+                    </small>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#preview-content').html(previewHtml);
+    $('#previewModal').modal('show');
+}
+
+// Form validation
+$('.needs-validation').on('submit', function(e) {
+    if (selectedNumbers.length === 0) {
+        e.preventDefault();
+        alert('Vui lòng chọn ít nhất một số cho lô khung.');
+        return false;
+    }
+    
+    if (!this.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    $(this).addClass('was-validated');
+});
+</script>
+
+<style>
+.number-item {
+    transition: all 0.3s ease;
+}
+
+.number-item:hover {
+    transform: scale(1.1);
+}
+
+.min-height-100 {
+    min-height: 100px;
+}
+
+#selected-numbers {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.btn-group {
+    gap: 5px;
+}
+
+.btn-group .btn {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}

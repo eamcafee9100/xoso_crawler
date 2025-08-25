@@ -1,0 +1,2316 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-08-02T00:18:16.391663",
+    "analysis_type": "enhanced_deep_frequency",
+    "format": "json"
+  },
+  "analysis_results": {
+    "analysis_metadata": {
+      "start_date": "2025-02-03",
+      "end_date": "2025-08-02",
+      "total_records": 4264,
+      "significance_level": 0.05,
+      "analysis_timestamp": "2025-08-02T00:18:09.544220"
+    },
+    "hot_numbers": {},
+    "cold_numbers": {},
+    "cyclical_patterns": {
+      "01": {
+        "avg_gap": 4.046511627906977,
+        "dominant_cycle": 4.3,
+        "cycle_strength": 31.863655280938076,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-01"
+      },
+      "02": {
+        "avg_gap": 4.384615384615385,
+        "dominant_cycle": 6.5,
+        "cycle_strength": 36.23571824010665,
+        "last_appearance": "2025-07-26",
+        "next_expected": "2025-08-01"
+      },
+      "03": {
+        "avg_gap": 4.342105263157895,
+        "dominant_cycle": 4.222222222222222,
+        "cycle_strength": 51.41572078131716,
+        "last_appearance": "2025-07-23",
+        "next_expected": "2025-07-27"
+      },
+      "04": {
+        "avg_gap": 4.190476190476191,
+        "dominant_cycle": 4.666666666666667,
+        "cycle_strength": 57.67040687392626,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-05"
+      },
+      "05": {
+        "avg_gap": 4.538461538461538,
+        "dominant_cycle": 6.5,
+        "cycle_strength": 43.366391819207365,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-05"
+      },
+      "06": {
+        "avg_gap": 3.196078431372549,
+        "dominant_cycle": 10.2,
+        "cycle_strength": 36.90474300723337,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-09"
+      },
+      "07": {
+        "avg_gap": 4.051282051282051,
+        "dominant_cycle": 5.571428571428571,
+        "cycle_strength": 49.39408782981713,
+        "last_appearance": "2025-07-17",
+        "next_expected": "2025-07-23"
+      },
+      "08": {
+        "avg_gap": 3.6222222222222222,
+        "dominant_cycle": 6.428571428571429,
+        "cycle_strength": 26.662084983078394,
+        "last_appearance": "2025-07-23",
+        "next_expected": "2025-07-29"
+      },
+      "10": {
+        "avg_gap": 4.394736842105263,
+        "dominant_cycle": 4.222222222222222,
+        "cycle_strength": 34.87915850103755,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "11": {
+        "avg_gap": 3.9555555555555557,
+        "dominant_cycle": 5.0,
+        "cycle_strength": 52.736893033090645,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-05"
+      },
+      "12": {
+        "avg_gap": 5.419354838709677,
+        "dominant_cycle": 2.384615384615385,
+        "cycle_strength": 54.230630682107474,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-07-27"
+      },
+      "13": {
+        "avg_gap": 3.8444444444444446,
+        "dominant_cycle": 2.142857142857143,
+        "cycle_strength": 32.72057531230408,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-01"
+      },
+      "14": {
+        "avg_gap": 4.0,
+        "dominant_cycle": 7.166666666666667,
+        "cycle_strength": 36.44734570731709,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-08-03"
+      },
+      "15": {
+        "avg_gap": 4.048780487804878,
+        "dominant_cycle": 20.5,
+        "cycle_strength": 47.21769430452774,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-08-14"
+      },
+      "18": {
+        "avg_gap": 3.772727272727273,
+        "dominant_cycle": 4.888888888888888,
+        "cycle_strength": 33.89323355169643,
+        "last_appearance": "2025-07-19",
+        "next_expected": "2025-07-24"
+      },
+      "19": {
+        "avg_gap": 3.4038461538461537,
+        "dominant_cycle": 4.0,
+        "cycle_strength": 40.162171256046406,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "21": {
+        "avg_gap": 3.4313725490196076,
+        "dominant_cycle": 4.636363636363636,
+        "cycle_strength": 50.15118159701736,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-03"
+      },
+      "22": {
+        "avg_gap": 4.325,
+        "dominant_cycle": 2.2222222222222223,
+        "cycle_strength": 30.695515377904655,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-07-31"
+      },
+      "23": {
+        "avg_gap": 4.914285714285715,
+        "dominant_cycle": 11.666666666666666,
+        "cycle_strength": 56.71989867796497,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-08-08"
+      },
+      "24": {
+        "avg_gap": 3.4489795918367347,
+        "dominant_cycle": 24.500000000000004,
+        "cycle_strength": 38.86136563791703,
+        "last_appearance": "2025-07-24",
+        "next_expected": "2025-08-18"
+      },
+      "25": {
+        "avg_gap": 3.8666666666666667,
+        "dominant_cycle": 2.9999999999999996,
+        "cycle_strength": 34.64101615137754,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-01"
+      },
+      "26": {
+        "avg_gap": 5.121212121212121,
+        "dominant_cycle": 5.5,
+        "cycle_strength": 44.73170686655187,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-04"
+      },
+      "27": {
+        "avg_gap": 5.580645161290323,
+        "dominant_cycle": 2.818181818181818,
+        "cycle_strength": 40.841888537017084,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-01"
+      },
+      "28": {
+        "avg_gap": 4.805555555555555,
+        "dominant_cycle": 9.0,
+        "cycle_strength": 46.79046136418944,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-07"
+      },
+      "29": {
+        "avg_gap": 4.5675675675675675,
+        "dominant_cycle": 3.083333333333333,
+        "cycle_strength": 53.307233790137204,
+        "last_appearance": "2025-07-23",
+        "next_expected": "2025-07-26"
+      },
+      "30": {
+        "avg_gap": 4.190476190476191,
+        "dominant_cycle": 2.3333333333333335,
+        "cycle_strength": 60.09256679078039,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-01"
+      },
+      "31": {
+        "avg_gap": 4.093023255813954,
+        "dominant_cycle": 4.3,
+        "cycle_strength": 46.55184514463186,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "32": {
+        "avg_gap": 3.5,
+        "dominant_cycle": 2.555555555555556,
+        "cycle_strength": 34.81607006162105,
+        "last_appearance": "2025-07-16",
+        "next_expected": "2025-07-19"
+      },
+      "33": {
+        "avg_gap": 4.023255813953488,
+        "dominant_cycle": 4.777777777777779,
+        "cycle_strength": 30.894708534605446,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-02"
+      },
+      "34": {
+        "avg_gap": 4.0,
+        "dominant_cycle": 13.333333333333332,
+        "cycle_strength": 48.685334836507984,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-12"
+      },
+      "35": {
+        "avg_gap": 4.675675675675675,
+        "dominant_cycle": 2.846153846153846,
+        "cycle_strength": 35.73836556026315,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-02"
+      },
+      "36": {
+        "avg_gap": 4.914285714285715,
+        "dominant_cycle": 2.1875,
+        "cycle_strength": 54.60621766581622,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-01"
+      },
+      "37": {
+        "avg_gap": 5.147058823529412,
+        "dominant_cycle": 5.666666666666667,
+        "cycle_strength": 48.54843511007593,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-06"
+      },
+      "38": {
+        "avg_gap": 4.552631578947368,
+        "dominant_cycle": 2.533333333333333,
+        "cycle_strength": 44.33551650653153,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-07-30"
+      },
+      "39": {
+        "avg_gap": 3.5319148936170213,
+        "dominant_cycle": 9.4,
+        "cycle_strength": 34.78630822222683,
+        "last_appearance": "2025-07-26",
+        "next_expected": "2025-08-04"
+      },
+      "40": {
+        "avg_gap": 4.2682926829268295,
+        "dominant_cycle": 4.555555555555555,
+        "cycle_strength": 41.76180408252682,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-05"
+      },
+      "41": {
+        "avg_gap": 4.833333333333333,
+        "dominant_cycle": 7.199999999999999,
+        "cycle_strength": 55.1193107832231,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-05"
+      },
+      "42": {
+        "avg_gap": 4.410256410256411,
+        "dominant_cycle": 6.5,
+        "cycle_strength": 38.755995682782945,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-07-31"
+      },
+      "43": {
+        "avg_gap": 4.3076923076923075,
+        "dominant_cycle": 2.4375,
+        "cycle_strength": 51.009703068808484,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-01"
+      },
+      "44": {
+        "avg_gap": 3.608695652173913,
+        "dominant_cycle": 2.090909090909091,
+        "cycle_strength": 40.373205063007084,
+        "last_appearance": "2025-07-20",
+        "next_expected": "2025-07-22"
+      },
+      "45": {
+        "avg_gap": 3.6956521739130435,
+        "dominant_cycle": 2.7058823529411766,
+        "cycle_strength": 33.49630015495505,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-07-28"
+      },
+      "46": {
+        "avg_gap": 5.5625,
+        "dominant_cycle": 2.6666666666666665,
+        "cycle_strength": 54.289666524170556,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "47": {
+        "avg_gap": 3.617021276595745,
+        "dominant_cycle": 7.833333333333334,
+        "cycle_strength": 36.00190532681348,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-08-02"
+      },
+      "48": {
+        "avg_gap": 3.6595744680851063,
+        "dominant_cycle": 2.238095238095238,
+        "cycle_strength": 35.030211798988105,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-07-31"
+      },
+      "49": {
+        "avg_gap": 3.883720930232558,
+        "dominant_cycle": 2.3888888888888893,
+        "cycle_strength": 34.16284379667322,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-07-30"
+      },
+      "50": {
+        "avg_gap": 4.2,
+        "dominant_cycle": 5.0,
+        "cycle_strength": 36.817793027538855,
+        "last_appearance": "2025-07-21",
+        "next_expected": "2025-07-26"
+      },
+      "51": {
+        "avg_gap": 4.8,
+        "dominant_cycle": 2.692307692307692,
+        "cycle_strength": 35.46074273407494,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "52": {
+        "avg_gap": 4.594594594594595,
+        "dominant_cycle": 18.5,
+        "cycle_strength": 46.68988523831526,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-18"
+      },
+      "53": {
+        "avg_gap": 3.423076923076923,
+        "dominant_cycle": 3.0588235294117645,
+        "cycle_strength": 36.00826889720822,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "54": {
+        "avg_gap": 3.4038461538461537,
+        "dominant_cycle": 3.25,
+        "cycle_strength": 43.642591984618676,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "55": {
+        "avg_gap": 5.176470588235294,
+        "dominant_cycle": 3.4,
+        "cycle_strength": 43.06701889713833,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "56": {
+        "avg_gap": 3.765957446808511,
+        "dominant_cycle": 23.5,
+        "cycle_strength": 41.32557651449066,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-24"
+      },
+      "57": {
+        "avg_gap": 3.2962962962962963,
+        "dominant_cycle": 2.4545454545454546,
+        "cycle_strength": 38.178938891924965,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-02"
+      },
+      "58": {
+        "avg_gap": 3.4285714285714284,
+        "dominant_cycle": 8.166666666666666,
+        "cycle_strength": 40.68000027971155,
+        "last_appearance": "2025-07-22",
+        "next_expected": "2025-07-30"
+      },
+      "59": {
+        "avg_gap": 4.8108108108108105,
+        "dominant_cycle": 3.083333333333333,
+        "cycle_strength": 27.76372792890044,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "60": {
+        "avg_gap": 3.782608695652174,
+        "dominant_cycle": 4.181818181818182,
+        "cycle_strength": 47.11859414842404,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-07-31"
+      },
+      "61": {
+        "avg_gap": 3.6136363636363638,
+        "dominant_cycle": 5.5,
+        "cycle_strength": 40.69688482710934,
+        "last_appearance": "2025-07-21",
+        "next_expected": "2025-07-27"
+      },
+      "62": {
+        "avg_gap": 4.611111111111111,
+        "dominant_cycle": 4.5,
+        "cycle_strength": 49.22602792374786,
+        "last_appearance": "2025-07-23",
+        "next_expected": "2025-07-27"
+      },
+      "63": {
+        "avg_gap": 3.56,
+        "dominant_cycle": 3.571428571428571,
+        "cycle_strength": 47.83045564849234,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-04"
+      },
+      "64": {
+        "avg_gap": 4.512820512820513,
+        "dominant_cycle": 2.2941176470588234,
+        "cycle_strength": 39.1149193963003,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-02"
+      },
+      "65": {
+        "avg_gap": 4.2926829268292686,
+        "dominant_cycle": 4.1000000000000005,
+        "cycle_strength": 38.98929988719294,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "66": {
+        "avg_gap": 3.911111111111111,
+        "dominant_cycle": 7.5,
+        "cycle_strength": 40.61614211845228,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-07"
+      },
+      "67": {
+        "avg_gap": 3.782608695652174,
+        "dominant_cycle": 3.0666666666666664,
+        "cycle_strength": 28.609870779352587,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-02"
+      },
+      "68": {
+        "avg_gap": 3.1666666666666665,
+        "dominant_cycle": 2.5714285714285716,
+        "cycle_strength": 37.28534374465319,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-07-30"
+      },
+      "69": {
+        "avg_gap": 4.314285714285714,
+        "dominant_cycle": 3.181818181818182,
+        "cycle_strength": 42.35584530641694,
+        "last_appearance": "2025-07-22",
+        "next_expected": "2025-07-25"
+      },
+      "70": {
+        "avg_gap": 4.805555555555555,
+        "dominant_cycle": 3.272727272727273,
+        "cycle_strength": 48.83348231321167,
+        "last_appearance": "2025-07-26",
+        "next_expected": "2025-07-29"
+      },
+      "71": {
+        "avg_gap": 4.146341463414634,
+        "dominant_cycle": 4.555555555555555,
+        "cycle_strength": 37.58817880221591,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-08-01"
+      },
+      "72": {
+        "avg_gap": 3.682926829268293,
+        "dominant_cycle": 2.1578947368421053,
+        "cycle_strength": 47.137413956787526,
+        "last_appearance": "2025-07-26",
+        "next_expected": "2025-07-28"
+      },
+      "73": {
+        "avg_gap": 5.057142857142857,
+        "dominant_cycle": 3.8888888888888893,
+        "cycle_strength": 37.796104355574506,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "74": {
+        "avg_gap": 4.0,
+        "dominant_cycle": 10.5,
+        "cycle_strength": 39.179232970923515,
+        "last_appearance": "2025-07-25",
+        "next_expected": "2025-08-04"
+      },
+      "75": {
+        "avg_gap": 3.765957446808511,
+        "dominant_cycle": 4.2727272727272725,
+        "cycle_strength": 33.87937412592173,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-04"
+      },
+      "76": {
+        "avg_gap": 4.2439024390243905,
+        "dominant_cycle": 10.25,
+        "cycle_strength": 37.01174063066974,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-08-06"
+      },
+      "77": {
+        "avg_gap": 3.6739130434782608,
+        "dominant_cycle": 23.0,
+        "cycle_strength": 32.324345827170724,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-20"
+      },
+      "78": {
+        "avg_gap": 3.739130434782609,
+        "dominant_cycle": 9.200000000000001,
+        "cycle_strength": 46.88593159610733,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-06"
+      },
+      "79": {
+        "avg_gap": 3.56,
+        "dominant_cycle": 3.3333333333333335,
+        "cycle_strength": 34.10183213626437,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-03"
+      },
+      "80": {
+        "avg_gap": 3.847826086956522,
+        "dominant_cycle": 3.5384615384615388,
+        "cycle_strength": 40.42505265843417,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-04"
+      },
+      "81": {
+        "avg_gap": 3.6956521739130435,
+        "dominant_cycle": 9.200000000000001,
+        "cycle_strength": 34.71385397947543,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-08"
+      },
+      "82": {
+        "avg_gap": 4.0,
+        "dominant_cycle": 7.166666666666667,
+        "cycle_strength": 38.35562555957087,
+        "last_appearance": "2025-07-27",
+        "next_expected": "2025-08-03"
+      },
+      "83": {
+        "avg_gap": 5.645161290322581,
+        "dominant_cycle": 2.2142857142857144,
+        "cycle_strength": 28.46768520114057,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-07-31"
+      },
+      "84": {
+        "avg_gap": 5.483870967741935,
+        "dominant_cycle": 15.5,
+        "cycle_strength": 39.17932976524087,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-13"
+      },
+      "85": {
+        "avg_gap": 3.8666666666666667,
+        "dominant_cycle": 6.428571428571429,
+        "cycle_strength": 38.66556031722535,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-04"
+      },
+      "86": {
+        "avg_gap": 3.847826086956522,
+        "dominant_cycle": 9.200000000000001,
+        "cycle_strength": 47.309947173723074,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-08"
+      },
+      "87": {
+        "avg_gap": 5.666666666666667,
+        "dominant_cycle": 3.375,
+        "cycle_strength": 49.92181709085105,
+        "last_appearance": "2025-07-15",
+        "next_expected": "2025-07-18"
+      },
+      "88": {
+        "avg_gap": 3.659090909090909,
+        "dominant_cycle": 2.933333333333333,
+        "cycle_strength": 34.83661791647929,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-02"
+      },
+      "89": {
+        "avg_gap": 4.513513513513513,
+        "dominant_cycle": 2.846153846153846,
+        "cycle_strength": 52.240678529263064,
+        "last_appearance": "2025-07-29",
+        "next_expected": "2025-08-01"
+      },
+      "90": {
+        "avg_gap": 4.046511627906977,
+        "dominant_cycle": 6.142857142857142,
+        "cycle_strength": 28.410204514756895,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-03"
+      },
+      "91": {
+        "avg_gap": 3.2941176470588234,
+        "dominant_cycle": 3.6428571428571423,
+        "cycle_strength": 36.02402039603668,
+        "last_appearance": "2025-07-22",
+        "next_expected": "2025-07-26"
+      },
+      "92": {
+        "avg_gap": 3.5652173913043477,
+        "dominant_cycle": 23.0,
+        "cycle_strength": 41.45443861025674,
+        "last_appearance": "2025-07-22",
+        "next_expected": "2025-08-14"
+      },
+      "93": {
+        "avg_gap": 5.633333333333334,
+        "dominant_cycle": 3.0,
+        "cycle_strength": 49.48737212663448,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-07-31"
+      },
+      "94": {
+        "avg_gap": 3.933333333333333,
+        "dominant_cycle": 4.090909090909091,
+        "cycle_strength": 46.113153429444324,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-03"
+      },
+      "95": {
+        "avg_gap": 4.046511627906977,
+        "dominant_cycle": 21.5,
+        "cycle_strength": 58.590479887778315,
+        "last_appearance": "2025-07-30",
+        "next_expected": "2025-08-21"
+      },
+      "96": {
+        "avg_gap": 4.942857142857143,
+        "dominant_cycle": 3.181818181818182,
+        "cycle_strength": 42.18135297323522,
+        "last_appearance": "2025-07-26",
+        "next_expected": "2025-07-29"
+      },
+      "97": {
+        "avg_gap": 4.045454545454546,
+        "dominant_cycle": 4.888888888888888,
+        "cycle_strength": 33.093131390751694,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-05"
+      },
+      "98": {
+        "avg_gap": 4.146341463414634,
+        "dominant_cycle": 5.857142857142857,
+        "cycle_strength": 39.54040486681943,
+        "last_appearance": "2025-07-31",
+        "next_expected": "2025-08-06"
+      },
+      "99": {
+        "avg_gap": 3.723404255319149,
+        "dominant_cycle": 5.875,
+        "cycle_strength": 35.536995014317164,
+        "last_appearance": "2025-07-28",
+        "next_expected": "2025-08-03"
+      }
+    },
+    "mean_reversion": {
+      "16": {
+        "long_term_frequency": 0.2116,
+        "recent_frequency": 0.4667,
+        "deviation": 0.2551,
+        "reversion_pressure": 1.2,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.813,
+        "confidence_score": 1.0,
+        "last_appearance_days": 2
+      },
+      "00": {
+        "long_term_frequency": 0.1871,
+        "recent_frequency": 0.3667,
+        "deviation": 0.1796,
+        "reversion_pressure": 0.955,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.154,
+        "confidence_score": 1.0,
+        "last_appearance_days": 0
+      },
+      "85": {
+        "long_term_frequency": 0.2449,
+        "recent_frequency": 0.4467,
+        "deviation": 0.2018,
+        "reversion_pressure": 0.821,
+        "expected_direction": "decrease",
+        "reversion_strength": 3.268,
+        "confidence_score": 1.0,
+        "last_appearance_days": 2
+      },
+      "56": {
+        "long_term_frequency": 0.256,
+        "recent_frequency": 0.46,
+        "deviation": 0.204,
+        "reversion_pressure": 0.794,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.267,
+        "confidence_score": 1.0,
+        "last_appearance_days": 0
+      },
+      "11": {
+        "long_term_frequency": 0.2349,
+        "recent_frequency": 0.4067,
+        "deviation": 0.1718,
+        "reversion_pressure": 0.728,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.521,
+        "confidence_score": 1.0,
+        "last_appearance_days": 0
+      },
+      "48": {
+        "long_term_frequency": 0.2578,
+        "recent_frequency": 0.44,
+        "deviation": 0.1822,
+        "reversion_pressure": 0.704,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.614,
+        "confidence_score": 1.0,
+        "last_appearance_days": 2
+      },
+      "20": {
+        "long_term_frequency": 0.1776,
+        "recent_frequency": 0.2933,
+        "deviation": 0.1158,
+        "reversion_pressure": 0.648,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.437,
+        "confidence_score": 0.932,
+        "last_appearance_days": 8
+      },
+      "86": {
+        "long_term_frequency": 0.2387,
+        "recent_frequency": 0.3933,
+        "deviation": 0.1547,
+        "reversion_pressure": 0.645,
+        "expected_direction": "decrease",
+        "reversion_strength": 2.457,
+        "confidence_score": 1.0,
+        "last_appearance_days": 1
+      },
+      "31": {
+        "long_term_frequency": 0.2638,
+        "recent_frequency": 0.0933,
+        "deviation": 0.1704,
+        "reversion_pressure": 0.644,
+        "expected_direction": "increase",
+        "reversion_strength": 1.805,
+        "confidence_score": 1.0,
+        "last_appearance_days": 1
+      },
+      "34": {
+        "long_term_frequency": 0.258,
+        "recent_frequency": 0.1133,
+        "deviation": 0.1447,
+        "reversion_pressure": 0.559,
+        "expected_direction": "increase",
+        "reversion_strength": 1.277,
+        "confidence_score": 0.713,
+        "last_appearance_days": 1
+      },
+      "52": {
+        "long_term_frequency": 0.2273,
+        "recent_frequency": 0.1067,
+        "deviation": 0.1207,
+        "reversion_pressure": 0.528,
+        "expected_direction": "increase",
+        "reversion_strength": 1.357,
+        "confidence_score": 0.717,
+        "last_appearance_days": 0
+      },
+      "58": {
+        "long_term_frequency": 0.2829,
+        "recent_frequency": 0.1333,
+        "deviation": 0.1496,
+        "reversion_pressure": 0.527,
+        "expected_direction": "increase",
+        "reversion_strength": 1.541,
+        "confidence_score": 0.812,
+        "last_appearance_days": 9
+      },
+      "39": {
+        "long_term_frequency": 0.2924,
+        "recent_frequency": 0.14,
+        "deviation": 0.1524,
+        "reversion_pressure": 0.52,
+        "expected_direction": "increase",
+        "reversion_strength": 2.102,
+        "confidence_score": 1.0,
+        "last_appearance_days": 5
+      },
+      "23": {
+        "long_term_frequency": 0.2073,
+        "recent_frequency": 0.1,
+        "deviation": 0.1073,
+        "reversion_pressure": 0.515,
+        "expected_direction": "increase",
+        "reversion_strength": 1.215,
+        "confidence_score": 0.626,
+        "last_appearance_days": 4
+      },
+      "82": {
+        "long_term_frequency": 0.2516,
+        "recent_frequency": 0.1333,
+        "deviation": 0.1182,
+        "reversion_pressure": 0.468,
+        "expected_direction": "increase",
+        "reversion_strength": 1.683,
+        "confidence_score": 0.788,
+        "last_appearance_days": 4
+      },
+      "32": {
+        "long_term_frequency": 0.2716,
+        "recent_frequency": 0.1467,
+        "deviation": 0.1249,
+        "reversion_pressure": 0.458,
+        "expected_direction": "increase",
+        "reversion_strength": 2.172,
+        "confidence_score": 0.995,
+        "last_appearance_days": 15
+      },
+      "69": {
+        "long_term_frequency": 0.2284,
+        "recent_frequency": 0.1267,
+        "deviation": 0.1018,
+        "reversion_pressure": 0.444,
+        "expected_direction": "increase",
+        "reversion_strength": 1.256,
+        "confidence_score": 0.557,
+        "last_appearance_days": 9
+      },
+      "80": {
+        "long_term_frequency": 0.2413,
+        "recent_frequency": 0.3467,
+        "deviation": 0.1053,
+        "reversion_pressure": 0.435,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.441,
+        "confidence_score": 0.627,
+        "last_appearance_days": 0
+      },
+      "51": {
+        "long_term_frequency": 0.1996,
+        "recent_frequency": 0.2867,
+        "deviation": 0.0871,
+        "reversion_pressure": 0.434,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.697,
+        "confidence_score": 0.737,
+        "last_appearance_days": 0
+      },
+      "61": {
+        "long_term_frequency": 0.2689,
+        "recent_frequency": 0.1533,
+        "deviation": 0.1156,
+        "reversion_pressure": 0.428,
+        "expected_direction": "increase",
+        "reversion_strength": 1.239,
+        "confidence_score": 0.53,
+        "last_appearance_days": 10
+      },
+      "21": {
+        "long_term_frequency": 0.2856,
+        "recent_frequency": 0.4067,
+        "deviation": 0.1211,
+        "reversion_pressure": 0.423,
+        "expected_direction": "decrease",
+        "reversion_strength": 0.927,
+        "confidence_score": 0.392,
+        "last_appearance_days": 2
+      },
+      "44": {
+        "long_term_frequency": 0.2838,
+        "recent_frequency": 0.1667,
+        "deviation": 0.1171,
+        "reversion_pressure": 0.411,
+        "expected_direction": "increase",
+        "reversion_strength": 1.598,
+        "confidence_score": 0.657,
+        "last_appearance_days": 11
+      },
+      "38": {
+        "long_term_frequency": 0.2256,
+        "recent_frequency": 0.1333,
+        "deviation": 0.0922,
+        "reversion_pressure": 0.407,
+        "expected_direction": "increase",
+        "reversion_strength": 1.315,
+        "confidence_score": 0.535,
+        "last_appearance_days": 4
+      },
+      "46": {
+        "long_term_frequency": 0.19,
+        "recent_frequency": 0.1133,
+        "deviation": 0.0767,
+        "reversion_pressure": 0.401,
+        "expected_direction": "increase",
+        "reversion_strength": 1.049,
+        "confidence_score": 0.421,
+        "last_appearance_days": 0
+      },
+      "91": {
+        "long_term_frequency": 0.2864,
+        "recent_frequency": 0.1733,
+        "deviation": 0.1131,
+        "reversion_pressure": 0.394,
+        "expected_direction": "increase",
+        "reversion_strength": 1.534,
+        "confidence_score": 0.604,
+        "last_appearance_days": 9
+      },
+      "27": {
+        "long_term_frequency": 0.1689,
+        "recent_frequency": 0.2333,
+        "deviation": 0.0644,
+        "reversion_pressure": 0.379,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.098,
+        "confidence_score": 0.417,
+        "last_appearance_days": 2
+      },
+      "66": {
+        "long_term_frequency": 0.2429,
+        "recent_frequency": 0.3333,
+        "deviation": 0.0904,
+        "reversion_pressure": 0.371,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.853,
+        "confidence_score": 0.687,
+        "last_appearance_days": 1
+      },
+      "94": {
+        "long_term_frequency": 0.248,
+        "recent_frequency": 0.34,
+        "deviation": 0.092,
+        "reversion_pressure": 0.369,
+        "expected_direction": "decrease",
+        "reversion_strength": 1.368,
+        "confidence_score": 0.505,
+        "last_appearance_days": 1
+      },
+      "03": {
+        "long_term_frequency": 0.2433,
+        "recent_frequency": 0.1533,
+        "deviation": 0.09,
+        "reversion_pressure": 0.368,
+        "expected_direction": "increase",
+        "reversion_strength": 1.225,
+        "confidence_score": 0.451,
+        "last_appearance_days": 8
+      },
+      "09": {
+        "long_term_frequency": 0.2958,
+        "recent_frequency": 0.1867,
+        "deviation": 0.1091,
+        "reversion_pressure": 0.368,
+        "expected_direction": "increase",
+        "reversion_strength": 1.509,
+        "confidence_score": 0.555,
+        "last_appearance_days": 0
+      }
+    },
+    "momentum_patterns": {
+      "63": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 4,
+            "previous_appearances": 1,
+            "momentum_ratio": 4.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 5,
+            "previous_appearances": 2,
+            "momentum_ratio": 2.5,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 7,
+            "previous_appearances": 7,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          },
+          "60d": {
+            "recent_appearances": 14,
+            "previous_appearances": 18,
+            "momentum_ratio": 0.778,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 2.07,
+        "momentum_acceleration": 2.361,
+        "overall_trend": "accelerating",
+        "momentum_strength": 1.07,
+        "prediction_confidence": 2.0
+      },
+      "95": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 2,
+            "momentum_ratio": 1.5,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 5,
+            "previous_appearances": 2,
+            "momentum_ratio": 2.5,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 8,
+            "previous_appearances": 12,
+            "momentum_ratio": 0.667,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 20,
+            "previous_appearances": 6,
+            "momentum_ratio": 3.333,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 2.0,
+        "momentum_acceleration": 0.0,
+        "overall_trend": "steady",
+        "momentum_strength": 1.0,
+        "prediction_confidence": 1.5
+      },
+      "00": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 1,
+            "momentum_ratio": 3.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 4,
+            "previous_appearances": 6,
+            "momentum_ratio": 0.667,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 12,
+            "previous_appearances": 6,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 18,
+            "previous_appearances": 9,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.917,
+        "momentum_acceleration": -0.167,
+        "overall_trend": "steady",
+        "momentum_strength": 0.917,
+        "prediction_confidence": 2.0
+      },
+      "04": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 4,
+            "previous_appearances": 1,
+            "momentum_ratio": 4.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 5,
+            "previous_appearances": 4,
+            "momentum_ratio": 1.25,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 9,
+            "previous_appearances": 6,
+            "momentum_ratio": 1.5,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 15,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.882,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 1.908,
+        "momentum_acceleration": 1.434,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.908,
+        "prediction_confidence": 2.0
+      },
+      "19": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 5,
+            "momentum_ratio": 0.6,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 8,
+            "previous_appearances": 2,
+            "momentum_ratio": 4.0,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 11,
+            "previous_appearances": 10,
+            "momentum_ratio": 1.1,
+            "trend": "stable"
+          },
+          "60d": {
+            "recent_appearances": 21,
+            "previous_appearances": 17,
+            "momentum_ratio": 1.235,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.734,
+        "momentum_acceleration": 1.132,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.734,
+        "prediction_confidence": 1.732
+      },
+      "32": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 0,
+            "momentum_ratio": 0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 0,
+            "previous_appearances": 3,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 3,
+            "previous_appearances": 10,
+            "momentum_ratio": 0.3,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 13,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.765,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.266,
+        "momentum_acceleration": -0.532,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.734,
+        "prediction_confidence": 0.532
+      },
+      "65": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 1,
+            "momentum_ratio": 3.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 4,
+            "previous_appearances": 2,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 6,
+            "previous_appearances": 6,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          },
+          "60d": {
+            "recent_appearances": 12,
+            "previous_appearances": 13,
+            "momentum_ratio": 0.923,
+            "trend": "stable"
+          }
+        },
+        "average_momentum": 1.731,
+        "momentum_acceleration": 1.538,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.731,
+        "prediction_confidence": 2.0
+      },
+      "51": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 1,
+            "momentum_ratio": 3.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 4,
+            "previous_appearances": 3,
+            "momentum_ratio": 1.333,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 8,
+            "previous_appearances": 6,
+            "momentum_ratio": 1.333,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 14,
+            "previous_appearances": 12,
+            "momentum_ratio": 1.167,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.708,
+        "momentum_acceleration": 0.917,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.708,
+        "prediction_confidence": 2.0
+      },
+      "07": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 0,
+            "momentum_ratio": 0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 0,
+            "previous_appearances": 2,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 8,
+            "momentum_ratio": 0.5,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 12,
+            "previous_appearances": 16,
+            "momentum_ratio": 0.75,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.312,
+        "momentum_acceleration": -0.625,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.688,
+        "prediction_confidence": 0.625
+      },
+      "03": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 3,
+            "momentum_ratio": 0.333,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 9,
+            "momentum_ratio": 0.444,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 13,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.765,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.386,
+        "momentum_acceleration": -0.438,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.614,
+        "prediction_confidence": 0.438
+      },
+      "06": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 4,
+            "momentum_ratio": 0.75,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 7,
+            "previous_appearances": 2,
+            "momentum_ratio": 3.5,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 11,
+            "previous_appearances": 10,
+            "momentum_ratio": 1.1,
+            "trend": "stable"
+          },
+          "60d": {
+            "recent_appearances": 21,
+            "previous_appearances": 19,
+            "momentum_ratio": 1.105,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.614,
+        "momentum_acceleration": 1.022,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.614,
+        "prediction_confidence": 1.772
+      },
+      "44": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 3,
+            "momentum_ratio": 0.333,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 7,
+            "momentum_ratio": 0.571,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 11,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.647,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.388,
+        "momentum_acceleration": -0.442,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.612,
+        "prediction_confidence": 0.442
+      },
+      "52": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 2,
+            "previous_appearances": 1,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 3,
+            "previous_appearances": 1,
+            "momentum_ratio": 3.0,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 10,
+            "momentum_ratio": 0.4,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 14,
+            "previous_appearances": 15,
+            "momentum_ratio": 0.933,
+            "trend": "stable"
+          }
+        },
+        "average_momentum": 1.583,
+        "momentum_acceleration": 1.834,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.583,
+        "prediction_confidence": 2.0
+      },
+      "82": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 2,
+            "previous_appearances": 1,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 3,
+            "previous_appearances": 0,
+            "momentum_ratio": 3,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 8,
+            "momentum_ratio": 0.5,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 12,
+            "previous_appearances": 15,
+            "momentum_ratio": 0.8,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 1.575,
+        "momentum_acceleration": 1.85,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.575,
+        "prediction_confidence": 2.0
+      },
+      "85": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 4,
+            "previous_appearances": 3,
+            "momentum_ratio": 1.333,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 7,
+            "previous_appearances": 5,
+            "momentum_ratio": 1.4,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 13,
+            "previous_appearances": 6,
+            "momentum_ratio": 2.167,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 19,
+            "previous_appearances": 14,
+            "momentum_ratio": 1.357,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.564,
+        "momentum_acceleration": -0.396,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.564,
+        "prediction_confidence": 1.729
+      },
+      "18": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 2,
+            "momentum_ratio": 0.5,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 6,
+            "momentum_ratio": 0.667,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 10,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.588,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.439,
+        "momentum_acceleration": -0.377,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.561,
+        "prediction_confidence": 0.377
+      },
+      "38": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 2,
+            "previous_appearances": 1,
+            "momentum_ratio": 2.0,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 3,
+            "previous_appearances": 0,
+            "momentum_ratio": 3,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 3,
+            "previous_appearances": 7,
+            "momentum_ratio": 0.429,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 10,
+            "previous_appearances": 15,
+            "momentum_ratio": 0.667,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 1.524,
+        "momentum_acceleration": 1.952,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.524,
+        "prediction_confidence": 2.0
+      },
+      "21": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 3,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          },
+          "14d": {
+            "recent_appearances": 6,
+            "previous_appearances": 5,
+            "momentum_ratio": 1.2,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 12,
+            "previous_appearances": 16,
+            "momentum_ratio": 0.75,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 28,
+            "previous_appearances": 9,
+            "momentum_ratio": 3.111,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 1.515,
+        "momentum_acceleration": -0.83,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.515,
+        "prediction_confidence": 1.83
+      },
+      "61": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 3,
+            "momentum_ratio": 0.333,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 4,
+            "previous_appearances": 9,
+            "momentum_ratio": 0.444,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 13,
+            "previous_appearances": 11,
+            "momentum_ratio": 1.182,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 0.49,
+        "momentum_acceleration": -0.646,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.51,
+        "prediction_confidence": 0.646
+      },
+      "83": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 1,
+            "previous_appearances": 2,
+            "momentum_ratio": 0.5,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 3,
+            "previous_appearances": 1,
+            "momentum_ratio": 3.0,
+            "trend": "increasing"
+          },
+          "30d": {
+            "recent_appearances": 6,
+            "previous_appearances": 4,
+            "momentum_ratio": 1.5,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 10,
+            "previous_appearances": 10,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          }
+        },
+        "average_momentum": 1.5,
+        "momentum_acceleration": 0.5,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.5,
+        "prediction_confidence": 1.0
+      },
+      "92": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 6,
+            "momentum_ratio": 0.167,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 7,
+            "previous_appearances": 8,
+            "momentum_ratio": 0.875,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 15,
+            "previous_appearances": 15,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          }
+        },
+        "average_momentum": 0.51,
+        "momentum_acceleration": -0.854,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.49,
+        "prediction_confidence": 0.854
+      },
+      "87": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 0,
+            "momentum_ratio": 0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 0,
+            "previous_appearances": 4,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 5,
+            "previous_appearances": 6,
+            "momentum_ratio": 0.833,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 11,
+            "previous_appearances": 9,
+            "momentum_ratio": 1.222,
+            "trend": "increasing"
+          }
+        },
+        "average_momentum": 0.514,
+        "momentum_acceleration": -1.027,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.486,
+        "prediction_confidence": 1.027
+      },
+      "91": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 2,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 2,
+            "previous_appearances": 3,
+            "momentum_ratio": 0.667,
+            "trend": "decreasing"
+          },
+          "30d": {
+            "recent_appearances": 5,
+            "previous_appearances": 8,
+            "momentum_ratio": 0.625,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 13,
+            "previous_appearances": 17,
+            "momentum_ratio": 0.765,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.514,
+        "momentum_acceleration": -0.362,
+        "overall_trend": "decelerating",
+        "momentum_strength": 0.486,
+        "prediction_confidence": 0.362
+      },
+      "69": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 0,
+            "previous_appearances": 1,
+            "momentum_ratio": 0.0,
+            "trend": "decreasing"
+          },
+          "14d": {
+            "recent_appearances": 1,
+            "previous_appearances": 1,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          },
+          "30d": {
+            "recent_appearances": 3,
+            "previous_appearances": 6,
+            "momentum_ratio": 0.5,
+            "trend": "decreasing"
+          },
+          "60d": {
+            "recent_appearances": 9,
+            "previous_appearances": 16,
+            "momentum_ratio": 0.562,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 0.516,
+        "momentum_acceleration": -0.031,
+        "overall_trend": "steady",
+        "momentum_strength": 0.484,
+        "prediction_confidence": 0.031
+      },
+      "55": {
+        "period_analysis": {
+          "7d": {
+            "recent_appearances": 3,
+            "previous_appearances": 0,
+            "momentum_ratio": 3,
+            "trend": "increasing"
+          },
+          "14d": {
+            "recent_appearances": 3,
+            "previous_appearances": 3,
+            "momentum_ratio": 1.0,
+            "trend": "stable"
+          },
+          "30d": {
+            "recent_appearances": 6,
+            "previous_appearances": 5,
+            "momentum_ratio": 1.2,
+            "trend": "increasing"
+          },
+          "60d": {
+            "recent_appearances": 11,
+            "previous_appearances": 15,
+            "momentum_ratio": 0.733,
+            "trend": "decreasing"
+          }
+        },
+        "average_momentum": 1.483,
+        "momentum_acceleration": 1.034,
+        "overall_trend": "accelerating",
+        "momentum_strength": 0.483,
+        "prediction_confidence": 2.0
+      }
+    },
+    "seasonal_effects": {
+      "monthly_patterns": {
+        "1": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "2": {
+          "total_appearances": 618,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "91",
+              "count": 13,
+              "month_dominance": 0.021
+            },
+            {
+              "number": "42",
+              "count": 11,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "24",
+              "count": 11,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "58",
+              "count": 11,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "54",
+              "count": 10,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "47",
+              "count": 10,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "18",
+              "count": 10,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "57",
+              "count": 10,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "41",
+              "count": 10,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "67",
+              "count": 9,
+              "month_dominance": 0.015
+            }
+          ]
+        },
+        "3": {
+          "total_appearances": 733,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "61",
+              "count": 15,
+              "month_dominance": 0.02
+            },
+            {
+              "number": "25",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "44",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "68",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "17",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "63",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "31",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "74",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "79",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "4": {
+          "total_appearances": 716,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "77",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "60",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "35",
+              "count": 12,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "49",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "45",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "92",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "82",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "43",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "08",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "53",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "5": {
+          "total_appearances": 735,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "58",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "30",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "57",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "24",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "06",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "88",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "99",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "45",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "09",
+              "count": 11,
+              "month_dominance": 0.015
+            }
+          ]
+        },
+        "6": {
+          "total_appearances": 718,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "21",
+              "count": 17,
+              "month_dominance": 0.024
+            },
+            {
+              "number": "39",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "34",
+              "count": 13,
+              "month_dominance": 0.018
+            },
+            {
+              "number": "08",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "19",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "95",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "68",
+              "count": 11,
+              "month_dominance": 0.015
+            },
+            {
+              "number": "72",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "13",
+              "count": 10,
+              "month_dominance": 0.014
+            },
+            {
+              "number": "01",
+              "count": 10,
+              "month_dominance": 0.014
+            }
+          ]
+        },
+        "7": {
+          "total_appearances": 744,
+          "unique_numbers": 100,
+          "diversity_score": 1.0,
+          "top_numbers": [
+            {
+              "number": "56",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "16",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "48",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "85",
+              "count": 14,
+              "month_dominance": 0.019
+            },
+            {
+              "number": "86",
+              "count": 13,
+              "month_dominance": 0.017
+            },
+            {
+              "number": "80",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "06",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "11",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "53",
+              "count": 12,
+              "month_dominance": 0.016
+            },
+            {
+              "number": "21",
+              "count": 12,
+              "month_dominance": 0.016
+            }
+          ]
+        },
+        "8": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "9": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "10": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "11": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        },
+        "12": {
+          "total_appearances": 0,
+          "unique_numbers": 0,
+          "diversity_score": 0.0,
+          "top_numbers": []
+        }
+      },
+      "quarterly_patterns": {},
+      "day_of_week_patterns": {
+        "0": {
+          "total_appearances": 617,
+          "special_prize_rate": 0.075,
+          "first_prize_rate": 0.065,
+          "day_name": "Monday"
+        },
+        "1": {
+          "total_appearances": 615,
+          "special_prize_rate": 0.072,
+          "first_prize_rate": 0.06,
+          "day_name": "Tuesday"
+        },
+        "2": {
+          "total_appearances": 630,
+          "special_prize_rate": 0.078,
+          "first_prize_rate": 0.07,
+          "day_name": "Wednesday"
+        },
+        "3": {
+          "total_appearances": 619,
+          "special_prize_rate": 0.069,
+          "first_prize_rate": 0.073,
+          "day_name": "Thursday"
+        },
+        "4": {
+          "total_appearances": 588,
+          "special_prize_rate": 0.071,
+          "first_prize_rate": 0.065,
+          "day_name": "Friday"
+        },
+        "5": {
+          "total_appearances": 598,
+          "special_prize_rate": 0.077,
+          "first_prize_rate": 0.074,
+          "day_name": "Saturday"
+        },
+        "6": {
+          "total_appearances": 597,
+          "special_prize_rate": 0.065,
+          "first_prize_rate": 0.062,
+          "day_name": "Sunday"
+        }
+      },
+      "day_of_month_patterns": {
+        "days_1_to_10": {
+          "total_appearances": 1377,
+          "period": "1-10",
+          "intensity": 0.32293621013133206
+        },
+        "days_11_to_20": {
+          "total_appearances": 1420,
+          "period": "11-20",
+          "intensity": 0.3330206378986867
+        },
+        "days_21_to_31": {
+          "total_appearances": 1467,
+          "period": "21-31",
+          "intensity": 0.34404315196998125
+        }
+      },
+      "week_of_month_patterns": {}
+    },
+    "day_of_week_bias": {
+      "overall_patterns": {
+        "0": {
+          "day_name": "Monday",
+          "total_appearances": 617,
+          "special_prize_rate": 0.075,
+          "first_prize_rate": 0.065,
+          "activity_level": "normal"
+        },
+        "1": {
+          "day_name": "Tuesday",
+          "total_appearances": 615,
+          "special_prize_rate": 0.072,
+          "first_prize_rate": 0.06,
+          "activity_level": "normal"
+        },
+        "2": {
+          "day_name": "Wednesday",
+          "total_appearances": 630,
+          "special_prize_rate": 0.078,
+          "first_prize_rate": 0.07,
+          "activity_level": "normal"
+        },
+        "3": {
+          "day_name": "Thursday",
+          "total_appearances": 619,
+          "special_prize_rate": 0.069,
+          "first_prize_rate": 0.073,
+          "activity_level": "normal"
+        },
+        "4": {
+          "day_name": "Friday",
+          "total_appearances": 588,
+          "special_prize_rate": 0.071,
+          "first_prize_rate": 0.065,
+          "activity_level": "normal"
+        },
+        "5": {
+          "day_name": "Saturday",
+          "total_appearances": 598,
+          "special_prize_rate": 0.077,
+          "first_prize_rate": 0.074,
+          "activity_level": "normal"
+        },
+        "6": {
+          "day_name": "Sunday",
+          "total_appearances": 597,
+          "special_prize_rate": 0.065,
+          "first_prize_rate": 0.062,
+          "activity_level": "normal"
+        }
+      },
+      "number_specific_bias": {
+        "00": {
+          "strongest_bias_day": 1,
+          "bias_ratio": 0.58,
+          "chi2_statistic": 1.7222,
+          "p_value": 0.943393,
+          "is_significant": 

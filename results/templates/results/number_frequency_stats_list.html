@@ -1,0 +1,1395 @@
+<!-- templates/results/number_frequency_stats_list.html -->
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block title %}Phân tích tần suất số nâng cao{% endblock %}
+
+{% block extra_css %}
+<style>
+    .frequency-grid {
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        gap: 2px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .frequency-cell {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        border: 1px solid #ddd;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+        min-height: 70px;
+        font-size: 13px;
+    }
+    
+    .frequency-cell:hover {
+        transform: scale(1.1);
+        z-index: 10;
+        border: 2px solid #007bff;
+    }
+    
+    .frequency-cell.hot { background-color: #ff6b6b; color: white; }
+    .frequency-cell.warm { background-color: #ffa726; color: white; }
+    .frequency-cell.normal { background-color: #66bb6a; color: white; }
+    .frequency-cell.cool { background-color: #42a5f5; color: white; }
+    .frequency-cell.cold { background-color: #78909c; color: white; }
+    
+    .heatmap-legend {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 3px;
+    }
+    
+    .analysis-tabs {
+        margin-bottom: 20px;
+    }
+    
+    .top-numbers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .monthly-grid-container {
+        overflow-x: auto;
+        margin: 20px 0;
+    }
+    
+    .monthly-frequency-table {
+        min-width: 1200px;
+    }
+    
+    .monthly-frequency-table th {
+        position: sticky;
+        top: 0;
+        background-color: #f8f9fa;
+        z-index: 5;
+    }
+    
+    .monthly-frequency-table .number-col {
+        position: sticky;
+        left: 0;
+        background-color: #f8f9fa;
+        z-index: 4;
+        font-weight: bold;
+    }
+    
+    .frequency-value {
+        text-align: center;
+        padding: 5px;
+        border-radius: 3px;
+    }
+    
+    .frequency-value.high { background-color: #d4edda; }
+    .frequency-value.medium { background-color: #fff3cd; }
+    .frequency-value.low { background-color: #f8d7da; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Phân tích tần suất số nâng cao</h3>
+            <div class="d-flex">
+                <a href="{% url 'number_frequency_stats_sync' %}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-sync-alt"></i> Đồng bộ mới nhất
+                </a>
+                <a href="{% url 'number_frequency_stats_bulk_import' %}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-file-import"></i> Nhập dữ liệu
+                </a>
+                <a href="{% url 'number_frequency_stats_create' %}" class="btn btn-outline-light me-2">
+                    <i class="fas fa-plus"></i> Thêm mới
+                </a>
+                <a href="{% url 'number_frequency_stats_bulk_delete' %}" class="btn btn-danger me-2">
+                    <i class="fas fa-trash-alt"></i> Xóa dữ liệu
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Analysis Mode Tabs -->
+            <ul class="nav nav-tabs analysis-tabs" id="analysisModeTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if analysis_mode != 'comprehensive' %}active{% endif %}" 
+                            id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" 
+                            type="button" role="tab">Phân tích cơ bản</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {% if analysis_mode == 'comprehensive' %}active{% endif %}" 
+                            id="comprehensive-tab" data-bs-toggle="tab" data-bs-target="#comprehensive" 
+                            type="button" role="tab">Phân tích tổng hợp</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="heatmap-tab" data-bs-toggle="tab" data-bs-target="#heatmap" 
+                            type="button" role="tab">Heatmap trực quan</button>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="analysisModeTabsContent">
+                <!-- Basic Analysis Tab -->
+                <div class="tab-pane fade {% if analysis_mode != 'comprehensive' %}show active{% endif %}" 
+                     id="basic" role="tabpanel">
+                    
+                    <!-- Filter Form -->
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Lọc dữ liệu</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form method="get" class="row g-3">
+                                        <input type="hidden" name="analysis_mode" value="basic">
+                                        <div class="col-md-3">
+                                            <label for="start_date" class="form-label">Từ ngày</label>
+                                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ start_date }}">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label for="end_date" class="form-label">Đến ngày</label>
+                                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ end_date }}">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="number" class="form-label">Số</label>
+                                            <input type="text" class="form-control" id="number" name="number" value="{{ number }}" 
+                                                   placeholder="Ví dụ: 23" maxlength="2">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label for="prize_type" class="form-label">Loại giải</label>
+                                            <select class="form-select" id="prize_type" name="prize_type">
+                                                <option value="" {% if prize_type == "" %}selected{% endif %}>Tất cả</option>
+                                                <option value="special" {% if prize_type == "special" %}selected{% endif %}>Giải đặc biệt</option>
+                                                <option value="first" {% if prize_type == "first" %}selected{% endif %}>Giải nhất</option>
+                                                <option value="other" {% if prize_type == "other" %}selected{% endif %}>Giải khác</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <div class="d-flex w-100 gap-2">
+                                                <button type="submit" class="btn btn-primary flex-grow-1">Lọc</button>
+                                                <a href="{% url 'number_frequency_stats_list' %}" class="btn btn-secondary">Reset</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Monthly Frequency Grid -->
+                    {% if monthly_frequency_grid %}
+                    <div class="card mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Bảng tần suất theo tháng (12 tháng gần nhất)</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="monthly-grid-container">
+                                <table class="table table-bordered monthly-frequency-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="number-col">Số</th>
+                                            {% for month in monthly_frequency_grid.months %}
+                                            <th>{{ month }}</th>
+                                            {% endfor %}
+                                            <th>Tổng</th>
+                                            <th>TB/tháng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for row in monthly_frequency_grid.data %}
+                                        <tr>
+                                            <td class="number-col">{{ row.number }}</td>
+                                            {% for count in row.monthly_counts %}
+                                            <td class="frequency-value {% if count >= 3 %}high{% elif count >= 1 %}medium{% else %}low{% endif %}">
+                                                {{ count|default:"0" }}
+                                            </td>
+                                            {% endfor %}
+                                            <td class="fw-bold">{{ row.total }}</td>
+                                            <td>{{ row.avg_per_month }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Data Table -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h5>Dữ liệu chi tiết: {{ stats|length }} bản ghi</h5>
+                        </div>
+                        <div>
+                            <a href="{% url 'number_frequency_stats_export' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                                <i class="fas fa-file-export"></i> Xuất CSV
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-primary">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Số</th>
+                                    <th>Ngày</th>
+                                    <th>Thứ</th>
+                                    <th>Giải đặc biệt</th>
+                                    <th>Giải nhất</th>
+                                    <th>Giải khác</th>
+                                    <th>Ngày trong tháng</th>
+                                    <th>Tuần trong tháng</th>
+                                    <th>Tháng</th>
+                                    <th>Năm</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in stats %}
+                                <tr>
+                                    <td>{{ stat.id }}</td>
+                                    <td class="fw-bold">{{ stat.number }}</td>
+                                    <td>{{ stat.date|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if stat.day_of_week == 0 %}Thứ 2
+                                        {% elif stat.day_of_week == 1 %}Thứ 3
+                                        {% elif stat.day_of_week == 2 %}Thứ 4
+                                        {% elif stat.day_of_week == 3 %}Thứ 5
+                                        {% elif stat.day_of_week == 4 %}Thứ 6
+                                        {% elif stat.day_of_week == 5 %}Thứ 7
+                                        {% elif stat.day_of_week == 6 %}Chủ nhật
+                                        {% endif %}
+                                    </td>
+                                    <td>{% if stat.appeared_in_special %}<span class="text-success"><i class="fas fa-check"></i></span>{% endif %}</td>
+                                    <td>{% if stat.appeared_in_first %}<span class="text-success"><i class="fas fa-check"></i></span>{% endif %}</td>
+                                    <td>{% if stat.appeared_in_other %}<span class="text-success"><i class="fas fa-check"></i></span>{% endif %}</td>
+                                    <td>{{ stat.day_of_month }}</td>
+                                    <td>{{ stat.week_of_month }}</td>
+                                    <td>{{ stat.month }}</td>
+                                    <td>{{ stat.year }}</td>
+                                    <td>
+                                        <div class="d-flex gap-2">
+                                            <a href="{% url 'number_frequency_stats_update' stat.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'number_frequency_stats_delete' stat.id %}" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="12" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Comprehensive Analysis Tab -->
+                <div class="tab-pane fade {% if analysis_mode == 'comprehensive' %}show active{% endif %}" 
+                     id="comprehensive" role="tabpanel">
+                    
+                    {% if comprehensive_analysis %}
+                    <!-- Top Numbers Section -->
+                    <div class="top-numbers-grid">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">Top số HOT (30 ngày)</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for item in top_hot_numbers %}
+                                    <div class="col-4 mb-2">
+                                        <button class="btn btn-outline-danger btn-sm w-100 number-analysis-btn" 
+                                                data-number="{{ item.number }}">
+                                            {{ item.number }} <span class="badge bg-danger">{{ item.count }}</span>
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">Top số LẠNH</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for item in top_cold_numbers %}
+                                    <div class="col-4 mb-2">
+                                        <button class="btn btn-outline-primary btn-sm w-100 number-analysis-btn" 
+                                                data-number="{{ item.number }}">
+                                            {{ item.number }} <small>{{ item.last_appearance|date:"d/m" }}</small>
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">Số có xu hướng TĂNG</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    {% for item in trending_numbers %}
+                                    <div class="col-4 mb-2">
+                                        <button class="btn btn-outline-success btn-sm w-100 number-analysis-btn" 
+                                                data-number="{{ item.number }}">
+                                            {{ item.number }} <span class="badge bg-success">+{{ item.trend_score }}</span>
+                                        </button>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if comprehensive_analysis %}
+                    <!-- Comprehensive Grid -->
+                    <div class="card">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0">Bảng phân tích tổng hợp (Click vào số để xem chi tiết)</h6>
+                            <small class="text-muted">Số phần tử phân tích: {{ comprehensive_analysis|length }}</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="frequency-grid">
+                                {% for row in "0123456789"|make_list %}
+                                    {% for col in "0123456789"|make_list %}
+                                        {% with number=row|format_number_2digit:col %}
+                                        {% with analysis=comprehensive_analysis|get_item:number %}
+                                        {% if analysis %}
+                                        <div class="frequency-cell number-analysis-btn {% if analysis.current_gan_days >= 20 %}cold{% elif analysis.current_gan_days >= 15 %}cool{% elif analysis.current_gan_days >= 10 %}normal{% elif analysis.current_gan_days >= 5 %}warm{% else %}hot{% endif %}" 
+                                             data-number="{{ number }}"
+                                             title="Số {{ number }}: Gan {{ analysis.current_gan_days }} ngày, Xác suất {{ analysis.probability }}%">
+                                            {{ number }}
+                                            <small class="d-block">{{ analysis.current_gan_days }}d</small>
+                                            <small class="d-block text-warning fw-bold">{{ analysis.probability|floatformat:1 }}%</small>
+                                        </div>
+                                        {% else %}
+                                        <div class="frequency-cell number-analysis-btn normal" 
+                                             data-number="{{ number }}"
+                                             title="Số {{ number }}: Chưa có dữ liệu">
+                                            {{ number }}
+                                            <small class="d-block">-</small>
+                                            <small class="d-block text-muted">0%</small>
+                                        </div>
+                                        {% endif %}
+                                        {% endwith %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="heatmap-legend">
+                                <div class="legend-item">
+                                    <div class="legend-color hot"></div>
+                                    <span>Hot (0-4 ngày gan)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color warm"></div>
+                                    <span>Warm (5-9 ngày gan)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color normal"></div>
+                                    <span>Normal (10-14 ngày gan)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color cool"></div>
+                                    <span>Cool (15-19 ngày gan)</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color cold"></div>
+                                    <span>Cold (20+ ngày gan)</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <p>Bấm <a href="?analysis_mode=comprehensive" class="btn btn-primary btn-sm">Tải phân tích tổng hợp</a> để xem dữ liệu chi tiết.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Heatmap Tab -->
+                <div class="tab-pane fade" id="heatmap" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0">Heatmap trực quan</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-md-4">
+                                    <label for="heatmap-period" class="form-label">Thời gian</label>
+                                    <select class="form-select" id="heatmap-period">
+                                        <option value="7">7 ngày qua</option>
+                                        <option value="30" selected>30 ngày qua</option>
+                                        <option value="90">90 ngày qua</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="heatmap-type" class="form-label">Kiểu hiển thị</label>
+                                    <select class="form-select" id="heatmap-type">
+                                        <option value="frequency" selected>Tần suất xuất hiện</option>
+                                        <option value="gan">Số ngày gan</option>
+                                        <option value="probability">Xác suất dự đoán</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button class="btn btn-primary" id="generate-heatmap">Tạo Heatmap</button>
+                                </div>
+                            </div>
+                            
+                            <div id="heatmap-container">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-chart-area fa-3x"></i>
+                                    <p>Bấm "Tạo Heatmap" để hiển thị dữ liệu trực quan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
+                        {% elif i > page_obj.number|add:'-4' and i < page_obj.number|add:'4' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Number Analysis Modal -->
+<div class="modal fade" id="numberAnalysisModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Phân tích chi tiết số <span id="modal-number"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="modal-analysis-content">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Define functions in global scope
+window.showNumberAnalysis = function(number) {
+    const modal = document.getElementById('numberAnalysisModal');
+    const modalNumber = document.getElementById('modal-number');
+    const modalContent = document.getElementById('modal-analysis-content');
+    
+    if (!modal || !modalNumber || !modalContent) {
+        console.error("Modal elements not found");
+        return;
+    }
+    
+    modalNumber.textContent = number;
+    modalContent.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2">Đang phân tích số ${number}...</p>
+        </div>
+    `;
+    
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Fetch analysis data
+    fetch(`/results/number-analysis/?number=${number}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modalContent.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>✅ Phân tích chi tiết cho số ${number}</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>📊 Thống kê cơ bản:</h6>
+                                <ul>
+                                    <li>Xuất hiện 30 ngày: <strong>${data.analysis.basic_stats.appearances_30d} lần</strong></li>
+                                    <li>Tổng xuất hiện: <strong>${data.analysis.basic_stats.total_appearances} lần</strong></li>
+                                    <li>Lần cuối: <strong>${data.analysis.basic_stats.last_appearance}</strong></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>⚡ Phân tích "Gan":</h6>
+                                <ul>
+                                    <li>Gan hiện tại: <strong class="text-danger">${data.analysis.gan_analysis.current_gan_days} ngày</strong></li>
+                                    <li>Gan tối đa: <strong>${data.analysis.gan_analysis.max_gan_days} ngày</strong></li>
+                                    <li>Gan trung bình: <strong>${data.analysis.gan_analysis.avg_gan_days} ngày</strong></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <h6>🎯 Xác suất dự đoán:</h6>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-success" style="width: ${data.analysis.prediction_probabilities.combined}%">
+                                    ${data.analysis.prediction_probabilities.combined.toFixed(2)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                modalContent.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Lỗi: ${data.error || 'Không thể tải dữ liệu phân tích'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalContent.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Lỗi kết nối: Không thể tải dữ liệu phân tích
+                </div>
+            `;
+        });
+};
+
+window.generateHeatmap = function() {
+    const container = document.getElementById('heatmap-container');
+    if (!container) {
+        console.error("Heatmap container not found");
+        return;
+    }
+    
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+            <p class="mt-2">Đang tạo heatmap...</p>
+        </div>
+    `;
+    
+    fetch('/results/frequency-heatmap/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                container.innerHTML = `
+                    <div class="alert alert-success">
+                        <h5>🔥 Heatmap đã được tạo thành công!</h5>
+                        <p>Dữ liệu heatmap đã được tải.</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Lỗi: ${data.error || 'Không thể tạo heatmap'}
+                    </div>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Lỗi kết nối: Không thể tạo heatmap
+                </div>
+            `;
+        });
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug: Check how many analysis buttons exist
+    const analysisButtons = document.querySelectorAll('.number-analysis-btn');
+    console.log('Found', analysisButtons.length, 'analysis buttons');
+    
+    // Debug: Check comprehensive analysis data
+    const comprehensiveSection = document.getElementById('comprehensive');
+    if (comprehensiveSection) {
+        console.log('Comprehensive section found');
+        const grid = comprehensiveSection.querySelector('.frequency-grid');
+        if (grid) {
+            console.log('Frequency grid found, children:', grid.children.length);
+        }
+    }
+    
+    // Number analysis click handler
+    analysisButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const number = this.dataset.number;
+            console.log('Clicked on number:', number);
+            showNumberAnalysis(number);
+        });
+    });
+    
+    // Heatmap generation
+    const heatmapBtn = document.getElementById('generate-heatmap');
+    if (heatmapBtn) {
+        heatmapBtn.addEventListener('click', function() {
+            console.log('Generate heatmap clicked');
+            generateHeatmap();
+        });
+    } else {
+        console.log('Generate heatmap button not found');
+    }
+    
+    // Tab switching with URL update
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
+        tab.addEventListener('shown.bs.tab', function(e) {
+            const target = e.target.getAttribute('data-bs-target');
+            const mode = target.replace('#', '');
+            if (mode !== 'heatmap') {
+                updateURLParam('analysis_mode', mode);
+            }
+        });
+    });
+});
+
+    });
+});
+
+function renderAnalysisData(analysis) {
+    const modalContent = document.getElementById('modal-analysis-content');
+    
+    modalContent.innerHTML = `
+        <div class="row">
+            <!-- Basic Stats -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">Thống kê cơ bản</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Xuất hiện trong 30 ngày:</td>
+                                <td><strong>${analysis.basic_stats.appearances_30d} lần</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Tổng số lần xuất hiện:</td>
+                                <td><strong>${analysis.basic_stats.total_appearances} lần</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Lần xuất hiện cuối:</td>
+                                <td><strong>${analysis.basic_stats.last_appearance || 'Chưa có'}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gan Analysis -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h6 class="mb-0">Phân tích "Gan"</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Gan hiện tại:</td>
+                                <td><strong class="text-danger">${analysis.gan_analysis.current_gan_days} ngày</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Gan tối đa từng có:</td>
+                                <td><strong>${analysis.gan_analysis.max_gan_days} ngày</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Gan trung bình:</td>
+                                <td><strong>${analysis.gan_analysis.avg_gan_days} ngày</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cycle Analysis -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0">Phân tích chu kỳ</h6>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <tr>
+                                <td>Chu kỳ trung bình:</td>
+                                <td><strong>${analysis.cycle_analysis.avg_cycle} ngày</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Chu kỳ median:</td>
+                                <td><strong>${analysis.cycle_analysis.median_cycle} ngày</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Chu kỳ ngắn nhất:</td>
+                                <td><strong>${analysis.cycle_analysis.min_cycle || 'N/A'} ngày</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Chu kỳ dài nhất:</td>
+                                <td><strong>${analysis.cycle_analysis.max_cycle || 'N/A'} ngày</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Prediction Probabilities -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">Xác suất dự đoán</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Xác suất tổng hợp:</label>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: ${analysis.prediction_probabilities.combined}%">
+                                    ${analysis.prediction_probabilities.combined}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dựa trên gan tối đa:</label>
+                            <div class="progress">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                     style="width: ${analysis.prediction_probabilities.max_gan_based}%">
+                                    ${analysis.prediction_probabilities.max_gan_based}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Companion Numbers -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h6 class="mb-0">Số đính kèm (Top 5)</h6>
+                    </div>
+                    <div class="card-body">
+                        ${analysis.companion_numbers.slice(0, 5).map(comp => 
+                            `<span class="badge bg-secondary me-2 mb-2">${comp.number} (${comp.percentage}%)</span>`
+                        ).join('')}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weekday Patterns -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h6 class="mb-0">Mẫu theo ngày trong tuần</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            ${Object.entries(analysis.weekday_patterns).map(([day, data]) => 
+                                `<div class="col-6 mb-2">
+                                    <small>${day}:</small><br>
+                                    <strong>${data.count} lần (${data.percentage}%)</strong>
+                                </div>`
+                            ).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderHeatmap(data) {
+    const container = document.getElementById('heatmap-container');
+    const { min, max } = data.value_range;
+    
+    let heatmapHTML = `
+        <div class="frequency-grid mb-3">
+            ${data.data.map(item => {
+                const intensity = max > min ? (item.value - min) / (max - min) : 0;
+                const color = getHeatmapColor(intensity);
+                return `
+                    <div class="frequency-cell" 
+                         style="background-color: ${color}; color: ${intensity > 0.5 ? 'white' : 'black'};"
+                         title="Số ${item.number}: ${item.value}">
+                        ${item.number}
+                        <small class="d-block">${item.value}</small>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Thống kê:</h6>
+                <ul class="list-unstyled">
+                    <li>Giá trị tối thiểu: <strong>${min}</strong></li>
+                    <li>Giá trị tối đa: <strong>${max}</strong></li>
+                    <li>Giá trị trung bình: <strong>${data.value_range.avg.toFixed(2)}</strong></li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6>Chú thích màu:</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <div class="d-flex align-items-center">
+                        <div style="width: 20px; height: 20px; background-color: ${getHeatmapColor(0)}; margin-right: 5px;"></div>
+                        <small>Thấp</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div style="width: 20px; height: 20px; background-color: ${getHeatmapColor(0.5)}; margin-right: 5px;"></div>
+                        <small>Trung bình</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div style="width: 20px; height: 20px; background-color: ${getHeatmapColor(1)}; margin-right: 5px;"></div>
+                        <small>Cao</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.innerHTML = heatmapHTML;
+}
+
+function getHeatmapColor(intensity) {
+    // Create gradient from blue (low) to red (high)
+    const r = Math.round(intensity * 255);
+    const b = Math.round((1 - intensity) * 255);
+    const g = Math.round(Math.sin(intensity * Math.PI) * 255 * 0.5);
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+function updateURLParam(param, value) {
+    const url = new URL(window.location);
+    url.searchParams.set(param, value);
+    window.history.pushState({}, '', url);
+}
+</script>
+
+<!-- Frequency Analysis JavaScript - Embedded -->
+<script>
+// Helper function to create full analysis modal content
+function createFullAnalysisModal(data, number) {
+    const analysis = data.analysis;
+    
+    // Helper function to create companion numbers section
+    function createCompanionSection() {
+        if (!analysis.companion_numbers || analysis.companion_numbers.length === 0) {
+            return '<p class="text-muted">Chưa có dữ liệu số cùng xuất hiện</p>';
+        }
+        
+        var html = '<div class="table-responsive"><table class="table table-sm table-striped">';
+        html += '<thead><tr><th>Số</th><th>Xuất hiện cùng</th><th>Tỷ lệ</th></tr></thead><tbody>';
+        
+        for (var i = 0; i < Math.min(10, analysis.companion_numbers.length); i++) {
+            var comp = analysis.companion_numbers[i];
+            html += '<tr>';
+            html += '<td><span class="badge bg-primary">' + comp.number + '</span></td>';
+            html += '<td>' + comp.co_occurrences + ' lần</td>';
+            html += '<td>' + comp.percentage.toFixed(1) + '%</td>';
+            html += '</tr>';
+        }
+        
+        html += '</tbody></table></div>';
+        return html;
+    }
+    
+    // Helper function to create predecessor section
+    function createPredecessorSection() {
+        if (!analysis.predecessor_analysis || analysis.predecessor_analysis.length === 0) {
+            return '<p class="text-muted">Chưa có dữ liệu số tiền nhiệm</p>';
+        }
+        
+        var html = '<div class="table-responsive"><table class="table table-sm table-striped">';
+        html += '<thead><tr><th>Số</th><th>Xuất hiện trước</th><th>Tỷ lệ</th></tr></thead><tbody>';
+        
+        for (var i = 0; i < Math.min(10, analysis.predecessor_analysis.length); i++) {
+            var pred = analysis.predecessor_analysis[i];
+            html += '<tr>';
+            html += '<td><span class="badge bg-warning text-dark">' + pred.number + '</span></td>';
+            html += '<td>' + pred.occurrences + ' lần</td>';
+            html += '<td>' + pred.percentage.toFixed(1) + '%</td>';
+            html += '</tr>';
+        }
+        
+        html += '</tbody></table></div>';
+        return html;
+    }
+    
+    // Helper function to create weekday patterns
+    function createWeekdaySection() {
+        if (!analysis.weekday_patterns || Object.keys(analysis.weekday_patterns).length === 0) {
+            return '<p class="text-muted">Chưa có dữ liệu theo ngày trong tuần</p>';
+        }
+        
+        var html = '<div class="row">';
+        var weekdays = Object.keys(analysis.weekday_patterns);
+        
+        for (var i = 0; i < weekdays.length; i++) {
+            var day = weekdays[i];
+            var stats = analysis.weekday_patterns[day];
+            var percentage = stats.percentage || 0;
+            
+            html += '<div class="col-6 col-md-4 mb-2">';
+            html += '<div class="text-center">';
+            html += '<div class="fw-bold">' + day.substring(0, 3) + '</div>';
+            html += '<div class="small">' + stats.count + ' lần</div>';
+            html += '<div class="progress" style="height: 4px;">';
+            html += '<div class="progress-bar" style="width: ' + percentage + '%"></div>';
+            html += '</div>';
+            html += '<div class="small text-muted">' + percentage.toFixed(1) + '%</div>';
+            html += '</div>';
+            html += '</div>';
+        }
+        
+        html += '</div>';
+        return html;
+    }
+    
+    // Helper function to create cycle analysis
+    function createCycleSection() {
+        if (!analysis.cycle_analysis) {
+            return '<p class="text-muted">Chưa có dữ liệu chu kỳ</p>';
+        }
+        
+        var cycle = analysis.cycle_analysis;
+        var html = '<div class="row">';
+        html += '<div class="col-6"><strong>Trung bình:</strong> ' + (cycle.avg_cycle || 0).toFixed(1) + ' ngày</div>';
+        html += '<div class="col-6"><strong>Trung vị:</strong> ' + (cycle.median_cycle || 0) + ' ngày</div>';
+        html += '<div class="col-6"><strong>Tối thiểu:</strong> ' + (cycle.min_cycle || 0) + ' ngày</div>';
+        html += '<div class="col-6"><strong>Tối đa:</strong> ' + (cycle.max_cycle || 0) + ' ngày</div>';
+        html += '</div>';
+        
+        if (cycle.cycle_distribution && Object.keys(cycle.cycle_distribution).length > 0) {
+            html += '<div class="mt-2"><small class="text-muted">Phân bố chu kỳ:</small><br>';
+            var cycles = Object.keys(cycle.cycle_distribution);
+            for (var i = 0; i < Math.min(5, cycles.length); i++) {
+                var days = cycles[i];
+                var count = cycle.cycle_distribution[days];
+                html += '<span class="badge bg-light text-dark me-1">' + days + ' ngày: ' + count + ' lần</span>';
+            }
+            html += '</div>';
+        }
+        
+        return html;
+    }
+    
+    // Helper function to create top predictions section from grid data
+    function createTopPredictionsSection() {
+        console.log('Creating Top Predictions Section...');
+        
+        // Extract prediction data from grid cells
+        var gridCells = document.querySelectorAll('.grid-cell');
+        var predictionData = [];
+        
+        for (var i = 0; i < gridCells.length; i++) {
+            var cell = gridCells[i];
+            var number = cell.dataset.number;
+            var title = cell.title || '';
+            
+            if (number && title) {
+                // Extract probability from title (format: "Số X: Y.Y% xác suất...")
+                var probMatch = title.match(/(\d+\.?\d*)%\s*xác\s*suất/i);
+                if (probMatch) {
+                    var probability = parseFloat(probMatch[1]);
+                    predictionData.push({
+                        number: number,
+                        probability: probability,
+                        fullTitle: title
+                    });
+                }
+            }
+        }
+        
+        // Sort by probability (highest first)
+        predictionData.sort(function(a, b) { return b.probability - a.probability; });
+        
+        // Create Top 10 predictions HTML
+        var html = '<div class="table-responsive">';
+        
+        if (predictionData.length === 0) {
+            html += '<p class="text-muted">Chưa có dữ liệu xác suất dự đoán</p>';
+        } else {
+            html += '<table class="table table-sm table-striped">';
+            html += '<thead><tr><th style="width: 60px">Hạng</th><th style="width: 60px">Số</th><th>Xác suất</th><th>Tiến trình</th></tr></thead>';
+            html += '<tbody>';
+            
+            var top10 = predictionData.slice(0, 10);
+            var maxProbability = top10.length > 0 ? top10[0].probability : 100;
+            
+            for (var j = 0; j < top10.length; j++) {
+                var item = top10[j];
+                var rank = j + 1;
+                var progressWidth = (item.probability / maxProbability * 100).toFixed(1);
+                
+                var rankColor = '';
+                if (rank === 1) rankColor = 'text-warning'; // Gold
+                else if (rank === 2) rankColor = 'text-secondary'; // Silver  
+                else if (rank === 3) rankColor = 'text-warning'; // Bronze
+                
+                var probabilityColor = '';
+                if (item.probability >= 80) probabilityColor = 'bg-danger';
+                else if (item.probability >= 60) probabilityColor = 'bg-warning';
+                else if (item.probability >= 40) probabilityColor = 'bg-info';
+                else probabilityColor = 'bg-secondary';
+                
+                html += '<tr>';
+                html += '<td><strong class="' + rankColor + '">#' + rank + '</strong></td>';
+                html += '<td><span class="badge bg-primary clickable-number" data-number="' + item.number + '" style="cursor: pointer;" onclick="window.analyzeNumber(' + item.number + ')">' + item.number + '</span></td>';
+                html += '<td><strong class="text-success">' + item.probability.toFixed(1) + '%</strong></td>';
+                html += '<td>';
+                html += '<div class="progress" style="height: 20px;">';
+                html += '<div class="progress-bar ' + probabilityColor + '" style="width: ' + progressWidth + '%">';
+                html += item.probability.toFixed(1) + '%';
+                html += '</div>';
+                html += '</div>';
+                html += '</td>';
+                html += '</tr>';
+            }
+            
+            html += '</tbody></table>';
+            
+            // Add summary statistics
+            if (predictionData.length > 0) {
+                var totalProb = 0;
+                for (var k = 0; k < predictionData.length; k++) {
+                    totalProb += predictionData[k].probability;
+                }
+                var avgProbability = totalProb / predictionData.length;
+                
+                var highProbCount = 0;
+                for (var l = 0; l < predictionData.length; l++) {
+                    if (predictionData[l].probability >= 50) {
+                        highProbCount++;
+                    }
+                }
+                
+                html += '<div class="mt-3 p-2 bg-light rounded">';
+                html += '<small class="text-muted">';
+                html += '📊 <strong>Thống kê:</strong> ';
+                html += 'Xác suất trung bình: ' + avgProbability.toFixed(1) + '% | ';
+                html += 'Số có xác suất ≥50%: ' + highProbCount + '/' + predictionData.length;
+                html += '</small>';
+                html += '</div>';
+            }
+        }
+        
+        html += '</div>';
+        return html;
+    }
+    
+    // Main modal content
+    return '<div class="container-fluid">' +
+        '<div class="row mb-3">' +
+            '<div class="col-12">' +
+                '<h5 class="text-center mb-3">📊 Phân tích toàn diện cho số <span class="badge bg-primary fs-6">' + number + '</span></h5>' +
+            '</div>' +
+        '</div>' +
+        
+        // Basic stats and prediction
+        '<div class="row mb-4">' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-info text-white py-2">' +
+                        '<h6 class="mb-0">📈 Thống kê cơ bản</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<ul class="list-unstyled mb-0">' +
+                            '<li>📅 Xuất hiện 30 ngày: <strong>' + analysis.basic_stats.appearances_30d + ' lần</strong></li>' +
+                            '<li>📊 Tổng xuất hiện: <strong>' + analysis.basic_stats.total_appearances + ' lần</strong></li>' +
+                            '<li>🕒 Lần cuối: <strong>' + (analysis.basic_stats.last_appearance || 'Chưa có') + '</strong></li>' +
+                        '</ul>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-warning text-dark py-2">' +
+                        '<h6 class="mb-0">⚡ Phân tích "Gan"</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<ul class="list-unstyled mb-0">' +
+                            '<li>🔥 Gan hiện tại: <strong class="text-danger">' + analysis.gan_analysis.current_gan_days + ' ngày</strong></li>' +
+                            '<li>📏 Gan tối đa: <strong>' + analysis.gan_analysis.max_gan_days + ' ngày</strong></li>' +
+                            '<li>📊 Gan trung bình: <strong>' + (analysis.gan_analysis.avg_gan_days || 0).toFixed(1) + ' ngày</strong></li>' +
+                        '</ul>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        // Prediction probability
+        '<div class="row mb-4">' +
+            '<div class="col-12">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-success text-white py-2">' +
+                        '<h6 class="mb-0">🎯 Xác suất dự đoán</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<div class="progress mb-2" style="height: 25px;">' +
+                            '<div class="progress-bar bg-success" style="width: ' + analysis.prediction_probabilities.combined + '%">' +
+                                '<span class="fw-bold">' + analysis.prediction_probabilities.combined.toFixed(1) + '%</span>' +
+                            '</div>' +
+                        '</div>' +
+                        '<small class="text-muted">Dựa trên chu kỳ và gan tối đa</small>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        // Top Predictions Section - NEW!
+        '<div class="row mb-4">' +
+            '<div class="col-12">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-warning text-dark py-2">' +
+                        '<h6 class="mb-0">🏆 Top 10 Số có Xác suất Dự đoán Cao nhất</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        createTopPredictionsSection() +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        // Companion numbers and predecessors
+        '<div class="row mb-4">' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-primary text-white py-2">' +
+                        '<h6 class="mb-0">🤝 Số cùng xuất hiện</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        createCompanionSection() +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-secondary text-white py-2">' +
+                        '<h6 class="mb-0">⏮️ Số thường xuất hiện trước</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        createPredecessorSection() +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        
+        // Weekday patterns and cycle analysis
+        '<div class="row mb-4">' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-info text-white py-2">' +
+                        '<h6 class="mb-0">📅 Theo ngày trong tuần</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        createWeekdaySection() +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="col-md-6">' +
+                '<div class="card">' +
+                    '<div class="card-header bg-dark text-white py-2">' +
+                        '<h6 class="mb-0">🔄 Chu kỳ xuất hiện</h6>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        createCycleSection() +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+    '</div>';
+}
+
+// Global functions for frequency analysis
+window.showNumberAnalysis = function(number) {
+    console.log("showNumberAnalysis called with:", number);
+    
+    const modal = document.getElementById('numberAnalysisModal');
+    const modalNumber = document.getElementById('modal-number');
+    const modalContent = document.getElementById('modal-analysis-content');
+    
+    if (!modal || !modalNumber || !modalContent) {
+        console.error("Modal elements not found");
+        return;
+    }
+    
+    modalNumber.textContent = number;
+    modalContent.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Đang tải...</span></div><p class="mt-2">Đang phân tích số ' + number + '...</p></div>';
+    
+    const bsModal = new bootstrap.Modal(modal);
+    bsModal.show();
+    
+    // Fetch analysis data
+    fetch('/results/number-analysis/?number=' + number)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                modalContent.innerHTML = createFullAnalysisModal(data, number);
+            } else {
+                modalContent.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Lỗi: ' + (data.error || 'Không thể tải dữ liệu phân tích') + '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            modalContent.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Lỗi kết nối: Không thể tải dữ liệu phân tích</div>';
+        });
+};
+
+window.generateHeatmap = function() {
+    console.log("generateHeatmap called");
+    
+    const container = document.getElementById('heatmap-container');
+    if (!container) {
+        console.error("Heatmap container not found");
+        return;
+    }
+    
+    container.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"><span class="visually-hidden">Đang tải...</span></div><p class="mt-2">Đang tạo heatmap...</p></div>';
+    
+    fetch('/results/frequency-heatmap/')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                container.innerHTML = '<div class="alert alert-success"><h5>🔥 Heatmap đã được tạo thành công!</h5><p>Dữ liệu heatmap đã được tải.</p><pre>' + JSON.stringify(data, null, 2) + '</pre></div>';
+            } else {
+                container.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Lỗi: ' + (data.error || 'Không thể tạo heatmap') + '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Lỗi kết nối: Không thể tạo heatmap</div>';
+        });
+};
+
+// Initialize immediately when script loads
+(function() {
+    console.log("Frequency analysis functions loaded");
+    
+    // Wait for DOM if needed
+    function initializeButtons() {
+        // Bind number analysis buttons
+        const buttons = document.querySelectorAll('.number-analysis-btn');
+        console.log('Binding ' + buttons.length + ' analysis buttons');
+        
+        buttons.forEach((btn, index) => {
+            // Remove any existing listeners
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+        });
+        
+        // Add new listeners to fresh buttons
+        document.querySelectorAll('.number-analysis-btn').forEach((btn, index) => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const number = this.dataset.number;
+                console.log('Button ' + index + ' clicked: ' + number);
+                window.showNumberAnalysis(number);
+            });
+        });
+        
+        // Bind heatmap button
+        const heatmapBtn = document.getElementById('generate-heatmap');
+        if (heatmapBtn) {
+            // Remove old listener
+            const newHeatmapBtn = heatmapBtn.cloneNode(true);
+            heatmapBtn.parentNode.replaceChild(newHeatmapBtn, heatmapBtn);
+            
+            // Add new listener
+            document.getElementById('generate-heatmap').addEventListener('click', function(e) {
+                e.preventDefault();
+                console.log('Heatmap button clicked');
+                window.generateHeatmap();
+            });
+            console.log("Heatmap button bound");
+        }
+    }
+    
+    // Initialize immediately if DOM is ready, otherwise wait
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeButtons);
+    } else {
+        initializeButtons();
+    }
+})();
+</script>
+{% endblock %}

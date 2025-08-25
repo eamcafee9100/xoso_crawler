@@ -1,0 +1,312 @@
+{% extends 'lokhung/btl/base.html' %}
+
+{% block title %}Danh sách báo cáo - Hệ thống dự đoán{% endblock %}
+
+{% block extra_css %}
+<style>
+    .report-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .report-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        margin-bottom: 1rem;
+    }
+    
+    .icon-performance { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .icon-comparison { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .icon-frequency { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .icon-trend { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    
+    .report-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+    
+    .report-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .report-item:last-child {
+        border-bottom: none;
+    }
+    
+    .quick-actions {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stats-widget {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Báo cáo & Thống kê{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickReportModal">
+        <i class="fas fa-bolt"></i> Báo cáo nhanh
+    </button>
+    <button type="button" class="btn btn-outline-primary" onclick="exportReports()">
+        <i class="fas fa-download"></i> Xuất báo cáo
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Actions -->
+<div class="quick-actions">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h4 class="mb-2">Tạo báo cáo nhanh</h4>
+            <p class="mb-0 opacity-75">Chọn loại báo cáo và khoảng thời gian để tạo báo cáo tự động</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#quickReportModal">
+                <i class="fas fa-magic"></i> Bắt đầu
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Report Types -->
+<div class="row mb-5">
+    {% for report in report_types %}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card report-card h-100">
+            <div class="card-body text-center">
+                <div class="report-icon icon-{{ report.id|cut:'_' }} mx-auto">
+                    {% if 'performance' in report.id %}
+                        <i class="fas fa-tachometer-alt"></i>
+                    {% elif 'comparison' in report.id %}
+                        <i class="fas fa-balance-scale"></i>
+                    {% elif 'frequency' in report.id %}
+                        <i class="fas fa-chart-bar"></i>
+                    {% elif 'trend' in report.id %}
+                        <i class="fas fa-chart-line"></i>
+                    {% endif %}
+                </div>
+                <h5 class="card-title">{{ report.name }}</h5>
+                <p class="card-text text-muted">{{ report.description }}</p>
+                <a href="{% url report.url %}" class="btn btn-primary">
+                    <i class="fas fa-eye"></i> Xem báo cáo
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Recent Reports -->
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history text-primary me-2"></i>
+                    Báo cáo gần đây
+                </h5>
+                <button class="btn btn-sm btn-outline-primary" onclick="refreshRecentReports()">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+            <div class="card-body p-0">
+                {% for report in recent_reports %}
+                <div class="report-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="fw-bold">{{ report.method.name }}</div>
+                            <small class="text-muted">
+                                {{ report.get_period_type_display }} | 
+                                {{ report.start_date|date:"d/m/Y" }} - {{ report.end_date|date:"d/m/Y" }}
+                            </small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold text-success">{{ report.success_rate|floatformat:1 }}%</div>
+                            <small class="text-muted">Tỷ lệ thành công</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <div class="fw-bold">{{ report.total_predictions }}</div>
+                            <small class="text-muted">Dự đoán</small>
+                        </div>
+                        <div class="col-md-2 text-center">
+                            <small class="text-muted">{{ report.created_at|timesince }} trước</small>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">Chưa có báo cáo nào được tạo</p>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#quickReportModal">
+                        Tạo báo cáo đầu tiên
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="col-xl-4">
+        <div class="stats-widget mb-4">
+            <h6 class="text-muted mb-3">Thống kê nhanh</h6>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <div class="h4 text-primary mb-0">{{ recent_reports|length }}</div>
+                    <small class="text-muted">Báo cáo gần đây</small>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="h4 text-success mb-0">4</div>
+                    <small class="text-muted">Loại báo cáo</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-transparent border-0">
+                <h6 class="mb-0">
+                    <i class="fas fa-lightbulb text-warning me-2"></i>
+                    Gợi ý báo cáo
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        Tạo báo cáo hiệu suất để theo dõi xu hướng của các phương pháp dự đoán.
+                    </small>
+                </div>
+                <div class="alert alert-warning">
+                    <small>
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        So sánh các phương pháp để tìm ra phương pháp tốt nhất.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Report Modal -->
+<div class="modal fade" id="quickReportModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-bolt text-primary me-2"></i>
+                    Tạo báo cáo nhanh
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickReportForm">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Loại báo cáo</label>
+                            <select class="form-select" name="report_type" required>
+                                <option value="">Chọn loại báo cáo</option>
+                                {% for report in report_types %}
+                                <option value="{{ report.id }}">{{ report.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Khoảng thời gian</label>
+                            <select class="form-select" name="period">
+                                <option value="7">7 ngày gần nhất</option>
+                                <option value="30" selected>30 ngày gần nhất</option>
+                                <option value="90">90 ngày gần nhất</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phương pháp (tùy chọn)</label>
+                        <select class="form-select" name="method_id">
+                            <option value="">Tất cả phương pháp</option>
+                            <!-- Methods sẽ được load động -->
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="generateQuickReport()">
+                    <i class="fas fa-chart-line me-1"></i>
+                    Tạo báo cáo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshRecentReports() {
+    // Reload trang để cập nhật danh sách báo cáo
+    location.reload();
+}
+
+function exportReports() {
+    // Xuất báo cáo
+    window.open('{% url "lokhung:api_export_report" %}?type=all&format=csv', '_blank');
+}
+
+function generateQuickReport() {
+    const form = document.getElementById('quickReportForm');
+    const formData = new FormData(form);
+    const reportType = formData.get('report_type');
+    
+    if (!reportType) {
+        alert('Vui lòng chọn loại báo cáo');
+        return;
+    }
+    
+    // Chuyển đến trang báo cáo tương ứng
+    const urls = {
+        'performance_summary': '{% url "lokhung:report_performance_summary" %}',
+        'method_comparison': '{% url "lokhung:report_method_comparison" %}',
+        'daily_frequency': '{% url "lokhung:report_daily_frequency" %}',
+        'trend_analysis': '{% url "lokhung:report_trend_analysis" %}'
+    };
+    
+    if (urls[reportType]) {
+        const period = formData.get('period');
+        const methodId = formData.get('method_id');
+        
+        let url = urls[reportType] + '?';
+        if (period) url += `days=${period}&`;
+        if (methodId) url += `method_id=${methodId}&`;
+        
+        window.location.href = url;
+    }
+}
+</script>
+{% endblock %}

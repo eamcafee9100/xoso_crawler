@@ -1,0 +1,297 @@
+<!-- ✅ WEEKLY ANALYSIS MATRIX -->
+{% load weekly_filters %}
+
+<div class="weekly-analysis-container">
+    
+    <!-- ✅ SUMMARY CARDS -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ weekly_analysis.date_range_info.total_evaluations }}</h3>
+                    <p class="mb-0">Tổng đánh giá</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ weekly_analysis.recommendations.high_confidence|length }}</h3>
+                    <p class="mb-0">Khuyến nghị tốt</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ weekly_analysis.matrix_data|length }}</h3>
+                    <p class="mb-0">Methods phân tích</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h3 class="mb-0">{{ weekly_analysis.date_range_info.total_days }}</h3>
+                    <p class="mb-0">Ngày phân tích</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ RECOMMENDATIONS SECTION -->
+    {% if weekly_analysis.recommendations.high_confidence or weekly_analysis.recommendations.medium_confidence %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-star"></i> Khuyến nghị nổi bật</h5>
+        </div>
+        <div class="card-body">
+            {% if weekly_analysis.recommendations.high_confidence %}
+            <div class="mb-3">
+                <h6 class="text-success"><i class="fas fa-thumbs-up"></i> Khuyến nghị cao (≥70% tỷ lệ trúng)</h6>
+                {% for rec in weekly_analysis.recommendations.high_confidence %}
+                <div class="alert alert-success alert-sm">
+                    <strong>{{ rec.method_name }}</strong> → {{ rec.weekday_name }}: 
+                    <span class="badge bg-success">{{ rec.hit_rate }}%</span>
+                    <small class="text-muted">({{ rec.sample_size }} lần dự đoán)</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% if weekly_analysis.recommendations.medium_confidence %}
+            <div class="mb-3">
+                <h6 class="text-warning"><i class="fas fa-hand-point-right"></i> Khuyến nghị trung bình (50-69% tỷ lệ trúng)</h6>
+                {% for rec in weekly_analysis.recommendations.medium_confidence %}
+                <div class="alert alert-warning alert-sm">
+                    <strong>{{ rec.method_name }}</strong> → {{ rec.weekday_name }}: 
+                    <span class="badge bg-warning text-dark">{{ rec.hit_rate }}%</span>
+                    <small class="text-muted">({{ rec.sample_size }} lần dự đoán)</small>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ✅ MAIN MATRIX TABLE -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0"><i class="fas fa-table"></i> Ma trận hiệu suất theo thứ trong tuần</h5>
+            <small>Click vào ô để xem chi tiết. Màu xanh: ≥70%, Vàng: 50-69%, Đỏ: <50%</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered mb-0 weekly-matrix-table">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="method-column">Phương pháp</th>
+                            <th class="text-center">Thứ 2</th>
+                            <th class="text-center">Thứ 3</th>
+                            <th class="text-center">Thứ 4</th>
+                            <th class="text-center">Thứ 5</th>
+                            <th class="text-center">Thứ 6</th>
+                            <th class="text-center">Thứ 7</th>
+                            <th class="text-center">Chủ nhật</th>
+                            <th class="text-center">Tổng kết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method_id, method_data in weekly_analysis.matrix_data.items %}
+                        <tr class="method-row" data-method-id="{{ method_id }}">
+                            <td class="method-name-cell">
+                                <strong>{{ method_data.method_name }}</strong>
+                                {% if method_id in weekly_analysis.method_summary %}
+                                    {% with summary=weekly_analysis.method_summary|get_item:method_id %}
+                                    {% if summary.overall_performance %}
+                                    <br><small class="text-muted">
+                                        {{ summary.overall_performance.total_evaluations }} đánh giá
+                                    </small>
+                                    {% endif %}
+                                    {% endwith %}
+                                {% endif %}
+                            </td>
+                            
+                            <!-- ✅ WEEKDAY CELLS (Monday=0 to Sunday=6) -->
+                            {% for weekday in "0123456" %}
+                                {% with weekday_int=weekday|add_zero %}
+                                {% if weekday_int in method_data.weekdays %}
+                                    {% with cell_data=method_data.weekdays|get_item:weekday_int %}
+                                    <td class="text-center weekly-cell weekday-cell 
+                                        {% if cell_data.quality == 'excellent' %}bg-success text-white
+                                        {% elif cell_data.quality == 'good' %}bg-warning text-dark
+                                        {% elif cell_data.quality == 'fair' %}bg-light text-dark
+                                        {% elif cell_data.quality == 'poor' %}bg-danger text-white
+                                        {% else %}bg-secondary text-white{% endif %}"
+                                        data-method-id="{{ method_id }}"
+                                        data-method-name="{{ method_data.method_name }}"
+                                        data-weekday="{{ weekday_int }}"
+                                        data-weekday-name="{{ cell_data.weekday_name }}"
+                                        data-hit-rate="{{ cell_data.hit_rate }}"
+                                        data-sample-size="{{ cell_data.sample_size }}"
+                                        data-quality="{{ cell_data.quality }}"
+                                        data-confidence="{{ cell_data.confidence }}"
+                                        onclick="showWeeklyDetailModal(this)"
+                                        style="cursor: pointer; user-select: none;">
+                                        
+                                        {% if cell_data.sample_size >= 5 %}
+                                            <div class="fw-bold">{{ cell_data.hit_rate }}%</div>
+                                            <small>({{ cell_data.sample_size }})</small>
+                                            {% if cell_data.quality == 'excellent' %}
+                                                <br><i class="fas fa-star"></i>
+                                            {% elif cell_data.quality == 'good' %}
+                                                <br><i class="fas fa-thumbs-up"></i>
+                                            {% endif %}
+                                        {% else %}
+                                            <div class="text-muted">
+                                                <small>Không đủ dữ liệu</small>
+                                                {% if cell_data.sample_size > 0 %}
+                                                <br><small>({{ cell_data.sample_size }})</small>
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    {% endwith %}
+                                {% else %}
+                                    <td class="text-center bg-light text-muted">
+                                        <small>Không có dữ liệu</small>
+                                    </td>
+                                {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                            
+                            <!-- ✅ SUMMARY COLUMN -->
+                            <td class="text-center summary-cell">
+                                {% if method_id in weekly_analysis.method_summary %}
+                                    {% with summary=weekly_analysis.method_summary|get_item:method_id %}
+                                    {% if summary.overall_performance %}
+                                    <div class="fw-bold">{{ summary.overall_performance.weighted_hit_rate }}%</div>
+                                    <small>{{ summary.overall_performance.total_evaluations }} đánh giá</small>
+                                    <br><small class="text-muted">{{ summary.overall_performance.active_weekdays }}/7 ngày</small>
+                                    {% else %}
+                                    <small class="text-muted">Đang tính toán...</small>
+                                    {% endif %}
+                                    {% endwith %}
+                                {% else %}
+                                    <small class="text-muted">Chưa có thống kê</small>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                Không có dữ liệu phân tích trong khoảng thời gian này.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ WEEKDAY SUMMARY -->
+    <div class="row mt-4">
+        {% for weekday in "0123456" %}
+            {% with weekday_int=weekday|add_zero %}
+            {% if weekday_int in weekly_analysis.weekday_summary %}
+                {% with day_summary=weekly_analysis.weekday_summary|get_item:weekday_int %}
+                <div class="col-md-12 col-lg-6 col-xl-4 mb-3">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0">{{ day_summary.weekday_name }}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tỷ lệ trúng TB:</span>
+                                <strong class="
+                                    {% if day_summary.avg_hit_rate >= 70 %}text-success
+                                    {% elif day_summary.avg_hit_rate >= 50 %}text-warning
+                                    {% else %}text-danger{% endif %}
+                                ">{{ day_summary.avg_hit_rate }}%</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Tổng đánh giá:</span>
+                                <span>{{ day_summary.total_evaluations }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span>Methods tham gia:</span>
+                                <span>{{ day_summary.total_methods }}</span>
+                            </div>
+                            
+                            {% if day_summary.excellent_methods %}
+                            <div class="mb-2">
+                                <h6 class="text-success mb-1">Methods xuất sắc:</h6>
+                                {% for method in day_summary.excellent_methods %}
+                                <div class="badge bg-success me-1 mb-1">
+                                    {{ method.method_name }} ({{ method.hit_rate }}%)
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if day_summary.good_methods %}
+                            <div>
+                                <h6 class="text-warning mb-1">Methods tốt:</h6>
+                                {% for method in day_summary.good_methods %}
+                                <div class="badge bg-warning text-dark me-1 mb-1">
+                                    {{ method.method_name }} ({{ method.hit_rate }}%)
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if not day_summary.excellent_methods and not day_summary.good_methods %}
+                            <div class="text-muted text-center">
+                                <i class="fas fa-minus-circle"></i>
+                                <br>Chưa có method nổi bật
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endif %}
+            {% endwith %}
+        {% endfor %}
+    </div>
+
+    <!-- ✅ INSIGHTS SECTION -->
+    {% if weekly_analysis.recommendations.insights %}
+    <div class="card mt-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-lightbulb"></i> Thông tin chi tiết</h5>
+        </div>
+        <div class="card-body">
+            {% for insight in weekly_analysis.recommendations.insights %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> {{ insight.message }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- ✅ MODAL FOR CELL DETAILS -->
+<div class="modal fade" id="weeklyDetailModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết phân tích</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="weeklyDetailContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>

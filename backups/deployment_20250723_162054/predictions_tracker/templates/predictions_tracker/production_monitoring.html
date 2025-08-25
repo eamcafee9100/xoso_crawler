@@ -1,0 +1,618 @@
+{% extends "predictions_tracker/base.html" %}
+{% load static %}
+{% load pre_xs_tags %}
+
+
+{% block title %}Production Monitoring Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.css">
+<style>
+    .production-metric-card {
+        background: linear-gradient(135deg, #2193b0 0%, #6dd5ed 100%);
+        color: white;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .production-metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    
+    .status-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+        position: relative;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    
+    .status-healthy { background: #28a745; }
+    .status-warning { background: #ffc107; }
+    .status-critical { 
+        background: #dc3545; 
+        animation: pulse-red 1s infinite;
+    }
+    
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
+    
+    .alert-item {
+        border-left: 4px solid;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .alert-critical { 
+        border-left-color: #dc3545; 
+        background: linear-gradient(90deg, rgba(220,53,69,0.1) 0%, rgba(255,255,255,1) 100%);
+    }
+    .alert-high { 
+        border-left-color: #fd7e14; 
+        background: linear-gradient(90deg, rgba(253,126,20,0.1) 0%, rgba(255,255,255,1) 100%);
+    }
+    .alert-medium { 
+        border-left-color: #ffc107; 
+        background: linear-gradient(90deg, rgba(255,193,7,0.1) 0%, rgba(255,255,255,1) 100%);
+    }
+    
+    .performance-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .performance-card:hover {
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .real-time-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: rgba(40, 167, 69, 0.9);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 25px;
+        font-size: 14px;
+        z-index: 1000;
+        animation: fadeInOut 3s infinite;
+    }
+    
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    
+    <!-- Real-time Status Badge -->
+    <div class="real-time-badge">
+        <i class="fas fa-broadcast-tower"></i> Live Monitoring
+    </div>
+    
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2>
+                    <i class="fas fa-server"></i>
+                    Production Monitoring Dashboard
+                </h2>
+                
+                <div class="d-flex gap-2 align-items-center">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="autoRefresh" checked>
+                        <label class="form-check-label" for="autoRefresh">
+                            <i class="fas fa-sync-alt"></i> Auto Refresh
+                        </label>
+                    </div>
+                    
+                    <button type="button" class="btn btn-success btn-sm" id="refreshNow">
+                        <i class="fas fa-refresh"></i> Refresh
+                    </button>
+                    
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Actions
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" id="exportMetrics">
+                                <i class="fas fa-download"></i> Export Metrics
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" id="clearAlerts">
+                                <i class="fas fa-broom"></i> Clear All Alerts
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- System Status Overview -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card performance-card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <span class="status-indicator status-healthy" id="systemStatus"></span>
+                        System Status: <span id="overallStatus">Loading...</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row" id="metricsOverview">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Real-time Metrics -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="production-metric-card card text-center">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <i class="fas fa-bullseye fa-2x"></i>
+                        <h6 class="mb-0">Accuracy</h6>
+                    </div>
+                    <h3 id="currentAccuracy">0.0%</h3>
+                    <small class="opacity-75">Prediction Accuracy</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="production-metric-card card text-center">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <i class="fas fa-tachometer-alt fa-2x"></i>
+                        <h6 class="mb-0">Response</h6>
+                    </div>
+                    <h3 id="currentResponseTime">0ms</h3>
+                    <small class="opacity-75">API Response Time</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="production-metric-card card text-center">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <i class="fas fa-memory fa-2x"></i>
+                        <h6 class="mb-0">Memory</h6>
+                    </div>
+                    <h3 id="currentMemory">0MB</h3>
+                    <small class="opacity-75">Memory Usage</small>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="production-metric-card card text-center">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <i class="fas fa-database fa-2x"></i>
+                        <h6 class="mb-0">Database</h6>
+                    </div>
+                    <h3 id="dbStatus">Unknown</h3>
+                    <small class="opacity-75">Connection Status</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Performance Charts -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card performance-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-area"></i> Performance Trends</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="performanceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-3">
+            <div class="card performance-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-chart-line"></i> System Resources</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="resourceChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alerts and Components Status -->
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <div class="card performance-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Active Alerts</h5>
+                    <span class="badge bg-danger" id="alertBadge">0</span>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;" id="alertsContainer">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-3">
+            <div class="card performance-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-puzzle-piece"></i> Component Status</h5>
+                </div>
+                <div class="card-body" id="componentStatus">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+// Global variables
+let performanceChart = null;
+let resourceChart = null;
+let refreshInterval = null;
+
+$(document).ready(function() {
+    initializeCharts();
+    loadProductionData();
+    setupAutoRefresh();
+    
+    // Event listeners
+    $('#refreshNow').on('click', loadProductionData);
+    $('#autoRefresh').on('change', setupAutoRefresh);
+    $('#exportMetrics').on('click', exportMetrics);
+    $('#clearAlerts').on('click', clearAllAlerts);
+});
+
+function initializeCharts() {
+    // Performance trend chart
+    const perfCtx = document.getElementById('performanceChart').getContext('2d');
+    performanceChart = new Chart(perfCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Accuracy (%)',
+                    data: [],
+                    borderColor: '#28a745',
+                    backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Response Time (ms)',
+                    data: [],
+                    borderColor: '#007bff',
+                    backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    beginAtZero: true,
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + 'ms';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Resource usage chart
+    const resCtx = document.getElementById('resourceChart').getContext('2d');
+    resourceChart = new Chart(resCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Memory (MB)',
+                    data: [],
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)'
+                },
+                {
+                    label: 'CPU (%)',
+                    data: [],
+                    borderColor: '#ffc107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.1)'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function loadProductionData() {
+    $.ajax({
+        url: '{% url "api_production_dashboard" %}',
+        method: 'GET',
+        success: function(response) {
+            if (response.success) {
+                updateProductionDashboard(response.dashboard_data);
+            } else {
+                console.error('Failed to load production data:', response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Production data loading error:', error);
+        }
+    });
+}
+
+function updateProductionDashboard(data) {
+    // Update current metrics
+    updateCurrentMetrics(data.current_metrics);
+    
+    // Update performance charts
+    updatePerformanceCharts(data.performance_trends);
+    
+    // Update alerts
+    updateProductionAlerts(data.recent_alerts);
+    
+    // Update component status
+    updateComponentStatus(data);
+}
+
+function updateCurrentMetrics(metrics) {
+    // Update accuracy
+    const accuracy = (metrics.prediction_accuracy * 100).toFixed(1);
+    $('#currentAccuracy').text(accuracy + '%');
+    
+    // Update response time
+    $('#currentResponseTime').text(Math.round(metrics.api_response_time_ms) + 'ms');
+    
+    // Update memory
+    $('#currentMemory').text(Math.round(metrics.memory_usage_mb) + 'MB');
+    
+    // Update database status
+    const dbStatus = metrics.database_connection_status ? 'Connected' : 'Disconnected';
+    $('#dbStatus').text(dbStatus);
+    
+    // Update system status indicator
+    const systemIndicator = $('#systemStatus');
+    systemIndicator.removeClass('status-healthy status-warning status-critical');
+    
+    if (!metrics.database_connection_status) {
+        systemIndicator.addClass('status-critical');
+        $('#overallStatus').text('Critical');
+    } else if (metrics.prediction_accuracy < 0.1 || metrics.api_response_time_ms > 3000) {
+        systemIndicator.addClass('status-warning');
+        $('#overallStatus').text('Warning');
+    } else {
+        systemIndicator.addClass('status-healthy');
+        $('#overallStatus').text('Healthy');
+    }
+}
+
+function updatePerformanceCharts(trends) {
+    // Update performance chart
+    if (trends.predictionaccuracy && trends.predictionaccuracy.length > 0) {
+        const labels = trends.predictionaccuracy.map((_, index) => `T-${trends.predictionaccuracy.length - index}`);
+        const accuracyData = trends.predictionaccuracy.map(val => (val * 100).toFixed(1));
+        
+        performanceChart.data.labels = labels;
+        performanceChart.data.datasets[0].data = accuracyData;
+        
+        if (trends.apiresponsetimems) {
+            performanceChart.data.datasets[1].data = trends.apiresponsetimems;
+        }
+        
+        performanceChart.update();
+    }
+    
+    // Update resource chart
+    if (trends.memoryusagemb && trends.memoryusagemb.length > 0) {
+        const labels = trends.memoryusagemb.map((_, index) => `T-${trends.memoryusagemb.length - index}`);
+        
+        resourceChart.data.labels = labels;
+        resourceChart.data.datasets[0].data = trends.memoryusagemb;
+        
+        if (trends.cpuusagepercent) {
+            resourceChart.data.datasets[1].data = trends.cpuusagepercent;
+        }
+        
+        resourceChart.update();
+    }
+}
+
+function updateProductionAlerts(alerts) {
+    $('#alertBadge').text(alerts.length);
+    
+    if (alerts.length === 0) {
+        $('#alertsContainer').html(`
+            <div class="text-center py-4">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <p class="text-success">All systems operational</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let alertsHtml = '';
+    alerts.forEach(alert => {
+        const severityClass = alert.severity;
+        alertsHtml += `
+            <div class="alert-item alert-${severityClass}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="fw-bold">${alert.alert_type.replace('_', ' ').toUpperCase()}</div>
+                        <div class="mb-1">${alert.message}</div>
+                        <small class="text-muted">
+                            <i class="fas fa-clock"></i> ${new Date(alert.timestamp).toLocaleString()}
+                            | <i class="fas fa-tag"></i> ${alert.component}
+                        </small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-success" 
+                            onclick="resolveProductionAlert('${alert.alert_id}')">
+                        <i class="fas fa-check"></i> Resolve
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    $('#alertsContainer').html(alertsHtml);
+}
+
+function updateComponentStatus(data) {
+    const components = [
+        {
+            name: 'Database',
+            status: data.current_metrics.database_connection_status ? 'healthy' : 'critical',
+            details: data.current_metrics.database_connection_status ? 'Connected' : 'Connection Failed'
+        },
+        {
+            name: 'Prediction Engine',
+            status: data.current_metrics.prediction_accuracy > 0.1 ? 'healthy' : 'warning',
+            details: `${(data.current_metrics.prediction_accuracy * 100).toFixed(1)}% accuracy`
+        },
+        {
+            name: 'API Server',
+            status: data.current_metrics.api_response_time_ms < 3000 ? 'healthy' : 'warning',
+            details: `${Math.round(data.current_metrics.api_response_time_ms)}ms response time`
+        },
+        {
+            name: 'A/B Testing',
+            status: data.ab_test_status.status === 'healthy' ? 'healthy' : 'warning',
+            details: `${data.ab_test_status.active_tests_count} active tests`
+        }
+    ];
+    
+    let componentHtml = '';
+    components.forEach(component => {
+        const statusClass = component.status;
+        componentHtml += `
+            <div class="d-flex justify-content-between align-items-center mb-3 p-2 rounded" 
+                 style="background: rgba(0,0,0,0.05);">
+                <div class="d-flex align-items-center">
+                    <span class="status-indicator status-${statusClass}"></span>
+                    <strong>${component.name}</strong>
+                </div>
+                <small class="text-muted">${component.details}</small>
+            </div>
+        `;
+    });
+    
+    $('#componentStatus').html(componentHtml);
+}
+
+function resolveProductionAlert(alertId) {
+    $.ajax({
+        url: '{% url "api_resolve_production_alert" %}',
+        method: 'POST',
+        data: {
+            alert_id: alertId,
+            csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]').val()
+        },
+        success: function(response) {
+            if (response.success) {
+                loadProductionData(); // Refresh dashboard
+            }
+        }
+    });
+}
+
+function setupAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+    
+    if ($('#autoRefresh').is(':checked')) {
+        refreshInterval = setInterval(loadProductionData, 15000); // 15 seconds
+    }
+}
+
+function exportMetrics() {
+    // Export current metrics as JSON
+    $.ajax({
+        url: '{% url "api_production_performance_metrics" %}',
+        method: 'GET',
+        success: function(response) {
+            const dataStr = JSON.stringify(response, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `production_metrics_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    });
+}
+
+function clearAllAlerts() {
+    if (confirm('Are you sure you want to clear all alerts?')) {
+        // This would need backend implementation
+        console.log('Clear all alerts functionality needs backend implementation');
+    }
+}
+</script>
+{% endblock %}

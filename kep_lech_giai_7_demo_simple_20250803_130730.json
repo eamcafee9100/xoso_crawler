@@ -1,0 +1,136 @@
+{
+  "timestamp": "2025-08-03T13:07:30.265955",
+  "analyzer_version": "3.0.0-enhanced-giai-7",
+  "test_mode": "mock_data",
+  "test_results": {
+    "mock_database_connection": true,
+    "total_records": 7,
+    "combined_analysis": {
+      "method": "giai_dac_biet_va_giai_7",
+      "predictions": [
+        "89",
+        "56",
+        "23",
+        "34",
+        "45"
+      ],
+      "confidence": 0.9,
+      "analysis": {
+        "giai_dac_biet": {
+          "frequencies": {
+            "45": 2,
+            "12": 2,
+            "56": 2,
+            "23": 2,
+            "78": 2,
+            "34": 2,
+            "89": 2
+          },
+          "kep_candidates": [
+            "45",
+            "12",
+            "56",
+            "23",
+            "78",
+            "34",
+            "89"
+          ],
+          "total_analyzed": 7
+        },
+        "giai_7": {
+          "frequencies": {
+            "23": 4,
+            "56": 4,
+            "89": 4,
+            "12": 4,
+            "34": 4,
+            "67": 2,
+            "90": 2,
+            "45": 4,
+            "78": 2,
+            "01": 1
+          },
+          "kep_candidates": [
+            "23",
+            "56",
+            "89",
+            "12",
+            "34",
+            "67",
+            "90",
+            "45",
+            "78",
+            "01"
+          ],
+          "total_analyzed": 4
+        },
+        "combined_candidates": 10,
+        "priority_scores": {
+          "89": 2.5999999999999996,
+          "56": 2.5999999999999996,
+          "23": 2.5999999999999996,
+          "34": 2.5999999999999996,
+          "45": 2.5999999999999996
+        }
+      },
+      "data_quality": "mock",
+      "total_records": 7
+    },
+    "original_analysis": {
+      "method": "giai_dac_biet_only",
+      "predictions": [
+        "45",
+        "12",
+        "56",
+        "23",
+        "78"
+      ],
+      "confidence": 0.6,
+      "analysis": {
+        "frequencies": {
+          "45": 2,
+          "12": 2,
+          "56": 2,
+          "23": 2,
+          "78": 2,
+          "34": 2,
+          "89": 2
+        },
+        "kep_candidates": [
+          "45",
+          "12",
+          "56",
+          "23",
+          "78",
+          "34",
+          "89"
+        ],
+        "total_analyzed": 7
+      },
+      "data_quality": "mock"
+    },
+    "comparison": {
+      "common_predictions": [
+        "23",
+        "45",
+        "56"
+      ],
+      "enhanced_only": [
+        "89",
+        "34"
+      ],
+      "enhancement_improvement": 2
+    },
+    "pattern_analysis": {
+      "Kép Dương": 2,
+      "Kép Âm": 3,
+      "Sát Kép": 5
+    }
+  },
+  "performance_metrics": {
+    "method_execution_success": true,
+    "data_extraction_success": true,
+    "fallback_used": false,
+    "confidence_improvement": 0.30000000000000004
+  }
+}

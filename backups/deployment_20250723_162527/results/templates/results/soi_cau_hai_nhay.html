@@ -1,0 +1,130 @@
+{% extends 'results/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <!-- Form chọn thông số -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Cầu ăn hai nháy</h4>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="form-inline">
+                        <div class="form-group mr-3 mb-2">
+                            <label for="region" class="mr-2">Chọn tỉnh/thành:</label>
+                            <select name="region" id="region" class="form-control">
+                                <option value="mb" {% if region == 'mb' %}selected{% endif %}>Miền Bắc</option>
+                                <option value="mn" {% if region == 'mn' %}selected{% endif %}>Miền Nam</option>
+                                <option value="mt" {% if region == 'mt' %}selected{% endif %}>Miền Trung</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group mr-3 mb-2">
+                            <label for="date" class="mr-2">Ngày cầu chạy:</label>
+                            <input type="text" name="date" id="date" 
+                                   class="form-control datepicker" 
+                                   value="{{ selected_date }}" 
+                                   placeholder="dd-mm-yyyy">
+                        </div>
+                        
+                        <div class="form-group mr-3 mb-2">
+                            <label for="days" class="mr-2">Số ngày:</label>
+                            <select name="days" id="days" class="form-control">
+                                <option value="7" {% if days == 7 %}selected{% endif %}>7 ngày</option>
+                                <option value="15" {% if days == 15 %}selected{% endif %}>15 ngày</option>
+                                <option value="30" {% if days == 30 %}selected{% endif %}>30 ngày</option>
+                                <option value="60" {% if days == 60 %}selected{% endif %}>60 ngày</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-danger mb-2">
+                            <i class="fas fa-search"></i> Xem kết quả
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <!-- Bảng kết quả -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Cầu lô 2 nháy về trong {{ total_days }} ngày</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover text-center">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>Số lần xuất hiện</th>
+                                    <th>Danh sách số</th>
+                                    <th>Tổng số</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-warning">
+                                    <td>2 nháy</td>
+                                    <td>
+                                        {% for num in two_hit_numbers %}
+                                            <span class="badge badge-pill badge-warning mx-1" style="font-size: 1.1em;">{{ num }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">Không có số nào</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ two_hit_numbers|length }}</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td>3 nháy</td>
+                                    <td>
+                                        {% for num in three_hit_numbers %}
+                                            <span class="badge badge-pill badge-info mx-1" style="font-size: 1.1em;">{{ num }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">Không có số nào</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ three_hit_numbers|length }}</td>
+                                </tr>
+                                <tr class="table-success">
+                                    <td>4 nháy</td>
+                                    <td>
+                                        {% for num in four_hit_numbers %}
+                                            <span class="badge badge-pill badge-success mx-1" style="font-size: 1.1em;">{{ num }}</span>
+                                        {% empty %}
+                                            <span class="text-muted">Không có số nào</span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>{{ four_hit_numbers|length }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Giải thích phương pháp -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Phương pháp soi cầu 2 nháy</h4>
+                </div>
+                <div class="card-body">
+                    <p>Phương pháp này thống kê các con lô xuất hiện đúng 2 lần (2 nháy) trong vòng 30 ngày gần nhất.</p>
+                    <p><strong>Cách chơi:</strong> Theo dõi các con lô 2 nháy và đánh khi thấy có dấu hiệu về lại.</p>
+                    <ul>
+                        <li><span class="badge badge-warning">Màu vàng</span>: Số 2 nháy (xuất hiện 2 lần)</li>
+                        <li><span class="badge badge-info">Màu xanh</span>: Số 3 nháy (xuất hiện 3 lần)</li>
+                        <li><span class="badge badge-success">Màu xanh lá</span>: Số 4 nháy (xuất hiện 4 lần)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    $('.datepicker').datepicker({
+        format: 'dd-mm-yyyy',
+        autoclose: true,
+        todayHighlight: true
+    });
+});
+</script>
+{% endblock %}

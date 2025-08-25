@@ -1,0 +1,641 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+{% block title %}Theo Dõi Chạm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .tracking-card {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .tracking-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .tracking-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #28a745);
+    }
+    
+    .cham-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        font-weight: bold;
+        font-size: 18px;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        position: relative;
+    }
+    
+    .cham-dau {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+    
+    .cham-duoi {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+    }
+    
+    .pulse-animation {
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+    
+    .timeline-item {
+        position: relative;
+        padding-left: 30px;
+    }
+    
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 20px;
+        width: 2px;
+        height: calc(100% + 20px);
+        background: #e9ecef;
+    }
+    
+    .timeline-item::after {
+        content: '';
+        position: absolute;
+        left: 6px;
+        top: 16px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #007bff;
+    }
+    
+    .timeline-item:last-child::before {
+        display: none;
+    }
+    
+    .filter-section {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #dee2e6;
+    }
+    
+    .number-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 10px;
+        margin: 15px 0;
+    }
+    
+    .number-btn {
+        aspect-ratio: 1;
+        border: 2px solid #dee2e6;
+        background: white;
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .number-btn:hover, .number-btn.active {
+        border-color: #007bff;
+        background: #007bff;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .weekday-indicator {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .weekday-cn {
+        background: #dc3545;
+        color: white;
+    }
+    
+    .weekday-t7 {
+        background: #fd7e14;
+        color: white;
+    }
+    
+    .weekday-other {
+        background: #6c757d;
+        color: white;
+    }
+    
+    .analysis-details {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+    
+    .digit-display {
+        display: inline-block;
+        width: 30px;
+        height: 30px;
+        line-height: 26px;
+        text-align: center;
+        background: #e9ecef;
+        border: 2px solid #dee2e6;
+        border-radius: 6px;
+        margin: 2px;
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 400px;
+        margin: 20px 0;
+    }
+    
+    .stats-mini {
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+        margin: 15px 0;
+    }
+    
+    .stats-mini > div {
+        flex: 1;
+    }
+    
+    .stats-mini .value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+    
+    .stats-mini .label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                    <h1 class="h3 mb-1 text-primary">
+                        <i class="fas fa-search me-2"></i>Theo Dõi Chạm
+                    </h1>
+                    <p class="text-muted mb-0">
+                        Theo dõi chạm qua {{ selected_days }} ngày gần nhất
+                        {% if cham_dau_filter or cham_duoi_filter %}
+                        - Đã lọc
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <!-- Export Buttons -->
+                <div class="btn-group">
+                    <button class="btn btn-outline-success btn-sm" onclick="exportData('excel')">
+                        <i class="fas fa-file-excel me-1"></i>Excel
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm" onclick="exportData('pdf')">
+                        <i class="fas fa-file-pdf me-1"></i>PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="filter-section">
+                <form method="get" class="row g-3 align-items-end">
+                    <!-- Time Range -->
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">Khoảng thời gian</label>
+                        <select name="days" class="form-select">
+                            <option value="7" {% if selected_days == 7 %}selected{% endif %}>7 ngày</option>
+                            <option value="30" {% if selected_days == 30 %}selected{% endif %}>30 ngày</option>
+                            <option value="90" {% if selected_days == 90 %}selected{% endif %}>90 ngày</option>
+                            <option value="180" {% if selected_days == 180 %}selected{% endif %}>6 tháng</option>
+                            <option value="365" {% if selected_days == 365 %}selected{% endif %}>1 năm</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Chạm Đầu Filter -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Lọc theo Chạm Đầu</label>
+                        <div class="number-grid">
+                            <input type="hidden" name="cham_dau" id="cham_dau_input" value="{{ cham_dau_filter }}">
+                            {% for value in cham_values %}
+                            <button type="button" class="number-btn {% if cham_dau_filter == value|stringformat:'s' %}active{% endif %}" 
+                                    onclick="toggleFilter('cham_dau', '{{ value }}')">
+                                {{ value }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Chạm Đuôi Filter -->
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold">Lọc theo Chạm Đuôi</label>
+                        <div class="number-grid">
+                            <input type="hidden" name="cham_duoi" id="cham_duoi_input" value="{{ cham_duoi_filter }}">
+                            {% for value in cham_values %}
+                            <button type="button" class="number-btn {% if cham_duoi_filter == value|stringformat:'s' %}active{% endif %}" 
+                                    onclick="toggleFilter('cham_duoi', '{{ value }}')">
+                                {{ value }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="col-md-1">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i>Lọc
+                        </button>
+                        <a href="?" class="btn btn-outline-secondary w-100 mt-2">
+                            <i class="fas fa-times me-1"></i>Xóa
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Chart -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card tracking-card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Biểu Đồ Timeline Chạm
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Cards -->
+    <div class="row g-4">
+        {% for analysis in analyses %}
+        <div class="col-lg-6 col-xl-4">
+            <div class="card tracking-card timeline-item">
+                <div class="card-body">
+                    <!-- Header với ngày và thứ -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="card-title mb-1">{{ analysis.ngay|date:"d/m/Y" }}</h6>
+                            <span class="weekday-indicator 
+                                {% if analysis.ket_qua.thu == 'CN' %}weekday-cn
+                                {% elif analysis.ket_qua.thu == 'T7' %}weekday-t7
+                                {% else %}weekday-other{% endif %}">
+                                {{ analysis.ket_qua.thu }}
+                            </span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <div class="cham-badge cham-dau pulse-animation" title="Chạm Đầu">
+                                {{ analysis.db_cham_dau }}
+                            </div>
+                            <div class="cham-badge cham-duoi pulse-animation" title="Chạm Đuôi">
+                                {{ analysis.db_cham_duoi }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="stats-mini">
+                        <div>
+                            <div class="value">{{ analysis.db_full }}</div>
+                            <div class="label">Giải ĐB</div>
+                        </div>
+                        <div>
+                            <div class="value">{{ analysis.db_last2 }}</div>
+                            <div class="label">2 số cuối</div>
+                        </div>
+                        <div>
+                            <div class="value">{{ analysis.db_total }}</div>
+                            <div class="label">Tổng</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Analysis Details -->
+                    <div class="analysis-details">
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <small class="text-muted">Các chữ số:</small>
+                                <div class="mt-1">
+                                    <span class="digit-display">{{ analysis.db_digit1 }}</span>
+                                    <span class="digit-display">{{ analysis.db_digit2 }}</span>
+                                    <span class="digit-display">{{ analysis.db_digit3 }}</span>
+                                    <span class="digit-display">{{ analysis.db_digit4 }}</span>
+                                    <span class="digit-display">{{ analysis.db_digit5 }}</span>
+                                    {% if analysis.db_digit6 %}
+                                    <span class="digit-display">{{ analysis.db_digit6 }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Giải nhất:</small>
+                                <div class="mt-1">
+                                    <strong class="text-primary">{{ analysis.giai_nhat_full }}</strong>
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        Giữa: {{ analysis.giai_nhat_mid_digit }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if analysis.cau_cham1_value or analysis.cau_cham2_value %}
+                        <div class="row g-2">
+                            {% if analysis.cau_cham1_value %}
+                            <div class="col-6">
+                                <small class="text-muted">Cầu chạm 1:</small>
+                                <div class="badge bg-info">{{ analysis.cau_cham1_value }}</div>
+                            </div>
+                            {% endif %}
+                            {% if analysis.cau_cham2_value %}
+                            <div class="col-6">
+                                <small class="text-muted">Cầu chạm 2:</small>
+                                <div class="badge bg-success">{{ analysis.cau_cham2_value }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Footer with additional info -->
+                    <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar-week me-1"></i>
+                            Tuần {{ analysis.week_number }}, Tháng {{ analysis.month }}
+                        </small>
+                        <div class="d-flex gap-1">
+                            <span class="badge bg-primary">T: {{ analysis.db_last2_total }}</span>
+                            {% if analysis.is_sunday %}
+                            <span class="badge bg-danger">CN</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Phân trang">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.days %}days={{ request.GET.days }}&{% endif %}{% if request.GET.cham_dau %}cham_dau={{ request.GET.cham_dau }}&{% endif %}{% if request.GET.cham_duoi %}cham_duoi={{ request.GET.cham_duoi }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.days %}days={{ request.GET.days }}&{% endif %}{% if request.GET.cham_dau %}cham_dau={{ request.GET.cham_dau }}&{% endif %}{% if request.GET.cham_duoi %}cham_duoi={{ request.GET.cham_duoi }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.days %}days={{ request.GET.days }}&{% endif %}{% if request.GET.cham_dau %}cham_dau={{ request.GET.cham_dau }}&{% endif %}{% if request.GET.cham_duoi %}cham_duoi={{ request.GET.cham_duoi }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+// Timeline data from Django
+const timelineData = {{ timeline_data|safe }};
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Timeline Chart
+    initTimelineChart();
+    
+    // Initialize filter interactions
+    initFilters();
+});
+
+function initTimelineChart() {
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+    
+    const labels = timelineData.map(item => item.date);
+    const chamDauData = timelineData.map(item => parseInt(item.cham_dau));
+    const chamDuoiData = timelineData.map(item => parseInt(item.cham_duoi));
+    const totalData = timelineData.map(item => item.db_total);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Chạm Đầu',
+                data: chamDauData,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                yAxisID: 'y'
+            }, {
+                label: 'Chạm Đuôi',
+                data: chamDuoiData,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                borderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                yAxisID: 'y'
+            }, {
+                label: 'Tổng ĐB',
+                data: totalData,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Timeline Chạm Đầu & Chạm Đuôi'
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Ngày'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Chạm (0-9)'
+                    },
+                    min: 0,
+                    max: 9
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Tổng ĐB'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            },
+            animation: {
+                duration: 2000,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+}
+
+function initFilters() {
+    // Add click handlers for number buttons
+    document.querySelectorAll('.number-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const value = this.textContent.trim();
+            const filterType = this.getAttribute('onclick').includes('cham_dau') ? 'cham_dau' : 'cham_duoi';
+            toggleFilter(filterType, value);
+        });
+    });
+}
+
+function toggleFilter(filterType, value) {
+    const input = document.getElementById(filterType + '_input');
+    const buttons = document.querySelectorAll(`[onclick*="${filterType}"]`);
+    
+    if (input.value === value) {
+        // Deselect
+        input.value = '';
+        buttons.forEach(btn => {
+            if (btn.textContent.trim() === value) {
+                btn.classList.remove('active');
+            }
+        });
+    } else {
+        // Select
+        input.value = value;
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.textContent.trim() === value) {
+                btn.classList.add('active');
+            }
+        });
+    }
+}
+
+function exportData(format) {
+    const params = new URLSearchParams(window.location.search);
+    params.set('export', format);
+    
+    // Create a temporary link and click it
+    const link = document.createElement('a');
+    link.href = window.location.pathname + '?' + params.toString();
+    link.download = `cham_tracking.${format}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show toast notification
+    showToast(`Đang xuất dữ liệu định dạng ${format.toUpperCase()}...`, 'success');
+}
+
+function showToast(message, type = 'info') {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.parentNode.removeChild(toast);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}

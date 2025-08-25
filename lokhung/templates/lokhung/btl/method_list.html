@@ -1,0 +1,399 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load humanize %}
+
+{% block title %}Danh sách phương pháp - Hệ thống dự đoán{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+    }
+    
+    .method-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+    
+    .method-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .method-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .method-header {
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-bottom: 3px solid #dee2e6;
+    }
+    
+    .method-category {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .category-traditional { background: #e3f2fd; color: #1565c0; }
+    .category-statistical { background: #f3e5f5; color: #7b1fa2; }
+    .category-ml { background: #e8f5e8; color: #2e7d32; }
+    .category-hybrid { background: #fff3e0; color: #ef6c00; }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #495057;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        margin-top: 0.25rem;
+    }
+    
+    .activity-indicator {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #28a745;
+        animation: pulse 2s infinite;
+    }
+    
+    .activity-indicator.inactive {
+        background: #dc3545;
+        animation: none;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(40, 167, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+    
+    .category-stats {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block page_title %}Danh sách phương pháp{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#filterModal">
+        <i class="fas fa-filter"></i> Bộ lọc
+    </button>
+    <a href="{% url 'lokhung:report_method_comparison' %}" class="btn btn-primary">
+        <i class="fas fa-chart-bar"></i> So sánh
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Category Statistics -->
+<div class="category-stats">
+    <div class="card-header bg-transparent border-0">
+        <h5 class="mb-0">
+            <i class="fas fa-chart-pie text-primary me-2"></i>
+            Thống kê theo loại phương pháp
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for stat in category_stats %}
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="text-center p-3 border rounded">
+                    <div class="method-category category-{{ stat.category }}">
+                        {{ stat.get_category_display|default:stat.category }}
+                    </div>
+                    <div class="mt-2">
+                        <div class="h4 mb-0">{{ stat.count }}</div>
+                        <small class="text-muted">phương pháp</small>
+                    </div>
+                    <div class="mt-1">
+                        <div class="text-success fw-bold">{{ stat.avg_success_rate|floatformat:1 }}%</div>
+                        <small class="text-muted">tỷ lệ TB</small>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Active Filters -->
+{% if current_category != 'all' or current_sort != 'success_rate' %}
+<div class="alert alert-info d-flex align-items-center">
+    <i class="fas fa-info-circle me-2"></i>
+    <div class="flex-grow-1">
+        Bộ lọc đang áp dụng:
+        {% if current_category != 'all' %}
+            <span class="badge bg-primary ms-1">{{ current_category }}</span>
+        {% endif %}
+        <span class="badge bg-secondary ms-1">Sắp xếp: {{ current_sort }}</span>
+    </div>
+    <a href="{% url 'lokhung:phuong_phap_list' %}" class="btn btn-sm btn-outline-primary">
+        <i class="fas fa-times"></i> Xóa bộ lọc
+    </a>
+</div>
+{% endif %}
+
+<!-- Methods Grid -->
+<div class="method-grid">
+    {% for method in methods %}
+    <div class="card method-card">
+        <div class="method-header position-relative">
+            <div class="activity-indicator {% if not method.is_active %}inactive{% endif %}"></div>
+            
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="method-category category-{{ method.category }}">
+                    {{ method.get_category_display }}
+                </div>
+                <div class="text-end">
+                    <div class="h6 mb-0">Ưu tiên: {{ method.priority }}</div>
+                </div>
+            </div>
+            
+            <h5 class="card-title mb-2">{{ method.name }}</h5>
+            
+            {% if method.description %}
+            <p class="card-text text-muted small">
+                {{ method.description|truncatewords:20 }}
+            </p>
+            {% endif %}
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value text-success">{{ method.success_rate|floatformat:1 }}%</div>
+                <div class="stat-label">Tỷ lệ thành công</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value text-primary">{{ method.total_predictions|default:0 }}</div>
+                <div class="stat-label">Tổng dự đoán</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value text-warning">{{ method.avg_hit_count|floatformat:1 }}</div>
+                <div class="stat-label">Số trúng TB</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value text-info">{{ method.total_hits|default:0 }}</div>
+                <div class="stat-label">Tổng trúng</div>
+            </div>
+        </div>
+        
+        <div class="card-footer bg-transparent border-0">
+            <div class="row g-2">
+                <div class="col">
+                    <a href="{% url 'lokhung:phuong_phap_detail' method.pk %}" 
+                       class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-eye"></i> Chi tiết
+                    </a>
+                </div>
+                <div class="col">
+                    <a href="#" class="btn btn-outline-secondary btn-sm w-100"
+                       onclick="showMethodStats({{ method.pk }})">
+                        <i class="fas fa-chart-line"></i> Thống kê
+                    </a>
+                </div>
+            </div>
+            
+            {% if method.last_used_at %}
+            <div class="text-center mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-clock"></i>
+                    Sử dụng cuối: {{ method.last_used_at|timesince }} trước
+                </small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">Không tìm thấy phương pháp nào</h4>
+            <p class="text-muted">Thử thay đổi bộ lọc hoặc tìm kiếm khác</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Load More Button (if needed) -->
+{% if methods|length == 50 %}
+<div class="text-center mt-4">
+    <button class="btn btn-outline-primary" onclick="loadMoreMethods()">
+        <i class="fas fa-plus"></i> Tải thêm phương pháp
+    </button>
+</div>
+{% endif %}
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Bộ lọc phương pháp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="get">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Loại phương pháp</label>
+                        <select name="category" class="form-select">
+                            <option value="all">Tất cả</option>
+                            {% for key, label in categories %}
+                            <option value="{{ key }}" {% if key == current_category %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Sắp xếp theo</label>
+                        <select name="sort" class="form-select">
+                            <option value="success_rate" {% if current_sort == 'success_rate' %}selected{% endif %}>
+                                Tỷ lệ thành công
+                            </option>
+                            <option value="total_predictions" {% if current_sort == 'total_predictions' %}selected{% endif %}>
+                                Số lượng dự đoán
+                            </option>
+                            <option value="avg_hits" {% if current_sort == 'avg_hits' %}selected{% endif %}>
+                                Số trúng trung bình
+                            </option>
+                            <option value="last_used" {% if current_sort == 'last_used' %}selected{% endif %}>
+                                Lần sử dụng cuối
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary">Áp dụng</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Method Stats Modal -->
+<div class="modal fade" id="statsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thống kê phương pháp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="statsModalBody">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Đang tải...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showMethodStats(methodId) {
+    $('#statsModal').modal('show');
+    
+    // Load stats via AJAX
+    $.get('{% url "lokhung:api_method_stats" %}', {
+        method_id: methodId,
+        days: 30
+    })
+    .done(function(data) {
+        if (data.success) {
+            $('#statsModalBody').html(`
+                <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <div class="h4 text-primary">${data.stats.total_predictions}</div>
+                            <small class="text-muted">Tổng dự đoán</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <div class="h4 text-success">${data.stats.success_rate}%</div>
+                            <small class="text-muted">Tỷ lệ thành công</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <div class="h4 text-warning">${data.stats.avg_hits}</div>
+                            <small class="text-muted">Số trúng TB</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="text-center p-3 bg-light rounded">
+                            <div class="h4 text-info">${data.stats.max_hits}</div>
+                            <small class="text-muted">Số trúng cao nhất</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-muted small text-center">
+                    Thống kê 30 ngày gần nhất
+                </div>
+            `);
+        } else {
+            $('#statsModalBody').html(`
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Không thể tải thống kê: ${data.error}
+                </div>
+            `);
+        }
+    })
+    .fail(function() {
+        $('#statsModalBody').html(`
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Lỗi kết nối. Vui lòng thử lại.
+            </div>
+        `);
+    });
+}
+
+function loadMoreMethods() {
+    // Implementation for pagination
+    console.log('Load more methods');
+}
+</script>
+{% endblock %}

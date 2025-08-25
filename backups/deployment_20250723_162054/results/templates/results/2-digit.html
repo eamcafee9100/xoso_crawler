@@ -1,0 +1,20 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+<h2>Kết quả XSMB ngày {{ selected_date|date:"d/m/Y" }}</h2>
+    
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="selected_date">Chọn ngày:</label>
+            <input type="date" name="selected_date" id="selected_date" 
+                   value="{{ selected_date|date:'Y-m-d' }}" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Dự đoán</button>
+    </form>
+<div class="col-md-6">
+    {% include 'includes/loto_table.html' %}
+</div>                    
+{% endblock %}

@@ -1,0 +1,517 @@
+{% extends 'lokhung/base.html' %}
+{% load lokhung_xs_tags %}
+{% load static %}
+
+{% block title %}Báo cáo hiệu suất tháng {{ month_name }} {{ year }}{% endblock %}
+
+{% block page_title %}
+    <i class="fas fa-chart-line text-primary me-2"></i>
+    Báo cáo hiệu suất tháng {{ month_name }} {{ year }}
+{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <div class="dropdown">
+        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="monthSelector" data-bs-toggle="dropdown" aria-expanded="false" >
+            <i class="fas fa-calendar me-2"></i>Chọn tháng
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="monthSelector">
+            {% for month_item in available_months %}
+            <li>
+                <a class="dropdown-item {% if month_item.year == year and month_item.month == month %}active{% endif %}"
+                   href="?year={{ month_item.year }}&month={{ month_item.month }}">
+                    {{ month_item.name }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a href="{% url 'lokhung:dashboard' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left me-2"></i>Quay lại
+    </a>
+    <button class="btn btn-success" onclick="exportReport()">
+        <i class="fas fa-download me-2"></i>Xuất báo cáo
+    </button>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.performance-card {
+    border-left: 4px solid #007bff;
+    transition: all 0.3s ease;
+}
+
+.performance-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.method-performance-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+}
+
+.success-rate-bar {
+    height: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #e9ecef;
+}
+
+.success-rate-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.daily-heatmap {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.day-cell {
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    margin: 1px;
+    border-radius: 3px;
+    text-align: center;
+    line-height: 25px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.day-cell:hover {
+    transform: scale(1.1);
+    z-index: 10;
+    position: relative;
+}
+
+.day-no-data { background-color: #f8f9fa; color: #6c757d; }
+.day-low { background-color: #ffebee; color: #c62828; }
+.day-medium { background-color: #fff3e0; color: #ef6c00; }
+.day-high { background-color: #e8f5e8; color: #2e7d32; }
+.day-excellent { background-color: #e3f2fd; color: #1565c0; }
+
+.chart-container {
+    position: relative;
+    height: 400px;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.top-method-card {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.rank-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: white;
+}
+
+.rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #8b4513; }
+.rank-2 { background: linear-gradient(135deg, #c0c0c0, #e5e5e5); color: #4a4a4a; }
+.rank-3 { background: linear-gradient(135deg, #cd7f32, #daa560); color: white; }
+.rank-other { background: linear-gradient(135deg, #6c757d, #8d9498); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    
+    <!-- Thống kê tổng quan -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card performance-card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-area fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="small">Tổng dự đoán</div>
+                            <div class="h3 mb-0">{{ total_predictions }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card performance-card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-bullseye fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="small">Dự đoán trúng</div>
+                            <div class="h3 mb-0">{{ total_hits }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card performance-card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-times-circle fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="small">Dự đoán trượt</div>
+                            <div class="h3 mb-0">{{ total_misses }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card performance-card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-percentage fa-2x opacity-75"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="small">Tỷ lệ thành công</div>
+                            <div class="h3 mb-0">{{ overall_success_rate }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Biểu đồ hiệu suất -->
+        <div class="col-lg-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Biểu đồ hiệu suất các phương pháp
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top phương pháp -->
+        <div class="col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-gradient-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-trophy me-2"></i>
+                        Top phương pháp hiệu quả
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for method in top_methods|slice:":5" %}
+                    <div class="top-method-card">
+                        <div class="d-flex align-items-center">
+                            <div class="rank-badge rank-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}other{% endif %} me-3">
+                                {{ forloop.counter }}
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold">{{ method.phuong_phap.ten_phuong_phap }}</div>
+                                <div class="small text-muted">{{ method.tong_du_doan }} dự đoán</div>
+                                <div class="d-flex align-items-center mt-1">
+                                    <div class="success-rate-bar flex-grow-1 me-2">
+                                        <div class="success-rate-fill bg-success" style="width: {{ method.ty_le_thanh_cong }}%"></div>
+                                    </div>
+                                    <span class="fw-bold text-success">{{ method.ty_le_thanh_cong }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                        <p>Chưa có dữ liệu phương pháp nào</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bảng chi tiết hiệu suất -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-gradient-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-table me-2"></i>
+                        Chi tiết hiệu suất từng phương pháp
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover method-performance-table">
+                            <thead>
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th class="text-center">Tổng dự đoán</th>
+                                    <th class="text-center">Trúng</th>
+                                    <th class="text-center">Trượt</th>
+                                    <th class="text-center">Chờ KQ</th>
+                                    <th class="text-center">Tỷ lệ thành công</th>
+                                    <th class="text-center">Điểm TB</th>
+                                    <th class="text-center">Lịch hoạt động</th>
+                                    <th class="text-center">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method in method_performance_data %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-3">
+                                                {% if method.ty_le_thanh_cong >= 70 %}
+                                                    <i class="fas fa-star text-warning fa-lg"></i>
+                                                {% elif method.ty_le_thanh_cong >= 50 %}
+                                                    <i class="fas fa-thumbs-up text-success fa-lg"></i>
+                                                {% elif method.ty_le_thanh_cong >= 30 %}
+                                                    <i class="fas fa-meh text-orange fa-lg"></i>
+                                                {% else %}
+                                                    <i class="fas fa-thumbs-down text-danger fa-lg"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">{{ method.phuong_phap.ten_phuong_phap }}</div>
+                                                <div class="small text-muted">{{ method.phuong_phap.loai_phuong_phap }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-primary">{{ method.tong_du_doan }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-success">{{ method.du_doan_trung }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-danger">{{ method.du_doan_truot }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-warning">{{ method.du_doan_cho }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <div class="success-rate-bar me-2" style="width: 60px;">
+                                                <div class="success-rate-fill 
+                                                    {% if method.ty_le_thanh_cong >= 70 %}bg-success
+                                                    {% elif method.ty_le_thanh_cong >= 50 %}bg-info
+                                                    {% elif method.ty_le_thanh_cong >= 30 %}bg-warning
+                                                    {% else %}bg-danger{% endif %}" 
+                                                     style="width: {{ method.ty_le_thanh_cong }}%"></div>
+                                            </div>
+                                            <span class="fw-bold">{{ method.ty_le_thanh_cong }}%</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info">{{ method.diem_hieu_qua_tb }}</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="daily-heatmap">
+                                            {% for day in chart_data.daily_labels %}
+                                                {% with day_stat=method.daily_stats|get_item:day %}
+                                                <div class="day-cell 
+                                                    {% if day_stat.count == 0 %}day-no-data
+                                                    {% elif day_stat.hit == 0 %}day-low
+                                                    {% elif day_stat.hit <= day_stat.count|floatformat:0|add:"-1"|div:2 %}day-medium
+                                                    {% elif day_stat.hit == day_stat.count %}day-excellent
+                                                    {% else %}day-high{% endif %}"
+                                                     title="Ngày {{ day }}: {{ day_stat.hit }}/{{ day_stat.count }}">
+                                                    {{ day }}
+                                                </div>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'lokhung:phuong_phap_detail' method.phuong_phap.pk %}" 
+                                               class="btn btn-outline-primary" title="Xem chi tiết">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{% url 'lokhung:bao_cao_create' %}?phuong_phap={{ method.phuong_phap.pk }}" 
+                                               class="btn btn-outline-info" title="Tạo báo cáo">
+                                                <i class="fas fa-chart-line"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <i class="fas fa-info-circle fa-2x text-muted mb-2"></i>
+                                        <p class="text-muted">Không có dữ liệu phương pháp nào trong tháng này</p>
+                                        <a href="{% url 'lokhung:phuong_phap_create' %}" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>Tạo phương pháp đầu tiên
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Biểu đồ hiệu suất
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_data.method_names|safe }},
+        datasets: [{
+            label: 'Tỷ lệ thành công (%)',
+            data: {{ chart_data.success_rates|safe }},
+            backgroundColor: function(context) {
+                const value = context.parsed.y;
+                if (value >= 70) return 'rgba(40, 167, 69, 0.8)';
+                if (value >= 50) return 'rgba(23, 162, 184, 0.8)';
+                if (value >= 30) return 'rgba(255, 193, 7, 0.8)';
+                return 'rgba(220, 53, 69, 0.8)';
+            },
+            borderColor: function(context) {
+                const value = context.parsed.y;
+                if (value >= 70) return 'rgba(40, 167, 69, 1)';
+                if (value >= 50) return 'rgba(23, 162, 184, 1)';
+                if (value >= 30) return 'rgba(255, 193, 7, 1)';
+                return 'rgba(220, 53, 69, 1)';
+            },
+            borderWidth: 2,
+            borderRadius: 6,
+            borderSkipped: false,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                borderColor: 'rgba(255,255,255,0.2)',
+                borderWidth: 1,
+                callbacks: {
+                    label: function(context) {
+                        return `Tỷ lệ thành công: ${context.parsed.y}%`;
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return value + '%';
+                    }
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                },
+                ticks: {
+                    maxRotation: 45
+                }
+            }
+        },
+        animation: {
+            duration: 1500,
+            easing: 'easeInOutQuart'
+        }
+    }
+});
+
+// Tooltip cho daily heatmap
+document.querySelectorAll('.day-cell').forEach(cell => {
+    cell.addEventListener('mouseenter', function() {
+        // Create tooltip logic if needed
+    });
+});
+
+// Export report function
+function exportReport() {
+    const reportData = {
+        month: '{{ month_name }} {{ year }}',
+        summary: {
+            total_predictions: {{ total_predictions }},
+            total_hits: {{ total_hits }},
+            total_misses: {{ total_misses }},
+            success_rate: {{ overall_success_rate }}
+        },
+        methods: [
+            {% for method in method_performance_data %}
+            {
+                name: '{{ method.phuong_phap.ten_phuong_phap }}',
+                predictions: {{ method.tong_du_doan }},
+                hits: {{ method.du_doan_trung }},
+                misses: {{ method.du_doan_truot }},
+                success_rate: {{ method.ty_le_thanh_cong }}
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    };
+    
+    const dataStr = JSON.stringify(reportData, null, 2);
+    const dataBlob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `bao-cao-hieu-suat-{{ year }}-{{ month|stringformat:"02d" }}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// Auto refresh mỗi 5 phút
+setInterval(function() {
+    window.location.reload();
+}, 300000);
+</script>
+{% endblock %}

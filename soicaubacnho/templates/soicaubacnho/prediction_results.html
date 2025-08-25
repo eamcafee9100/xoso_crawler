@@ -1,0 +1,226 @@
+{% extends 'soicaubacnho/base.html' %}
+{% load soicaubacnho_xs_tags %}
+{% load static %}
+{% block title %}Kết quả dự đoán - {{ combined_prediction.ngay_du_doan }}{% endblock %}
+{% block extra_css %}
+<style>
+.number-box-small {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: #f8f9fa;
+  color: #212529;
+  font-weight: bold;
+}
+.number-box-small.bg-success {
+  background-color: #28a745;
+  color: white;
+}
+.number-box-small.bg-danger {
+  background-color: #dc3545;
+  color: white;
+}
+</style>
+{% endblock %}
+{% block content %}
+<h1 class="mb-4">Kết quả dự đoán <small class="text-muted">(Phiên bản {{ version }})</small></h1>
+<div class="row mb-4">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Thông tin dự đoán</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <strong>Ngày dự đoán:</strong> {{ combined_prediction.ngay_du_doan }}
+        </div>
+        <div class="mb-3">
+          <strong>Phiên bản:</strong> {{ combined_prediction.get_version_name }}
+        </div>
+        <!-- Hiển thị thứ trong tuần sử dụng phương thức mới -->
+        <div class="mb-3">
+          <strong>Thứ trong tuần:</strong> {{ combined_prediction.get_weekday_display }}
+        </div>
+        <div class="mb-3">
+          <strong>Ngày phân tích:</strong> {{ combined_prediction.ngay_phan_tich }}
+        </div>
+        <div class="mb-3">
+          <strong>Trạng thái:</strong>
+          {% if combined_prediction.ket_qua_trung == True %}
+            <span class="badge bg-success">Trúng</span>
+          {% elif combined_prediction.ket_qua_trung == False %}
+            <span class="badge bg-danger">Trượt</span>
+          {% else %}
+            <span class="badge bg-secondary">Chưa có kết quả</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header bg-success text-white">
+        <h5 class="card-title mb-0">Kết quả tổng hợp</h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <strong>Các số dự đoán:</strong>
+          <div class="mt-2">
+            {% for num in combined_prediction.get_ket_qua_du_doan %}
+              {% if combined_prediction.ket_qua_thuc_te and num in combined_prediction.get_ket_qua_thuc_te %}
+                <span class="badge bg-success fs-5 me-1">{{ num }}</span>
+              {% else %}
+                <span class="badge bg-primary fs-5 me-1">{{ num }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <strong>Độ tin cậy:</strong>
+          <div class="progress mt-2">
+            <div class="progress-bar" role="progressbar" style="width: {{ combined_prediction.ty_le_tin_cay }}%">
+              {{ combined_prediction.ty_le_tin_cay }}%
+            </div>
+          </div>
+        </div>
+        {% if combined_prediction.ket_qua_thuc_te %}
+          <div class="mb-3">
+            <strong>Kết quả thực tế:</strong>
+            <div class="mt-2">
+              {% for num in combined_prediction.get_ket_qua_thuc_te %}
+                <span class="badge bg-dark fs-6 me-1">{{ num }}</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% else %}
+          <strong>Kết quả thực tế:</strong> Chưa có kết quả
+          <div class="d-grid mt-2">
+            <button type="button" class="btn btn-primary" id="submitBtn">
+              <i class="fas fa-chart-line"></i> Lấy kết quả
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-4">
+  <div class="col-9">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h5 class="card-title">Kết quả các phương pháp</h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Phương pháp</th>
+                <th>Kết quả dự đoán</th>
+                <th>Độ tin cậy</th>
+                <th>Trọng số</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for method, prediction in predictions_by_method.items %}
+                <tr>
+                  <td>{{ prediction.get_phuong_phap_display }}</td>
+                  <td>
+                    <div class="d-flex flex-wrap">
+                      {% for num in prediction.get_ket_qua_du_doan %}
+                        {% if prediction.ket_qua_thuc_te and num in prediction.get_ket_qua_thuc_te %}
+                          <div class="number-box-small bg-success">{{ num }}</div>
+                        {% else %}
+                          <div class="number-box-small">{{ num }}</div>
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                  </td>
+                  <td>
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" style="width: {{ prediction.ty_le_tin_cay }}%">
+                        {{ prediction.ty_le_tin_cay }}%
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ method_weights|get_item:method|default:"1.0" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-3 mb-4">
+    {% if combined_prediction.get_ket_qua_thuc_te %}
+      {% include 'includes/loto_table.html' with actual_numbers=combined_prediction.get_ket_qua_thuc_te %}
+    {% endif %}
+  </div>
+</div>
+<div class="d-flex justify-content-between">
+  <a href="{% url 'dashboard' %}?version={{ version }}" class="btn btn-secondary">
+    <i class="fas fa-arrow-left"></i> Quay lại
+  </a>
+  <a href="{% url 'predict_view' %}?version={{ version }}" class="btn btn-primary">
+    <i class="fas fa-chart-line"></i> Phân tích mới
+  </a>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const submitBtn = document.getElementById('submitBtn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang lấy kết quả...';
+      submitBtn.disabled = true;
+      
+      // Lấy ngày dự đoán từ template
+      const targetDate = "{{ combined_prediction.ngay_du_doan|date:'Y-m-d' }}";
+      const version = "{{ version }}";
+      
+      console.log('Target date:', targetDate);
+      console.log('Version:', version);
+      
+      // Gọi API để lấy kết quả
+      fetch('/soicau/api/get-results/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+          target_date: targetDate,
+          version: version
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Reload trang để hiển thị kết quả mới
+          window.location.reload();
+        } else {
+          alert('Không thể lấy kết quả: ' + data.message);
+          console.error('Error details:', data.details);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Lỗi khi gọi API: ' + error);
+      })
+      .finally(() => {
+        submitBtn.innerHTML = '<i class="fas fa-chart-line"></i> Lấy kết quả';
+        submitBtn.disabled = false;
+      });
+    });
+  }
+});
+</script>
+{% endblock %}

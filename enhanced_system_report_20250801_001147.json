@@ -1,0 +1,134 @@
+{
+  "system_info": {
+    "initialized": true,
+    "prediction_count": 1,
+    "monitoring_active": true,
+    "export_timestamp": "2025-08-01T00:11:47.601273"
+  },
+  "validation_results": {
+    "backtesting": {
+      "overview": {
+        "total_tests": 132,
+        "average_accuracy": "25.81%",
+        "hit_rate": "0.99%",
+        "accuracy_range": "0.00% - 46.67%"
+      },
+      "method_ranking": [
+        [
+          "hybrid",
+          26.212121212121215
+        ],
+        [
+          "frequency",
+          25.90909090909091
+        ],
+        [
+          "cycle",
+          25.3030303030303
+        ]
+      ],
+      "monthly_trends": {
+        "2025-06": 25.71428571428572,
+        "2025-07": 25.893719806763283
+      },
+      "confidence_reliability": {
+        "correlation": "-0.024",
+        "interpretation": "Weak correlation - confidence scores need improvement"
+      },
+      "recommendations": [
+        "Improve confidence calculation methodology",
+        "Best performing method: hybrid (26.21%)"
+      ]
+    },
+    "weight_optimization": {
+      "total_predictions": 1,
+      "adaptation_count": 0,
+      "current_weights": {
+        "frequency": 0.2345984271740057,
+        "recent_trend": 0.2009773340980876,
+        "cycle_analysis": 0.2130736136721814,
+        "gap_analysis": 0.1912536809483846,
+        "ml_prediction": 0.16009694410734066
+      },
+      "recent_performance": {
+        "avg_accuracy": 0.4,
+        "avg_hit_rate": 1.0,
+        "stability_score": 0.5
+      },
+      "performance_trend": "Insufficient data",
+      "weight_evolution": []
+    },
+    "performance_monitoring": {
+      "period": "Last 60 days",
+      "total_snapshots": 1,
+      "metrics": {
+        "accuracy": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "percentiles": {
+            "25th": 0.0,
+            "75th": 0.0,
+            "95th": 0.0
+          }
+        },
+        "hit_rate": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0
+        },
+        "response_time": {
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "p95": 0.0,
+          "p99": 0.0
+        }
+      },
+      "trends": {},
+      "alerts_summary": {
+        "total_alerts": 2,
+        "by_level": {
+          "warning": 2
+        },
+        "by_category": {
+          "performance": 2
+        },
+        "resolved_count": 0
+      },
+      "recommendations": [
+        "🎯 Consider implementing ensemble methods to improve accuracy",
+        "📊 Increase training data size or improve data quality"
+      ]
+    },
+    "system_health": {
+      "score": 60,
+      "status": "good",
+      "issues": [
+        "No weight adaptations yet",
+        "Limited prediction history"
+      ],
+      "prediction_count": 1,
+      "adaptation_count": 0,
+      "monitoring_active": true
+    }
+  },
+  "recent_performance": {
+    "accuracy": 0.2,
+    "hit_rate": 0.6,
+    "stability": 0.5
+  },
+  "system_health": {
+    "score": 60,
+    "status": "good",
+    "issues": [
+      "No weight adaptations yet",
+      "Limited prediction history"
+    ],
+    "prediction_count": 1,
+    "adaptation_count": 0,
+    "monitoring_active": true
+  }
+}

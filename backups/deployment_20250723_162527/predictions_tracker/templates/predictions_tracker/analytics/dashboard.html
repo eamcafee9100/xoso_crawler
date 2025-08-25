@@ -1,0 +1,427 @@
+{% extends 'predictions_tracker/base.html' %}
+
+{% block content %}
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ total_evaluations }}</h3>
+                        <p class="mb-0">Tổng đánh giá</p>
+                    </div>
+                    <i class="bi bi-clipboard-data fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ method_stats|length }}</h3>
+                        <p class="mb-0">Phương pháp</p>
+                    </div>
+                    <i class="bi bi-gear fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ daily_stats|length }}</h3>
+                        <p class="mb-0">Ngày có dữ liệu</p>
+                    </div>
+                    <i class="bi bi-calendar-range fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">
+                            {% if method_stats %}
+                                {{ method_stats.0.avg_hit_rate }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </h3>
+                        <p class="mb-0">Top Hit Rate</p>
+                    </div>
+                    <i class="bi bi-trophy fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Xu hướng hiệu suất theo thời gian
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="timeSeriesChart" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Phân bố Hit Rate
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="hitRateDistributionChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Method Comparison -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>So sánh hiệu suất phương pháp
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="methodComparisonChart" height="500"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Method Stats Table -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card table-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-table me-2"></i>Thống kê chi tiết phương pháp
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if method_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Phương pháp</th>
+                                    <th>Đánh giá</th>
+                                    <th>Avg Hit Rate</th>
+                                    <th>Avg Wilson Score</th>
+                                    <th>Avg Confidence</th>
+                                    <th>Trend</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method in method_stats %}
+                                    <tr>
+                                        <td>
+                                            {% if forloop.counter <= 3 %}
+                                                <span class="badge bg-warning text-dark">#{{ forloop.counter }}</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">#{{ forloop.counter }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ method.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ method.total_evaluations }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ method.avg_hit_rate }}%</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ method.avg_wilson_score }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ method.avg_confidence }}</span>
+                                        </td>
+                                        <td>
+                                            <canvas class="trend-chart" 
+                                                    data-trend="{{ method.hit_rate_trend|join:',' }}" 
+                                                    width="100" height="30"></canvas>
+                                        </td>
+                                        <td>
+                                            <div class="progress progress-custom" style="width: 100px;">
+                                                <div class="progress-bar bg-success" 
+                                                     style="width: {{ method.avg_hit_rate }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-graph-down display-1 text-muted"></i>
+                        <h5 class="text-muted mt-3">Chưa có dữ liệu phân tích</h5>
+                        <p class="text-muted">Hãy tạo và chạy đánh giá để xem thống kê</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Performance -->
+<div class="row">
+    <div class="col-12">
+        <div class="card table-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-calendar-week me-2"></i>Hiệu suất theo ngày (30 ngày gần nhất)
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% if daily_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Số đánh giá</th>
+                                    <th>Avg Hit Rate</th>
+                                    <th>Avg Wilson Score</th>
+                                    <th>Performance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for daily in daily_stats %}
+                                    <tr>
+                                        <td>
+                                            <i class="bi bi-calendar me-1"></i>{{ daily.date }}
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info">{{ daily.evaluations_count }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success">{{ daily.avg_hit_rate }}%</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-primary">{{ daily.avg_wilson_score }}</span>
+                                        </td>
+                                        <td>
+                                            <div class="progress progress-custom" style="width: 80px;">
+                                                <div class="progress-bar bg-success" 
+                                                     style="width: {{ daily.avg_hit_rate }}%"></div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-x display-1 text-muted"></i>
+                        <h5 class="text-muted mt-3">Chưa có dữ liệu theo ngày</h5>
+                        <p class="text-muted">Dữ liệu sẽ hiển thị sau khi có đánh giá</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Prepare data for charts
+const methodStats = {{ method_stats|safe }};
+const dailyStats = {{ daily_stats|safe }};
+
+// Time Series Chart
+const timeSeriesCtx = document.getElementById('timeSeriesChart').getContext('2d');
+new Chart(timeSeriesCtx, {
+    type: 'line',
+    data: {
+        labels: dailyStats.map(d => d.date),
+        datasets: [{
+            label: 'Hit Rate (%)',
+            data: dailyStats.map(d => d.avg_hit_rate),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            tension: 0.1
+        }, {
+            label: 'Wilson Score',
+            data: dailyStats.map(d => d.avg_wilson_score * 100), // Scale for visibility
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            tension: 0.1,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100,
+                title: {
+                    display: true,
+                    text: 'Hit Rate (%)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                beginAtZero: true,
+                max: 100,
+                title: {
+                    display: true,
+                    text: 'Wilson Score (x100)'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                }
+            }
+        }
+    }
+});
+
+// Hit Rate Distribution Chart
+const hitRateDistributionCtx = document.getElementById('hitRateDistributionChart').getContext('2d');
+const hitRateRanges = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'];
+const hitRateDistribution = [0, 0, 0, 0, 0];
+
+methodStats.forEach(method => {
+    const rate = method.avg_hit_rate;
+    if (rate <= 20) hitRateDistribution[0]++;
+    else if (rate <= 40) hitRateDistribution[1]++;
+    else if (rate <= 60) hitRateDistribution[2]++;
+    else if (rate <= 80) hitRateDistribution[3]++;
+    else hitRateDistribution[4]++;
+});
+
+new Chart(hitRateDistributionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: hitRateRanges,
+        datasets: [{
+            data: hitRateDistribution,
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB', 
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Method Comparison Chart
+const methodComparisonCtx = document.getElementById('methodComparisonChart').getContext('2d');
+new Chart(methodComparisonCtx, {
+    type: 'bar',
+    data: {
+        labels: methodStats.map(m => m.name),
+        datasets: [{
+            label: 'Hit Rate (%)',
+            data: methodStats.map(m => m.avg_hit_rate),
+            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }, {
+            label: 'Wilson Score (x100)',
+            data: methodStats.map(m => m.avg_wilson_score * 100),
+            backgroundColor: 'rgba(255, 99, 132, 0.8)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }, {
+            label: 'Confidence (x100)',
+            data: methodStats.map(m => m.avg_confidence * 100),
+            backgroundColor: 'rgba(255, 206, 86, 0.8)',
+            borderColor: 'rgba(255, 206, 86, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 100
+            }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            }
+        }
+    }
+});
+
+// Mini trend charts
+document.addEventListener('DOMContentLoaded', function() {
+    const trendCharts = document.querySelectorAll('.trend-chart');
+    trendCharts.forEach(canvas => {
+        const trendData = canvas.getAttribute('data-trend').split(',').map(Number);
+        const ctx = canvas.getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: trendData.map((_, i) => i),
+                datasets: [{
+                    data: trendData,
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

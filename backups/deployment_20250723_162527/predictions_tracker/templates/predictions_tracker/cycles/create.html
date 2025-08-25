@@ -1,0 +1,158 @@
+<!--Documents\xoso_crawler\predictions_tracker\templates\predictions_tracker\cycles\create.html -->
+{% extends 'predictions_tracker/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo chu kỳ mới
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="cycleForm">
+                    {% csrf_token %}
+                    
+                    <!-- Basic Information -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Tên chu kỳ <span class="text-danger">*</span></label>
+                            <input type="text" name="cycle_name" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Số ngày theo dõi <span class="text-danger">*</span></label>
+                            <input type="number" name="tracking_days" class="form-control" value="3" min="1" max="30" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                            <input type="date" name="start_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                            <input type="date" name="end_date" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Methods Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">Chọn phương pháp dự đoán</label>
+                        <div class="row">
+                            {% for method in available_methods %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border method-card">
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       name="methods" value="{{ method.id }}" 
+                                                       id="method{{ method.id }}">
+                                                <label class="form-check-label" for="method{{ method.id }}">
+                                                    <strong>{{ method.name }}</strong>
+                                                </label>
+                                            </div>
+                                            <small class="text-muted d-block mt-1">{{ method.description }}</small>
+                                            
+                                            <!-- Ensemble Settings -->
+                                            <div class="mt-3 method-settings" style="display: none;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="ensemble_{{ method.id }}" 
+                                                           id="ensemble{{ method.id }}">
+                                                    <label class="form-check-label" for="ensemble{{ method.id }}">
+                                                        Kích hoạt Ensemble
+                                                    </label>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <label class="form-label">Trọng số</label>
+                                                    <input type="number" name="weight_{{ method.id }}" 
+                                                           class="form-control form-control-sm" 
+                                                           value="1.0" min="0.1" max="5.0" step="0.1">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'predictions_tracker:cycles_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-custom">
+                            <i class="bi bi-check-circle me-2"></i>Tạo chu kỳ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.method-card {
+    transition: all 0.3s ease;
+}
+
+.method-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.method-card.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(13, 110, 253, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Method selection toggle
+    const methodCheckboxes = document.querySelectorAll('input[name="methods"]');
+    methodCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const card = this.closest('.method-card');
+            const settings = card.querySelector('.method-settings');
+            
+            if (this.checked) {
+                card.classList.add('selected');
+                settings.style.display = 'block';
+            } else {
+                card.classList.remove('selected');
+                settings.style.display = 'none';
+            }
+        });
+    });
+    
+    // Form validation
+    const form = document.getElementById('cycleForm');
+    form.addEventListener('submit', function(e) {
+        const selectedMethods = document.querySelectorAll('input[name="methods"]:checked');
+        if (selectedMethods.length === 0) {
+            e.preventDefault();
+            alert('Vui lòng chọn ít nhất một phương pháp dự đoán');
+        }
+    });
+    
+    // Auto-set end date
+    const startDate = document.querySelector('input[name="start_date"]');
+    const endDate = document.querySelector('input[name="end_date"]');
+    
+    startDate.addEventListener('change', function() {
+        if (this.value && !endDate.value) {
+            const start = new Date(this.value);
+            const end = new Date(start.getTime() + (30 * 24 * 60 * 60 * 1000)); // 30 days later
+            endDate.value = end.toISOString().split('T')[0];
+        }
+    });
+});
+</script>
+{% endblock %}

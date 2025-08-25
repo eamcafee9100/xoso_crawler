@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX Date Test</title>
+</head>
+<body>
+    <h1>Ultimate Prediction Date Test</h1>
+    
+    <div>
+        <label for="testDate">Test Date:</label>
+        <input type="date" id="testDate" value="2025-08-12">
+        <button onclick="testPrediction()">Test Prediction</button>
+    </div>
+    
+    <div id="results" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;">
+        <h3>Results:</h3>
+        <pre id="resultJson"></pre>
+    </div>
+
+    <div>
+        <h3>Different Dates Quick Test:</h3>
+        <button onclick="testDate('2025-08-12')">Test 2025-08-12</button>
+        <button onclick="testDate('2025-08-06')">Test 2025-08-06</button>
+        <button onclick="testDate('2025-07-15')">Test 2025-07-15</button>
+    </div>
+
+    <script>
+        // Get CSRF token
+        function getCSRFToken() {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') {
+                    return value;
+                }
+            }
+            return '';
+        }
+
+        async function testPrediction() {
+            const date = document.getElementById('testDate').value;
+            await testDate(date);
+        }
+
+        async function testDate(predictionDate) {
+            console.log(`Testing date: ${predictionDate}`);
+            
+            const data = {
+                prediction_date: predictionDate,
+                prediction_horizon: 5,
+                use_real_data: true
+            };
+
+            try {
+                const response = await fetch('/analytic-frequence/ajax-prediction/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                console.log(`Response for ${predictionDate}:`, result);
+                
+                // Display results
+                document.getElementById('resultJson').textContent = JSON.stringify(result, null, 2);
+                
+                // Log key info
+                if (result.success && result.data) {
+                    const prediction = result.data.prediction_data;
+                    console.log(`Data source: ${prediction.data_source || 'N/A'}`);
+                    console.log(`Predictions: ${JSON.stringify(prediction.predictions)}`);
+                    console.log(`Confidence: ${prediction.confidence_score}`);
+                }
+                
+            } catch (error) {
+                console.error(`Error testing ${predictionDate}:`, error);
+                document.getElementById('resultJson').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Test on page load
+        window.onload = function() {
+            console.log('Page loaded - ready for testing');
+        };
+    </script>
+</body>
+</html>

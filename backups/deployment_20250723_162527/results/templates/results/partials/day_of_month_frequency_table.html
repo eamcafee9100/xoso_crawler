@@ -1,0 +1,45 @@
+<!-- templates/results/partials/day_of_month_frequency_table.html -->
+
+{% load static %}
+{% load xs_tags %}
+<!-- templates/results/partials/day_of_month_frequency_table.html -->
+<div class="d-flex justify-content-between mb-3">
+    <h5>Thống kê theo ngày trong tháng {% if month %}{{ month }}/{% endif %}{% if year %}{{ year }}{% endif %}</h5>
+    <div>
+        <a href="{% url 'number_frequency_api' %}?view_type=day_of_month&year={{ year }}&month={{ month }}" 
+           class="btn btn-sm btn-outline-secondary" target="_blank">
+            <i class="fas fa-download"></i> JSON
+        </a>
+    </div>
+</div>
+
+<table class="table table-bordered table-hover table-sm">
+    <thead class="table-primary">
+        <tr>
+            <th class="text-center">Số</th>
+            {% for day in days %}
+            <th class="text-center">{{ day }}</th>
+            {% endfor %}
+            <th class="text-center">Tổng</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in table_data %}
+        <tr>
+            <td class="text-center fw-bold">{{ row.number }}</td>
+            {% for day in days %}
+            {% with cell_value=row|get_item:day|default:"" %}
+            <td class="text-center {% if cell_value %}bg-secondary text-white{% endif %}">
+                {% if cell_value %}{{ cell_value }}{% endif %}
+            </td>
+            {% endwith %}
+            {% endfor %}
+            <td class="text-center fw-bold">{{ row.total }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="{{ days|length|add:2 }}" class="text-center">Không có dữ liệu</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

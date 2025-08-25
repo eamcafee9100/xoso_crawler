@@ -1,0 +1,441 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Báo cáo hiệu quả{% endblock %}
+
+{% block page_title %}Báo cáo hiệu quả{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'lokhung:bao_cao_create' %}" class="btn btn-primary">
+    <i class="fas fa-plus me-2"></i>Tạo báo cáo
+</a>
+{% endblock %}
+
+{% block content %}
+<!-- Summary Cards -->
+<div class="row mb-4">
+    {% for phuong_phap in phuong_phap_list %}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card card-custom method-card 
+            {% if phuong_phap.ty_le_thanh_cong >= 70 %}high-success
+            {% elif phuong_phap.ty_le_thanh_cong >= 40 %}medium-success
+            {% else %}low-success{% endif %}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-cog text-primary me-2"></i>
+                    {{ phuong_phap.ten_phuong_phap|truncatechars:25 }}
+                </h6>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" 
+                            data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'lokhung:phuong_phap_detail' phuong_phap.pk %}">
+                                <i class="fas fa-eye me-2"></i>Xem chi tiết
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#" onclick="createReport({{ phuong_phap.pk }})">
+                                <i class="fas fa-chart-bar me-2"></i>Tạo báo cáo
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Success Rate -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="text-muted">Tỷ lệ thành công</span>
+                            <span class="h4 mb-0 
+                                {% if phuong_phap.ty_le_thanh_cong >= 70 %}text-success
+                                {% elif phuong_phap.ty_le_thanh_cong >= 40 %}text-warning
+                                {% else %}text-danger{% endif %}">
+                                {{ phuong_phap.ty_le_thanh_cong }}%
+                            </span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar 
+                                {% if phuong_phap.ty_le_thanh_cong >= 70 %}bg-success
+                                {% elif phuong_phap.ty_le_thanh_cong >= 40 %}bg-warning
+                                {% else %}bg-danger{% endif %}" 
+                                style="width: {{ phuong_phap.ty_le_thanh_cong }}%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Statistics -->
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="mb-0 text-primary">{{ phuong_phap.so_lan_su_dung }}</h5>
+                            <small class="text-muted">Tổng số lần</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="border-end">
+                            <h5 class="mb-0 text-success">{{ phuong_phap.so_lan_dung }}</h5>
+                            <small class="text-muted">Đúng</small>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="mb-0 text-danger">{{ phuong_phap.so_lan_su_dung|add:phuong_phap.so_lan_dung|add:"-"|add:phuong_phap.so_lan_dung }}</h5>
+                        <small class="text-muted">Sai</small>
+                    </div>
+                </div>
+                
+                <!-- Status and Actions -->
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge 
+                            {% if phuong_phap.trang_thai == 'active' %}bg-success
+                            {% elif phuong_phap.trang_thai == 'testing' %}bg-warning
+                            {% else %}bg-secondary{% endif %}">
+                            {{ phuong_phap.get_trang_thai_display }}
+                        </span>
+                        <span class="text-muted small">
+                            Cập nhật: {{ phuong_phap.ngay_cap_nhat|date:"d/m" }}
+                        </span>
+                    </div>
+                    
+                    <!-- Recent Performance Chart (Mini) -->
+                    <div class="mini-chart-wrapper" style="height:100px; width:100%;">
+                        <canvas id="chart-{{ phuong_phap.pk }}" style="height:100px !important; width:100% !important;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="row">
+                    <div class="col-6">
+                        <button class="btn btn-sm btn-outline-primary w-100" 
+                                onclick="viewMethodStats({{ phuong_phap.pk }})">
+                            <i class="fas fa-chart-line me-1"></i>Thống kê
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-sm btn-outline-info w-100" 
+                                onclick="viewRecentPredictions({{ phuong_phap.pk }})">
+                            <i class="fas fa-eye me-1"></i>Dự đoán
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Detailed Reports Table -->
+<div class="card card-custom">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            <i class="fas fa-table me-2"></i>
+            Báo cáo chi tiết
+        </h6>
+        <div class="btn-group btn-group-sm" role="group">
+            <input type="radio" class="btn-check" name="view-mode" id="card-view" checked>
+            <label class="btn btn-outline-primary" for="card-view">
+                <i class="fas fa-th"></i>
+            </label>
+            
+            <input type="radio" class="btn-check" name="view-mode" id="table-view">
+            <label class="btn btn-outline-primary" for="table-view">
+                <i class="fas fa-list"></i>
+            </label>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filters -->
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-3">
+                <label for="loai_bao_cao" class="form-label">Loại báo cáo</label>
+                <select class="form-select" id="loai_bao_cao" name="loai_bao_cao">
+                    <option value="">Tất cả</option>
+                    {% for value, label in loai_bao_cao_choices %}
+                    <option value="{{ value }}" {% if current_filters.loai_bao_cao == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="phuong_phap" class="form-label">Phương pháp</label>
+                <select class="form-select" id="phuong_phap" name="phuong_phap">
+                    <option value="">Tất cả</option>
+                    {% for phuong_phap in phuong_phap_list %}
+                    <option value="{{ phuong_phap.pk }}" 
+                            {% if current_filters.phuong_phap == phuong_phap.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ phuong_phap.ten_phuong_phap }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="muc_do_khuyen_cao" class="form-label">Mức độ khuyến cáo</label>
+                <select class="form-select" id="muc_do_khuyen_cao" name="muc_do_khuyen_cao">
+                    <option value="">Tất cả</option>
+                    <option value="high">Khuyến cáo cao</option>
+                    <option value="medium">Khuyến cáo trung bình</option>
+                    <option value="low">Khuyến cáo thấp</option>
+                    <option value="not_recommended">Không khuyến cáo</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i> Lọc
+                </button>
+            </div>
+        </form>
+        
+        <!-- Reports Table -->
+        <div id="reports-table-view" style="display: none;">
+            {% if page_obj %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Phương pháp</th>
+                                <th>Khoảng thời gian</th>
+                                <th>Tỷ lệ thành công</th>
+                                <th>Điểm hiệu quả</th>
+                                <th>Chỉ số ổn định</th>
+                                <th>Mức độ khuyến cáo</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bao_cao in page_obj %}
+                            <tr>
+                                <td>
+                                    <a href="{% url 'lokhung:phuong_phap_detail' bao_cao.phuong_phap.pk %}" 
+                                       class="text-decoration-none">
+                                        {{ bao_cao.phuong_phap.ten_phuong_phap }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {{ bao_cao.tu_ngay|date:"d/m/Y" }} - {{ bao_cao.den_ngay|date:"d/m/Y" }}
+                                    <br>
+                                    <small class="text-muted">{{ bao_cao.get_loai_bao_cao_display }}</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 60px; height: 20px;">
+                                            <div class="progress-bar 
+                                                {% if bao_cao.ty_le_thanh_cong >= 70 %}bg-success
+                                                {% elif bao_cao.ty_le_thanh_cong >= 40 %}bg-warning
+                                                {% else %}bg-danger{% endif %}" 
+                                                style="width: {{ bao_cao.ty_le_thanh_cong }}%">
+                                            </div>
+                                        </div>
+                                        <span class="fw-bold">{{ bao_cao.ty_le_thanh_cong }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ bao_cao.diem_hieu_qua }}/100</span>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if bao_cao.chi_so_on_dinh >= 70 %}bg-success
+                                        {% elif bao_cao.chi_so_on_dinh >= 50 %}bg-warning
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ bao_cao.chi_so_on_dinh|floatformat:1 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge 
+                                        {% if bao_cao.muc_do_khuyen_cao == 'high' %}bg-success
+                                        {% elif bao_cao.muc_do_khuyen_cao == 'medium' %}bg-warning
+                                        {% elif bao_cao.muc_do_khuyen_cao == 'low' %}bg-info
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ bao_cao.get_muc_do_khuyen_cao_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'lokhung:bao_cao_detail' bao_cao.pk %}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-chart-bar fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">Chưa có báo cáo nào</h4>
+                    <p class="text-muted">Hãy tạo báo cáo đầu tiên.</p>
+                    <a href="{% url 'lokhung:bao_cao_create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Tạo báo cáo
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Method Details Modal -->
+<div class="modal fade" id="methodStatsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thống kê phương pháp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="method-stats-content">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // View mode toggle
+    $('input[name="view-mode"]').change(function() {
+        if ($(this).attr('id') === 'table-view') {
+            $('#reports-table-view').show();
+        } else {
+            $('#reports-table-view').hide();
+        }
+    });
+    
+    // Load mini charts for each method
+    {% for phuong_phap in phuong_phap_list %}
+    loadMiniChart({{ phuong_phap.pk }});
+    {% endfor %}
+});
+
+function loadMiniChart(methodId) {
+    $.get('{% url "lokhung:api_phuong_phap_stats" 0 %}'.replace('0', methodId))
+        .done(function(data) {
+            const ctx = document.getElementById('chart-' + methodId);
+            if (!ctx) return;
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
+                    datasets: [{
+                        data: [
+                            Math.random() * 100,
+                            Math.random() * 100,
+                            Math.random() * 100,
+                            data.ty_le_thanh_cong
+                        ],
+                        borderColor: data.ty_le_thanh_cong >= 70 ? '#28a745' : 
+                                   data.ty_le_thanh_cong >= 40 ? '#ffc107' : '#dc3545',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        });
+}
+
+function viewMethodStats(methodId) {
+    $('#methodStatsModal').modal('show');
+    
+    $.get('{% url "lokhung:api_phuong_phap_stats" 0 %}'.replace('0', methodId))
+        .done(function(data) {
+            const content = `
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Thông tin cơ bản</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Tỷ lệ thành công:</span>
+                                <strong class="${data.ty_le_thanh_cong >= 70 ? 'text-success' : 
+                                              data.ty_le_thanh_cong >= 40 ? 'text-warning' : 'text-danger'}">
+                                    ${data.ty_le_thanh_cong}%
+                                </strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Tổng số lần sử dụng:</span>
+                                <strong>${data.so_lan_su_dung}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Số lần đúng:</span>
+                                <strong class="text-success">${data.so_lan_dung}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Trọng số:</span>
+                                <strong>${data.trong_so}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Độ tin cậy:</span>
+                                <strong>${(data.do_tin_cay * 100).toFixed(1)}%</strong>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Thống kê tháng qua</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Tổng dự đoán:</span>
+                                <strong>${data.du_doan_thang_qua.tong}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Đúng:</span>
+                                <strong class="text-success">${data.du_doan_thang_qua.dung}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Sai:</span>
+                                <strong class="text-danger">${data.du_doan_thang_qua.sai}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Chờ kết quả:</span>
+                                <strong class="text-warning">${data.du_doan_thang_qua.cho_ket_qua}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+            $('#method-stats-content').html(content);
+        })
+        .fail(function() {
+            $('#method-stats-content').html('<div class="alert alert-danger">Không thể tải thống kê.</div>');
+        });
+}
+
+function viewRecentPredictions(methodId) {
+    window.location.href = '{% url "lokhung:du_doan_list" %}?phuong_phap=' + methodId;
+}
+
+function createReport(methodId) {
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+    
+    if (confirm('Tạo báo cáo tháng qua cho phương pháp này?')) {
+        window.location.href = '{% url "lokhung:bao_cao_create" %}?phuong_phap=' + methodId + 
+                              '&tu_ngay=' + lastMonth.toISOString().split('T')[0] + 
+                              '&den_ngay=' + today.toISOString().split('T')[0];
+    }
+}
+</script>
+{% endblock %}

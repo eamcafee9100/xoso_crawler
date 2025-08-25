@@ -1,0 +1,81 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+{% block content %}
+<h2>Mẫu quả trám</h2>
+
+<form method="get" class="mb-3">
+    <label>Số ngày:
+        <select name="days" onchange="this.form.submit()">
+            <option value="7" {% if selected_days == 7 %}selected{% endif %}>7 ngày</option>
+            <option value="30" {% if selected_days == 30 %}selected{% endif %}>30 ngày</option>
+            <option value="90" {% if selected_days == 90 %}selected{% endif %}>90 ngày</option>
+        </select>
+    </label>
+    <label>Lọc trạng thái:
+        <select name="hit" onchange="this.form.submit()">
+            <option value="" {% if not hit_filter %}selected{% endif %}>Tất cả</option>
+            <option value="yes" {% if hit_filter == 'yes' %}selected{% endif %}>Đã về</option>
+            <option value="no" {% if hit_filter == 'no' %}selected{% endif %}>Chưa về</option>
+        </select>
+    </label>
+</form>
+
+<h4>Thống kê hiệu suất</h4>
+<ul>
+    <li>Tổng số mẫu: {{ stats.total_patterns }}</li>
+    <li>Số mẫu đã về: {{ stats.hit_patterns }}</li>
+    <li>Tỷ lệ về: {{ stats.hit_rate|floatformat:2 }}%</li>
+</ul>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày</th>
+            <th>Mẫu</th>
+            <th>Số dự đoán</th>
+            <th>Trạng thái</th>
+            <th>Chi tiết</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in patterns %}
+        <tr>
+            <td>{{ p.ngay|date:"d/m/Y" }}</td>
+            <td>
+                {{ p.digit_top }}<br>
+                {{ p.digit_mid_left }} {{ p.digit_mid_right }}<br>
+                {{ p.digit_bottom }}
+            </td>
+            <td>{{ p.predicted_number }}</td>
+            <td>
+                {% if p.has_hit %}
+                    <span style="color:green">Đã về</span>
+                {% else %}
+                    <span style="color:red">Chưa về</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'qua_tram_detail' p.pk %}">Xem</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5">Không có dữ liệu</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}&days={{ selected_days }}{% if hit_filter %}&hit={{ hit_filter }}{% endif %}">Trước</a></li>
+        {% endif %}
+        <li class="active"><span>{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}&days={{ selected_days }}{% if hit_filter %}&hit={{ hit_filter }}{% endif %}">Sau</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,325 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Danh sách dự đoán{% endblock %}
+
+{% block page_title %}Danh sách dự đoán{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <a href="{% url 'lokhung:du_doan_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Tạo dự đoán
+    </a>
+    <a href="{% url 'lokhung:export_du_doan_excel' %}" class="btn btn-outline-success">
+        <i class="fas fa-download me-2"></i>Xuất Excel
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="card card-custom mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Bộ lọc
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-2">
+                <label for="ngay_tu" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="ngay_tu" name="ngay_tu" 
+                       value="{{ current_filters.ngay_tu }}">
+            </div>
+            <div class="col-md-2">
+                <label for="ngay_den" class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" id="ngay_den" name="ngay_den" 
+                       value="{{ current_filters.ngay_den }}">
+            </div>
+            <div class="col-md-2">
+                <label for="trang_thai" class="form-label">Trạng thái</label>
+                <select class="form-select" id="trang_thai" name="trang_thai">
+                    <option value="">Tất cả</option>
+                    {% for value, label in trang_thai_choices %}
+                    <option value="{{ value }}" {% if current_filters.trang_thai == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label for="phuong_phap" class="form-label">Phương pháp</label>
+                <select class="form-select" id="phuong_phap" name="phuong_phap">
+                    <option value="">Tất cả</option>
+                    {% for phuong_phap in phuong_phap_list %}
+                    <option value="{{ phuong_phap.pk }}" 
+                            {% if current_filters.phuong_phap == phuong_phap.pk|stringformat:"s" %}selected{% endif %}>
+                        {{ phuong_phap.ten_phuong_phap }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="sort" class="form-label">Sắp xếp</label>
+                <select class="form-select" id="sort" name="sort">
+                    <option value="-ngay_du_doan" {% if current_filters.sort == '-ngay_du_doan' %}selected{% endif %}>
+                        Ngày dự đoán (mới nhất)
+                    </option>
+                    <option value="ngay_du_doan" {% if current_filters.sort == 'ngay_du_doan' %}selected{% endif %}>
+                        Ngày dự đoán (cũ nhất)
+                    </option>
+                    <option value="-diem_tin_cay" {% if current_filters.sort == '-diem_tin_cay' %}selected{% endif %}>
+                        Tin cậy cao nhất
+                    </option>
+                    <option value="diem_tin_cay" {% if current_filters.sort == 'diem_tin_cay' %}selected{% endif %}>
+                        Tin cậy thấp nhất
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results -->
+<div class="card card-custom">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+            Kết quả ({{ page_obj.paginator.count }} dự đoán)
+        </h6>
+        <button class="btn btn-sm btn-outline-primary" onclick="checkVisiblePredictions()">
+            <i class="fas fa-sync me-1"></i>Kiểm tra kết quả
+        </button>
+    </div>
+    <div class="card-body">
+        {% if page_obj %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ngày dự đoán</th>
+                            <th>Số dự đoán</th>
+                            <th>Loại</th>
+                            <th>Phương pháp</th>
+                            <th>Tin cậy</th>
+                            <th>Trạng thái</th>
+                            <th>Kết quả thực tế</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for du_doan in page_obj %}
+                        <tr class="prediction-row" data-id="{{ du_doan.pk }}" data-date="{{ du_doan.ngay_du_doan|date:'Y-m-d' }}">
+                            <td>
+                                <strong>{{ du_doan.ngay_du_doan|date:"d/m/Y" }}</strong>
+                                <br>
+                                <small class="text-muted">{{ du_doan.ngay_du_doan|date:"l" }}</small>
+                            </td>
+                            <td>
+                                <span class="badge fs-5 px-3 py-2
+                                    {% if du_doan.trang_thai == 'trung' %}prediction-correct number-highlight
+                                    {% elif du_doan.trang_thai == 'truot' %}prediction-wrong
+                                    {% else %}prediction-pending{% endif %}">
+                                    {{ du_doan.so_du_doan }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary">{{ du_doan.get_loai_so_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'lokhung:phuong_phap_detail' du_doan.phuong_phap.pk %}" 
+                                   class="text-decoration-none">
+                                    {{ du_doan.phuong_phap.ten_phuong_phap|truncatechars:30 }}
+                                </a>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar 
+                                        {% if du_doan.diem_tin_cay >= 70 %}bg-success
+                                        {% elif du_doan.diem_tin_cay >= 40 %}bg-warning
+                                        {% else %}bg-danger{% endif %}" 
+                                        role="progressbar" 
+                                        style="width: {{ du_doan.diem_tin_cay }}%">
+                                        <strong>{{ du_doan.diem_tin_cay }}%</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if du_doan.trang_thai == 'trung' %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Trúng
+                                    </span>
+                                {% elif du_doan.trang_thai == 'truot' %}
+                                    <span class="badge bg-danger">
+                                        <i class="fas fa-times me-1"></i>Trượt
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock me-1"></i>Chờ kết quả
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="result-cell" data-prediction-id="{{ du_doan.pk }}">
+                                {% if du_doan.ket_qua_thuc_te %}
+                                    <div class="winning-numbers">
+                                        <!-- Kết quả sẽ được load bằng AJAX -->
+                                        <span class="text-muted">Loading...</span>
+                                    </div>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{% url 'lokhung:du_doan_detail' du_doan.pk %}" 
+                                       class="btn btn-outline-primary" title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'lokhung:du_doan_edit' du_doan.pk %}" 
+                                       class="btn btn-outline-warning" title="Chỉnh sửa">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if du_doan.trang_thai == 'cho_ket_qua' %}
+                                    <button class="btn btn-outline-success check-result-btn" 
+                                            data-id="{{ du_doan.pk }}" title="Kiểm tra kết quả">
+                                        <i class="fas fa-sync"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for page_num in page_obj.paginator.page_range %}
+                        {% if page_num == page_obj.number %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                        {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_num }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                    {{ page_num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in current_filters.items %}{% if value %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">Không có dự đoán nào</h4>
+                <p class="text-muted">Hãy tạo dự đoán đầu tiên của bạn.</p>
+                <a href="{% url 'lokhung:du_doan_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Tạo dự đoán
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Load winning numbers for each prediction
+    loadWinningNumbers();
+    
+    // Check result button click
+    $('.check-result-btn').click(function() {
+        const predictionId = $(this).data('id');
+        checkSingleResult(predictionId);
+    });
+});
+
+function loadWinningNumbers() {
+    $('.result-cell').each(function() {
+        const predictionId = $(this).data('prediction-id');
+        const $cell = $(this);
+        const row = $cell.closest('tr');
+        const predictionDate = row.data('date');
+        
+        if (predictionDate) {
+            // AJAX call to get winning numbers for this date
+            $.get('/results/api/ketqua/' + predictionDate + '/')
+                .done(function(data) {
+                    if (data.success && data.numbers_2d) {
+                        let numbersHtml = '';
+                        data.numbers_2d.forEach(function(number) {
+                            numbersHtml += '<span class="badge bg-primary me-1 mb-1">' + number + '</span>';
+                        });
+                        $cell.html('<div class="winning-numbers">' + numbersHtml + '</div>');
+                    } else {
+                        $cell.html('<span class="text-muted">Chưa có kết quả</span>');
+                    }
+                })
+                .fail(function() {
+                    $cell.html('<span class="text-muted">-</span>');
+                });
+        }
+    });
+}
+
+function checkSingleResult(predictionId) {
+    $.post('{% url "lokhung:du_doan_check_result" 0 %}'.replace('0', predictionId), {
+        csrfmiddlewaretoken: '{{ csrf_token }}'
+    })
+    .done(function() {
+        location.reload();
+    })
+    .fail(function() {
+        alert('Có lỗi xảy ra khi kiểm tra kết quả.');
+    });
+}
+
+function checkVisiblePredictions() {
+    const predictionIds = [];
+    $('.prediction-row').each(function() {
+        const status = $(this).find('.badge').text().trim();
+        if (status.includes('Chờ kết quả')) {
+            predictionIds.push($(this).data('id'));
+        }
+    });
+    
+    if (predictionIds.length === 0) {
+        alert('Không có dự đoán nào cần kiểm tra kết quả.');
+        return;
+    }
+    
+    if (confirm(`Kiểm tra kết quả cho ${predictionIds.length} dự đoán?`)) {
+        // Check each prediction
+        let completed = 0;
+        predictionIds.forEach(function(id) {
+            checkSingleResult(id);
+        });
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,281 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dự đoán XSMB ngày {{ selected_date|date:"d/m/Y" }}</h2>
+    
+    <form method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="selected_date">Chọn ngày dự đoán:</label>
+            <input type="date" name="selected_date" id="selected_date" 
+                   value="{{ selected_date|date:'Y-m-d' }}" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-primary">Dự đoán</button>
+    </form>
+    
+    {% if predictions %}
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Kết quả dự đoán</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Top số dự đoán</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Số thứ tự</th>
+                                <th>Số</th>
+                                <th>Độ tin cậy</th>
+                                <th>Trúng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for num, score in predictions.numbers %}
+                            <tr class="{% if num in actual_result.get_all_2digit_numbers %}table-success{% endif %}">
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ num }}</td>
+                                <td>{{ score|floatformat:1 }}%</td>
+                                <td>{% if num in actual_result.get_all_2digit_numbers %}✓{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <p>Độ chính xác: {{ predictions.accuracy }}% ({{ predictions.hit_count }}/{{ predictions.numbers|length }} số)</p>
+
+                    <!-- Add this section after the cycle analysis -->
+<!-- Add this section after the cycle analysis -->
+{% if analysis_summary.analysis_summary and predictions %}
+<div class="number-potential-analysis mt-4">
+    <h3>Phân tích khả năng trúng theo chu kỳ</h3>
+
+    <!-- High potential numbers -->
+    <div class="potential-group mb-4">
+        <h4 class="text-success">Khả năng cao</h4>
+        <div class="number-cards">
+            {% for score in analysis_summary.analysis_summary.high_potential %}
+            <div class="number-card 
+                {% if score.number in predictions.numbers %}predicted{% endif %}
+                {% if actual_result and score.number in actual_numbers %}actual-hit{% endif %}">
+                <h5>{{ score.number }}</h5>
+                <div class="stats">
+                    <small>Xuất hiện: {{ score.cycle_count }} chu kỳ</small>
+                    <small>Tần suất: {{ score.total_freq }} lần</small>
+                    <small>Tỷ lệ: {{ score.appearance_rate|floatformat:1 }}%</small>
+                </div>
+                {% if score.number in predictions.numbers %}
+                <div class="prediction-mark">Dự đoán</div>
+                {% endif %}
+                {% if actual_result and score.number in actual_numbers %}
+                <div class="actual-mark">Trúng thực tế</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Medium potential numbers -->
+    <div class="potential-group mb-4">
+        <h4 class="text-warning">Khả năng trung bình</h4>
+        <div class="number-cards">
+            {% for score in analysis_summary.analysis_summary.medium_potential %}
+            <div class="number-card 
+                {% if score.number in predictions.numbers %}predicted{% endif %}
+                {% if actual_result and score.number in actual_numbers %}actual-hit{% endif %}">
+                <h5>{{ score.number }}</h5>
+                <div class="stats">
+                    <small>Xuất hiện: {{ score.cycle_count }} chu kỳ</small>
+                    <small>Tần suất: {{ score.total_freq }} lần</small>
+                    <small>Tỷ lệ: {{ score.appearance_rate|floatformat:1 }}%</small>
+                </div>
+                {% if score.number in predictions.numbers %}
+                <div class="prediction-mark">Dự đoán</div>
+                {% endif %}
+                {% if actual_result and score.number in actual_numbers %}
+                <div class="actual-mark">Trúng thực tế</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Low potential numbers -->
+    <div class="potential-group mb-4">
+        <h4 class="text-danger">Khả năng thấp</h4>
+        <div class="number-cards">
+            {% for score in analysis_summary.analysis_summary.low_potential %}
+            <div class="number-card 
+                {% if score.number in predictions.numbers %}predicted{% endif %}
+                {% if actual_result and score.number in actual_numbers %}actual-hit{% endif %}">
+                <h5>{{ score.number }}</h5>
+                <div class="stats">
+                    <small>Xuất hiện: {{ score.cycle_count }} chu kỳ</small>
+                    <small>Tần suất: {{ score.total_freq }} lần</small>
+                    <small>Tỷ lệ: {{ score.appearance_rate|floatformat:1 }}%</small>
+                </div>
+                {% if score.number in predictions.numbers %}
+                <div class="prediction-mark">Dự đoán</div>
+                {% endif %}
+                {% if actual_result and score.number in actual_numbers %}
+                <div class="actual-mark">Trúng thực tế</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+                </div>
+                
+                <div class="col-md-6">
+                    {% include 'includes/loto_table.html' %}
+                    <h5>Cặp số nóng</h5>
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Cặp số</th>
+                                <th>Xuất hiện</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pair, count in predictions.hot_pairs %}
+                            <tr>
+                                <td>{{ pair.0 }} - {{ pair.1 }}</td>
+                                <td>{{ count }} lần</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if actual_result %}
+                <div class="actual-result mt-4 p-3 bg-light">
+                    <h4>Kết quả thực tế ngày {{ actual_result.ngay|date:"d/m/Y" }}</h4>
+                    
+                    <div class="hit-numbers">
+                        {% for pair, _ in combined_cycles.ngắn.top_pairs|slice:":5" %}
+                            {% if pair.0 in actual_numbers and pair.1 in actual_numbers %}
+                            <span class="badge bg-danger">
+                                {{ pair.0 }}-{{ pair.1 }} ✓
+                            </span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="combined-analysis">
+                    <h3>Phân tích chu kỳ kết hợp</h3>
+                    
+                    {% for cycle_name, cycle_data in combined_cycles.items %}
+                    <div class="cycle-group mb-4 p-3 border rounded">
+                        <h4>Chu kỳ {{ cycle_name }}</h4>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Top số xuất hiện nhiều</h5>
+                                <div class="number-list">
+                                    {% for number, freq in cycle_data.top_numbers %}
+                                    <span class="badge bg-primary m-1">
+                                        {{ number }} <small>({{ freq }})</small>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5>Đề xuất cặp xiên 2</h5>
+                                <div class="pair-list">
+                                    {% for pair, freq in cycle_data.top_pairs %}
+                                    <span class="badge bg-success m-1">
+                                        {{ pair.0 }}-{{ pair.1 }} <small>({{ freq }})</small>
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    
+
+
+{% if cycle_analysis %}
+<div class="cycle-analysis">
+    <h3>Phân tích theo chu kỳ</h3>
+    
+    {% for cycle_name, cycle_data in cycle_analysis.items %}
+    <div class="cycle-group mb-4">
+        <h4>Chu kỳ {{ cycle_name|cut:"_ngay"|title }} ngày</h4>
+        
+        <div class="predicted-numbers">
+            {% for number, freq in cycle_data.top_frequency %}
+            <span class="number-badge 
+                      {% if number in cycle_data.hit_numbers %}hit-number{% endif %}"
+                  title="Tần suất: {{ freq }} lần">
+                {{ number }}
+                {% if number in cycle_data.hit_numbers %}
+                <span class="hit-indicator">✓</span>
+                {% endif %}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+
+{% block extra_css %}
+
+<style>
+    number-card {
+    position: relative;
+}
+
+.predicted {
+    border: 2px solid #007bff;
+}
+
+.actual-hit {
+    border: 2px solid #28a745;
+}
+
+.prediction-mark {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.actual-mark {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    background: #28a745;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+}
+</style>
+{% endblock %}

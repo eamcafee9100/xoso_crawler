@@ -1,0 +1,150 @@
+{% extends "results/base.html" %}
+{% load humanize %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}Phân tích State - Xổ Số{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Phân tích State Xổ Số</h3>
+                </div>
+                
+                <!-- Filters -->
+                <div class="card-body">
+                    <form method="get" class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">Từ ngày</label>
+                            <input type="date" name="date_from" class="form-control" value="{{ date_from }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Đến ngày</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ date_to }}">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary me-2">Lọc</button>
+                            <a href="{% url 'state_analysis_list' %}" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </form>
+                    
+                    <!-- Statistics -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body">
+                                    <h5>{{ total_states|intcomma }}</h5>
+                                    <p class="mb-0">Tổng số records</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body">
+                                    <h5>{{ unique_states }}</h5>
+                                    <p class="mb-0">Số states duy nhất</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6>Top States</h6>
+                                    {% for freq in state_frequency %}
+                                    <span class="badge bg-info me-1">{{ freq.state }}: {{ freq.count }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Data Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>State</th>
+                                    <th>Giải 7-2</th>
+                                    <th>Giải 7-3</th>
+                                    <th>Tạo lúc</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in analyses %}
+                                <tr>
+                                    <td>{{ analysis.ngay|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ analysis.state }}</span>
+                                    </td>
+                                    <td>{{ analysis.giai_7_2|default:"-" }}</td>
+                                    <td>{{ analysis.giai_7_3|default:"-" }}</td>
+                                    <td>{{ analysis.created_at|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Previous</a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if date_from %}&date_from={{ date_from }}{% endif %}{% if date_to %}&date_to={{ date_to }}{% endif %}">Next</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- State Transition Chart -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Biểu đồ chuyển đổi State</h5>
+            </div>
+            <div class="card-body">
+                <div id="transition-chart" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script>
+// Load transition chart
+fetch('{% url "state_transition_chart" %}')
+    .then(response => response.json())
+    .then(data => {
+        // Tạo biểu đồ D3.js cho state transitions
+        // Code D3.js ở đây...
+    });
+</script>
+{% endblock %}

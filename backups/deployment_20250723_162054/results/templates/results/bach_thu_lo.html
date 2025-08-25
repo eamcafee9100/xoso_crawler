@@ -1,0 +1,619 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+.prediction-card.hit {
+    border: 2px solid #28a745;
+    background-color: #d4edda;
+}
+.prediction-card.hit h3 {
+    color: #155724;
+}
+.badge.hit {
+    background-color: #28a745 !important;
+    color: white;
+}
+.actual-numbers {
+    margin-bottom: 1rem;
+}
+.actual-numbers .badge {
+    font-size: 1.2rem;
+    margin: 0.2rem;
+    padding: 0.5rem 1rem;
+}
+.prediction-card {
+    transition: all 0.3s ease;
+}
+.prediction-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.trend-arrow {
+    font-size: 1.5em;
+}
+.prediction-card.hit {
+    border: 3px solid #28a745 !important;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+}
+.prediction-card.hit .card-body {
+    background-color: #d4edda;
+}
+.hit-badge {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    padding: 5px 10px;
+    transform: rotate(15deg);
+}
+.number-display {
+    font-size: 2rem;
+    font-weight: bold;
+}
+.number-display.hit {
+    color: #28a745;
+}
+.trend-increasing { color: #28a745; }
+.trend-decreasing { color: #dc3545; }
+.trend-stable { color: #ffc107; }
+.trend-neutral { color: #6c757d; }
+.confidence-high { background-color: #d4edda; }
+.confidence-medium { background-color: #fff3cd; }
+.confidence-low { background-color: #f8d7da; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Date Selection Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Bộ lọc dự đoán</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="selected_date">Ngày dự đoán:</label>
+                            <input type="date" 
+                                   class="form-control" 
+                                   id="selected_date" 
+                                   name="selected_date" 
+                                   value="{{ selected_date }}"
+                                   max="{{ today|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="history_days">Số ngày lịch sử:</label>
+                            <select class="form-control" id="history_days" name="history_days">
+                                <option value="30" {% if history_days == 30 %}selected{% endif %}>30 ngày</option>
+                                <option value="60" {% if history_days == 60 %}selected{% endif %}>60 ngày</option>
+                                <option value="90" {% if history_days == 90 %}selected{% endif %}>90 ngày</option>
+                                <option value="180" {% if history_days == 180 %}selected{% endif %}>180 ngày</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">Xem dự đoán</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Method Analysis Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Phân tích theo phương pháp</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th>Số dự đoán</th>
+                                    <th>Độ tin cậy</th>
+                                    <th>Trọng số</th>
+                                    <th>Xu hướng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for pred in method_predictions %}
+                                <tr>
+                                    <td>{{ pred.method }}</td>
+                                    <td>
+                                        {% for num in pred.numbers %}
+                                        <span class="badge {% if num in actual_numbers %}hit{% else %}bg-secondary{% endif %}">
+                                            {{ num }}
+                                        </span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ pred.confidence }}%" 
+                                                 aria-valuenow="{{ pred.confidence }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ pred.confidence|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ pred.weight|floatformat:1 }}%</td>
+                                    <td>
+                                        <span class="trend-arrow trend-{{ pred.trend_direction|default:'neutral' }}">
+                                            {% if pred.trend_direction == 'increasing' %}↑
+                                            {% elif pred.trend_direction == 'decreasing' %}↓
+                                            {% elif pred.trend_direction == 'stable' %}→
+                                            {% else %}•{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Feature Vector & Stats Section -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Thông số phân tích</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for name, value in feature_vector.items %}
+                        <div class="col-md-3 col-sm-6 mb-3">
+                            <div class="card h-100 text-center">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ name }}</h6>
+                                    <p class="card-text h4">{{ value }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            {% include 'includes/loto_table.html' %}
+        </div>
+        
+    </div>
+
+    <!-- Predictions Section -->
+    <div class="row mb-4">
+    <!-- Combined Predictions -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Dự đoán kết hợp</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for pred in final_predictions %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card prediction-card position-relative ">
+                            <div class="card-body text-center">
+                                <h3 class="mb-2 number-display ">
+                                    <span class="badge {% if pred.number in actual_numbers %}hit{% else %}bg-secondary{% endif %}">
+                                            {{ pred.number }}
+                                        </span>
+                                    
+                                </h3>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: {{ pred.confidence }}%" 
+                                         aria-valuenow="{{ pred.confidence }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ pred.confidence|floatformat:1 }}%
+                                    </div>
+                                </div>
+                                {% if pred.is_hit %}
+                                <span class="badge bg-success hit-badge">Trúng!</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ML Predictions -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0">Dự đoán ML</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for pred in ml_predictions %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card prediction-card position-relative ">
+                            <div class="card-body text-center">
+                                <h3 class="mb-2 number-display ">
+                                    <span class="badge {% if pred.number in actual_numbers %}hit{% else %}bg-secondary{% endif %}">
+                                            {{ pred.number }}
+                                        </span>
+                                </h3>
+                                <div class="progress mb-2">
+                                    <div class="progress-bar" 
+                                         role="progressbar" 
+                                         style="width: {{ pred.confidence }}%" 
+                                         aria-valuenow="{{ pred.confidence }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ pred.confidence|floatformat:1 }}%
+                                    </div>
+                                </div>
+                                {% if pred.is_hit %}
+                                <span class="badge bg-success hit-badge">Trúng!</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Method Analysis Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Phân tích theo phương pháp</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th>Số dự đoán</th>
+                                    <th>Độ tin cậy</th>
+                                    <th>Trọng số</th>
+                                    <th>Xu hướng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for pred in method_predictions %}
+                                <tr>
+                                    <td>{{ pred.method }}</td>
+                                    <td>
+                                        {% for num in pred.numbers %}
+                                        <span class="badge {% if num in actual_numbers %}hit{% else %}bg-secondary{% endif %}">
+                                            {{ num }}
+                                        </span>
+                                        {% endfor %}
+                                    </td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ pred.confidence }}%" 
+                                                 aria-valuenow="{{ pred.confidence }}" 
+                                                 aria-valuemin="0" 
+                                                 aria-valuemax="100">
+                                                {{ pred.confidence|floatformat:1 }}%
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ pred.weight|floatformat:1 }}%</td>
+                                    <td>
+                                        <span class="trend-arrow trend-{{ pred.trend_direction|default:'neutral' }}">
+                                            {% if pred.trend_direction == 'increasing' %}↑
+                                            {% elif pred.trend_direction == 'decreasing' %}↓
+                                            {% elif pred.trend_direction == 'stable' %}→
+                                            {% else %}•{% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Multi-History Predictions Section -->
+    <div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Dự đoán theo nhiều khoảng thời gian</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Khoảng thời gian</th>
+                                <th>Số dự đoán</th>
+                                <th>Độ tin cậy TB</th>
+                                <th>Số trúng</th>
+                                <th>Chi tiết phương pháp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for days in history_periods %}
+                            {% with pred_data=multi_history_predictions|get_item:days %}
+                            <tr>
+                                <td>{{ days }} ngày</td>
+                                <td>
+                                    {% for pred in pred_data.predictions.final_predictions %}
+                                    <span class="badge {% if pred.number in actual_numbers %}hit{% else %}bg-secondary{% endif %}">
+                                        {{ pred.number }}
+                                    </span>
+                                    
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    {% if pred_data.predictions.final_predictions %}
+                                    {{ pred_data.predictions.final_predictions|avg_confidence|floatformat:1 }}%
+                                    {% else %}
+                                    0%
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ pred_data.predictions.final_predictions|count_hits }} số
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#methodModal{{ days }}">
+                                        Xem chi tiết
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endwith %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Method Modals -->
+{% for days in history_periods %}
+{% with pred_data=multi_history_predictions|get_item_dict:days %}
+<div class="modal fade" id="methodModal{{ days }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Chi tiết phương pháp - {{ days }} ngày</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Phương pháp</th>
+                                <th>Số dự đoán</th>
+                                <th>Độ tin cậy</th>
+                                <th>Trọng số</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for method in pred_data.predictions.method_predictions %}
+                            <tr>
+                                <td>{{ method.method }}</td>
+                                <td>
+                                    {% for num in method.numbers %}
+                                    <span class="badge {% if num in actual_numbers %}bg-success{% else %}bg-secondary{% endif %}">
+                                        {{ num }}
+                                    </span>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <div class="progress">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ method.confidence }}%" 
+                                             aria-valuenow="{{ method.confidence }}" 
+                                             aria-valuemin="0" 
+                                             aria-valuemax="100">
+                                            {{ method.confidence|floatformat:1 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ method.weight|floatformat:1 }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endwith %}
+{% endfor %}
+    <!-- SHAP Analysis Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">SHAP Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <div id="shapPlot" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row">
+    <!-- Prediction Metrics Chart -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Thống kê dự đoán</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;"> <!-- Fixed height container -->
+                    <canvas id="predictionStats"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trend Analysis Chart -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Phân tích xu hướng</h5>
+            </div>
+            <div class="card-body">
+                <div style="height: 300px;">
+                    <canvas id="trendStats"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Debug output
+    console.log('Prediction Metrics:', {
+        pattern_strength: {{ prediction_metrics.pattern_indicators.pattern_strength|default:0|floatformat:2 }},
+        pattern_consistency: {{ prediction_metrics.pattern_indicators.pattern_consistency|default:0|floatformat:2 }},
+        trend_stability: {{ prediction_metrics.pattern_indicators.trend_indicators.trend_stability|default:0|floatformat:2 }},
+        overall_confidence: {{ prediction_metrics.overall_confidence|default:0|floatformat:2 }}
+    });
+
+    // Prediction Stats Chart
+    if (document.getElementById('predictionStats')) {
+        const statsCtx = document.getElementById('predictionStats').getContext('2d');
+        new Chart(statsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Pattern Strength', 'Pattern Consistency', 'Trend Stability', 'Overall Confidence'],
+                datasets: [{
+                    label: 'Prediction Metrics',
+                    data: [
+                        {{ prediction_metrics.pattern_indicators.pattern_strength|default:0|floatformat:2 }},
+                        {{ prediction_metrics.pattern_indicators.pattern_consistency|default:0|floatformat:2 }},
+                        {{ prediction_metrics.pattern_indicators.trend_indicators.trend_stability|default:0|floatformat:2 }},
+                        {{ prediction_metrics.overall_confidence|default:0|floatformat:2 }}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Percentage'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Prediction Performance Metrics'
+                    }
+                }
+            }
+        });
+    }
+
+    // Trend Stats Chart
+    if (document.getElementById('trendStats')) {
+        const trendCtx = document.getElementById('trendStats').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Method Reliability', 'Pattern Strength', 'Trend Stability', 'Recommendation Strength'],
+                datasets: [{
+                    label: 'Trend Analysis',
+                    data: [
+                        {{ prediction_metrics.method_reliability.recent|default:0|floatformat:2 }},
+                        {{ prediction_metrics.pattern_indicators.pattern_strength|default:0|floatformat:2 }},
+                        {{ prediction_metrics.pattern_indicators.trend_indicators.trend_stability|default:0|floatformat:2 }},
+                        {{ prediction_metrics.recommendation_strength|default:0|floatformat:2 }}
+                    ],
+                    fill: true,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    pointBackgroundColor: 'rgb(54, 162, 235)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(54, 162, 235)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                            stepSize: 20
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Trend Analysis Radar'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
+
+
+
+
+
+
+

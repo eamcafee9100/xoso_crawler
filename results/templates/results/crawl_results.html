@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Kết quả Crawl Tháng {{ month }}/{{ year }}</title>
+  </head>
+  <body>
+    <h1>Kết quả Crawl Tháng {{ month }}/{{ year }}</h1>
+    <table border="1">
+      <tr>
+        <th>Ngày</th>
+        <th>Trạng thái</th>
+        <th>Thông báo</th>
+      </tr>
+      {% for result in results %}
+      <tr>
+        <td>{{ result.date }}</td>
+        <td style="color: {% if result.success %}green{% else %}red{% endif %}">
+          {% if result.success %}Thành công{% else %}Thất bại{% endif %}
+        </td>
+        <td>{{ result.message }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

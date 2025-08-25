@@ -1,0 +1,18 @@
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Chọn ngày phân tích</h4>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="selected_date">Ngày dự đoán:</label>
+                <input type="date" id="selected_date" name="selected_date" 
+                       value="{{ selected_date }}" class="form-control">
+                <button type="submit" class="btn btn-primary ml-3">
+                    <i class="fas fa-chart-line"></i> Phân tích
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

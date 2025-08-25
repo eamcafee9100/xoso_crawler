@@ -1,0 +1,250 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block page_actions %}
+<a href="{% url 'lokhung:du_doan_list' %}" class="btn btn-outline-secondary">
+    <i class="fas fa-arrow-left me-2"></i>Quay lại
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-crystal-ball text-primary me-2"></i>
+                    {{ title }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.phuong_phap.id_for_label }}" class="form-label">
+                                    Phương pháp <span class="text-danger">*</span>
+                                </label>
+                                {{ form.phuong_phap }}
+                                {% if form.phuong_phap.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.phuong_phap.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.loai_so.id_for_label }}" class="form-label">
+                                    Loại số <span class="text-danger">*</span>
+                                </label>
+                                {{ form.loai_so }}
+                                {% if form.loai_so.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.loai_so.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.ngay_phan_tich.id_for_label }}" class="form-label">
+                                    Ngày phân tích <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ngay_phan_tich }}
+                                {% if form.ngay_phan_tich.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ngay_phan_tich.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.ngay_du_doan.id_for_label }}" class="form-label">
+                                    Ngày dự đoán <span class="text-danger">*</span>
+                                </label>
+                                {{ form.ngay_du_doan }}
+                                {% if form.ngay_du_doan.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.ngay_du_doan.errors.0 }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.so_du_doan.id_for_label }}" class="form-label">
+                                    Số dự đoán <span class="text-danger">*</span>
+                                </label>
+                                {{ form.so_du_doan }}
+                                {% if form.so_du_doan.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.so_du_doan.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    VD: 12 (cho số 2D), 123 (cho số 3D)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.diem_tin_cay.id_for_label }}" class="form-label">
+                                    Điểm tin cậy (%) <span class="text-danger">*</span>
+                                </label>
+                                {{ form.diem_tin_cay }}
+                                {% if form.diem_tin_cay.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.diem_tin_cay.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="progress mt-2" style="height: 10px;">
+                                    <div class="progress-bar" id="confidence-bar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.xac_suat.id_for_label }}" class="form-label">
+                                    Xác suất <span class="text-danger">*</span>
+                                </label>
+                                {{ form.xac_suat }}
+                                {% if form.xac_suat.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {{ form.xac_suat.errors.0 }}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Từ 0.0 đến 1.0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.ghi_chu.id_for_label }}" class="form-label">
+                            Ghi chú
+                        </label>
+                        {{ form.ghi_chu }}
+                        {% if form.ghi_chu.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.ghi_chu.errors.0 }}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.chi_tiet_phan_tich.id_for_label }}" class="form-label">
+                            Chi tiết phân tích (JSON)
+                        </label>
+                        {{ form.chi_tiet_phan_tich }}
+                        {% if form.chi_tiet_phan_tich.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.chi_tiet_phan_tich.errors.0 }}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Định dạng JSON. VD: {"chu_ky": 15, "tan_suat": 0.8}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'lokhung:du_doan_list' %}" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu dự đoán
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Update confidence bar
+    $('#{{ form.diem_tin_cay.id_for_label }}').on('input', function() {
+        const value = $(this).val();
+        const bar = $('#confidence-bar');
+        
+        bar.css('width', value + '%');
+        
+        if (value >= 70) {
+            bar.removeClass('bg-warning bg-danger').addClass('bg-success');
+        } else if (value >= 40) {
+            bar.removeClass('bg-success bg-danger').addClass('bg-warning');
+        } else {
+            bar.removeClass('bg-success bg-warning').addClass('bg-danger');
+        }
+    });
+    
+    // Trigger on page load
+    $('#{{ form.diem_tin_cay.id_for_label }}').trigger('input');
+    
+    // Auto-calculate probability based on confidence
+    $('#{{ form.diem_tin_cay.id_for_label }}').on('input', function() {
+        const confidence = parseFloat($(this).val()) || 0;
+        const probability = (confidence / 100).toFixed(3);
+        $('#{{ form.xac_suat.id_for_label }}').val(probability);
+    });
+    
+    // Validate number format based on type
+    $('#{{ form.loai_so.id_for_label }}, #{{ form.so_du_doan.id_for_label }}').on('change input', function() {
+        const type = $('#{{ form.loai_so.id_for_label }}').val();
+        const number = $('#{{ form.so_du_doan.id_for_label }}').val();
+        const numberField = $('#{{ form.so_du_doan.id_for_label }}');
+        
+        if (type === '2d' && number.length > 2) {
+            numberField.val(number.substring(0, 2));
+        } else if (type === '3d' && number.length > 3) {
+            numberField.val(number.substring(0, 3));
+        }
+    });
+    
+    // JSON validation
+    $('#{{ form.chi_tiet_phan_tich.id_for_label }}').on('blur', function() {
+        const value = $(this).val().trim();
+        
+        if (value && value !== '') {
+            try {
+                JSON.parse(value);
+                $(this).removeClass('is-invalid').addClass('is-valid');
+            } catch (e) {
+                $(this).removeClass('is-valid').addClass('is-invalid');
+            }
+        } else {
+            $(this).removeClass('is-invalid is-valid');
+        }
+    });
+    
+    // Form validation
+    $('.needs-validation').on('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        $(this).addClass('was-validated');
+    });
+});
+</script>
+{% endblock %}

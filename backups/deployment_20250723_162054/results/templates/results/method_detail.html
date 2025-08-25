@@ -1,0 +1,156 @@
+{% extends 'results/base.html' %}
+{% load static %}
+{% load xs_tags %}
+
+{% block title %}{{ method.name }} - Chi tiết phương pháp{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'btl_method' %}">Phương pháp</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ method.name }}</li>
+        </ol>
+    </nav>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">{{ method.name }}</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <h4>Mô tả</h4>
+                    <p>{{ method.description }}</p>
+                    
+                    <h4>Thông tin chi tiết</h4>
+                    <ul class="list-group list-group-flush mb-3">
+                        <li class="list-group-item"><strong>Loại phương pháp:</strong> {{ method.method_type }}</li>
+                        <li class="list-group-item"><strong>Ngày tạo:</strong> {{ method.created_at|date:"d/m/Y" }}</li>
+                        <li class="list-group-item"><strong>Cập nhật lần cuối:</strong> {{ method.updated_at|date:"d/m/Y H:i" }}</li>
+                        <li class="list-group-item"><strong>Trạng thái:</strong> 
+                            {% if method.is_active %}
+                                <span class="badge bg-success">Đang hoạt động</span>
+                            {% else %}
+                                <span class="badge bg-danger">Không hoạt động</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">Thống kê hiệu quả</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-3">
+                                <h1>{{ win_rate|floatformat:1 }}%</h1>
+                                <p class="text-muted">Tỷ lệ thắng</p>
+                            </div>
+                            
+                            <div class="row text-center">
+                                <div class="col-6">
+                                    <h3 class="text-success">{{ win_count }}</h3>
+                                    <p>Thắng</p>
+                                </div>
+                                <div class="col-6">
+                                    <h3 class="text-danger">{{ loss_count }}</h3>
+                                    <p>Thua</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <h5>Tổng lợi nhuận</h5>
+                                <h3 class="{% if total_profit > 0 %}text-success{% elif total_profit < 0 %}text-danger{% endif %}">
+                                    {{ total_profit|floatformat:0 }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Phân tích gần đây</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Số liệu</th>
+                                    <th>Kết quả dự đoán</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in analyses %}
+                                <tr>
+                                    <td>{{ analysis.created_at|date:"d/m/Y" }}</td>
+                                    <td>{{ analysis.data_input|truncatechars:30 }}</td>
+                                    <td>{{ analysis.predicted_numbers }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Không có phân tích nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Kết quả gần đây</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Số dự đoán</th>
+                                    <th>Kết quả</th>
+                                    <th>Lợi nhuận</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in results %}
+                                <tr>
+                                    <td>{{ result.created_at|date:"d/m/Y" }}</td>
+                                    <td>{{ result.predicted_numbers }}</td>
+                                    <td>
+                                        {% if result.is_win %}
+                                            <span class="badge bg-success">Thắng</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Thua</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="{% if result.profit > 0 %}text-success{% elif result.profit < 0 %}text-danger{% endif %}">
+                                        {{ result.profit }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có kết quả nào</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

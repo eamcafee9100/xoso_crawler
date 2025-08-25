@@ -1,0 +1,479 @@
+
+{% load pre_xs_tags %}
+
+<div class="weekly-tracking-container">
+    <div class="alert alert-info mb-4" role="alert">
+        <h5><i class="fas fa-calendar-week"></i> Theo dõi Weekly Methods</h5>
+        <p class="mb-0">Hiển thị hiệu suất các methods dự đoán theo thứ trong tuần (từ folder method_theo_thu)</p>
+        <small class="text-muted">Khác với daily methods - theo dõi từ thứ này sang thứ cùng tên tuần sau</small>
+    </div>
+
+    <!-- Overall Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ weekly_tracking.overall_stats.total_sessions }}</h3>
+                    <p class="card-text">Tổng Sessions</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ weekly_tracking.overall_stats.completed_sessions }}</h3>
+                    <p class="card-text">Đã hoàn thành</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ weekly_tracking.overall_stats.pending_sessions }}</h3>
+                    <p class="card-text">Đang chờ</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ weekly_tracking.overall_stats.overall_hit_rate|floatformat:1 }}%</h3>
+                    <p class="card-text">Hit Rate Tổng</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Performance Grid -->
+    <div class="row">
+        {% for weekday, data in weekly_tracking.weekday_data.items %}
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-day"></i> {{ data.weekday_name }}
+                        <span class="badge badge-light ms-2">{{ data.avg_hit_rate|floatformat:1 }}% hit rate</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if data.total_sessions > 0 %}
+                    <div class="row">
+                        <!-- Stats -->
+                        <div class="col-md-4">
+                            <div class="weekly-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Sessions:</span>
+                                    <span class="stat-value">{{ data.completed_sessions }}/{{ data.total_sessions }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Dự đoán:</span>
+                                    <span class="stat-value">{{ data.total_predictions }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Trúng:</span>
+                                    <span class="stat-value">{{ data.total_hits }}</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Success Rate:</span>
+                                    <span class="stat-value">{{ data.success_rate|floatformat:1 }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Top Methods -->
+                        <div class="col-md-8">
+                            <h6>Top Methods cho {{ data.weekday_name }}:</h6>
+                            {% if data.top_methods %}
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Method</th>
+                                            <th>Hit Rate</th>
+                                            <th>Sessions</th>
+                                            <th>Predictions</th>
+                                            <th>Hits</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for method in data.top_methods %}
+                                        <tr>
+                                            <td>{{ method.method_name }}</td>
+                                            <td>
+                                                <span class="badge {% if method.hit_rate >= 30 %}badge-success{% elif method.hit_rate >= 20 %}badge-warning{% else %}badge-secondary{% endif %}">
+                                                    {{ method.hit_rate|floatformat:1 }}%
+                                                </span>
+                                            </td>
+                                            <td>{{ method.sessions_count }}</td>
+                                            <td>{{ method.total_predictions }}</td>
+                                            <td>{{ method.total_hits }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">Chưa có data methods</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Chưa có data cho {{ data.weekday_name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Date Range Info -->
+    <div class="mt-4">
+        <div class="alert alert-light">
+            <small>
+                <i class="fas fa-info-circle"></i>
+                Dữ liệu từ {{ weekly_tracking.date_range_info.start_date }} đến {{ weekly_tracking.date_range_info.end_date }}
+                ({{ weekly_tracking.date_range_info.total_days }} ngày)
+            </small>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ NEW: Weekly Tracking Table -->
+<div class="weekly-table-container mt-4">
+    <div class="card">
+        <div class="card-header bg-success text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table"></i> Bảng theo dõi Weekly Methods
+                </h5>
+                <!-- ✅ Filter Controls -->
+                <div class="d-flex gap-2">
+                    <!-- Method Name Filter -->
+                    <div class="input-group input-group-sm" style="width: 200px;">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" 
+                            class="form-control" 
+                            id="weeklyMethodSearch" 
+                            placeholder="Tìm method..."
+                            autocomplete="off">
+                    </div>
+                    
+                    <!-- Weekday Filter -->
+                    <select class="form-select form-select-sm" id="weekdayFilter" style="width: 150px;">
+                        <option value="">Tất cả ngày</option>
+                        {% for date_col in weekly_table.date_columns %}
+                        <option value="{{ date_col.weekday }}">{{ date_col.weekday_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card-body p-0">
+            <!-- ✅ Weekly Tracking Table -->
+            <div class="table-container" style="max-height: 70vh; overflow-x: auto; overflow-y: auto;">
+                <table class="table table-bordered table-striped table-hover table-sm mb-0" id="weeklyTrackingTable">
+                    <thead class="table-dark sticky-top">
+                        <tr>
+                            <th class="method-name-col">Method</th>
+                            {% for date_col in weekly_table.date_columns %}
+                            <th class="date-header text-center" data-date="{{ date_col.date_str }}" data-day="{{ date_col.date }}">
+                                {{ date_col.date }}<br>
+                                <small>{{ date_col.weekday_name }}</small>
+                            </th>
+                            {% endfor %}
+                            <th class="summary-col text-center">Tổng kết</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method_id, summary in weekly_table.method_summary.items %}
+                        <tr class="method-row" 
+                            data-method-name="{{ summary.method.name|lower }}"
+                            data-method-id="{{ method_id }}"
+                            data-target-weekday="{{ summary.weekly_method.target_weekday }}">
+                            
+                            <!-- ✅ Method Name Column -->
+                            <td class="method-name-col">
+                                <div class="d-flex align-items-center">
+                                    <span class="badge bg-secondary me-2">{{ forloop.counter }}</span>
+                                    <div>
+                                        <div class="fw-bold">{{ summary.method.name }}</div>
+                                        <small class="
+                                            {% if summary.hit_rate >= 20 %}text-success
+                                            {% elif summary.hit_rate >= 10 %}text-warning
+                                            {% else %}text-danger{% endif %}
+                                            ">
+                                            Target: {{ summary.weekly_method.target_weekday|add:2 }}
+                                            | {{ summary.total_hits }}/{{ summary.total_predictions }} ({{ summary.hit_rate }}%)
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- ✅ Date Columns (similar to monthly report) -->
+                            {% for date_col in weekly_table.date_columns %}
+                            {% with date_str=date_col.date_str sessions=weekly_table.table_data|get_item:method_id|get_item:date_str|default:None %}
+                            {% format_weekly_predictions sessions as cell_data %}
+                            <td class="prediction-cell {{ cell_data.cell_class }}"
+                                data-date="{{ date_col.date_str }}"
+                                data-method-id="{{ method_id }}"
+                                data-weekday="{{ date_col.weekday }}">
+                                
+                                <div style="position: relative;">
+                                    <!-- ✅ Predictions Display -->
+                                    {{ cell_data.display_text }}
+                                    
+                                    <!-- ✅ Hit Badges -->
+                                    {% get_weekly_hit_badges sessions as hit_badges %}
+                                    {% for badge in hit_badges %}
+                                    <span class="weekly-hit-badge" 
+                                        style="position: absolute; top: -8px; right: {{ badge.position_right }}px; 
+                                               background-color: {{ badge.bg_color }}; color: {{ badge.text_color }};"
+                                        title="{{ badge.title }}">
+                                        {{ badge.hit_count }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            {% endwith %}
+                            {% endfor %}
+                            
+                            <!-- ✅ Summary Column -->
+                            <td class="summary-col text-center">
+                                <div class="
+                                    {% if summary.hit_rate >= 20 %}text-success
+                                    {% elif summary.hit_rate >= 10 %}text-warning
+                                    {% else %}text-danger{% endif %}
+                                    ">
+                                    <strong>{{ summary.hit_rate }}%</strong><br>
+                                    <small>{{ summary.total_hits }}/{{ summary.total_predictions }}</small><br>
+                                    <small class="text-muted">{{ summary.completed_sessions }}/{{ summary.total_sessions }} sessions</small>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ✅ Filter Results Counter -->
+    <div class="mt-2">
+        <div id="weeklyFilterCounter" class="alert alert-info py-2" style="display: none;">
+            <small>
+                <i class="fas fa-filter"></i>
+                <span id="weeklyFilterText">Hiển thị X/Y methods</span>
+            </small>
+        </div>
+    </div>
+</div>
+
+<style>
+.weekly-tracking-container .card {
+    border-left: 4px solid #007bff;
+}
+
+.weekly-stats .stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.stat-value {
+    font-weight: bold;
+    color: #333;
+}
+
+/* ✅ Weekly Table Styles */
+.weekly-table-container .table {
+    font-size: 0.9rem;
+}
+
+.method-name-col {
+    min-width: 250px;
+    max-width: 250px;
+    width: 250px;
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 10;
+    border-right: 2px solid #dee2e6;
+}
+
+.weekday-col, .date-header {
+    min-width: 100px;
+    max-width: 120px;
+    width: 110px;
+    text-align: center;
+}
+
+.summary-col {
+    min-width: 120px;
+    width: 120px;
+    position: sticky;
+    right: 0;
+    background-color: #f8f9fa;
+    border-left: 2px solid #dee2e6;
+    z-index: 10;
+}
+
+.prediction-cell {
+    position: relative;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.25rem;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.prediction-cell:hover {
+    transform: scale(1.05);
+    z-index: 5;
+}
+
+/* ✅ Cell States (matching monthly_report) */
+.hit-cell {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    font-weight: bold;
+}
+
+.miss-cell {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.no-data-cell {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+}
+
+/* ✅ Weekly Hit Badges */
+.weekly-hit-badge {
+    font-size: 0.6rem;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+    z-index: 6;
+    cursor: help;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 1px solid #fff;
+    font-weight: bold;
+}
+
+.weekly-hit-badge:hover {
+    transform: scale(1.2);
+    z-index: 15;
+}
+
+/* ✅ Responsive */
+@media (max-width: 768px) {
+    .method-name-col {
+        min-width: 200px;
+        max-width: 200px;
+        width: 200px;
+    }
+    
+    .weekday-col, .date-header {
+        min-width: 80px;
+        max-width: 80px;
+        width: 80px;
+    }
+    
+    .prediction-cell {
+        font-size: 0.75rem;
+        padding: 0.25rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // ✅ Weekly Table Filtering
+    const methodSearch = document.getElementById('weeklyMethodSearch');
+    const weekdayFilter = document.getElementById('weekdayFilter');
+    const filterCounter = document.getElementById('weeklyFilterCounter');
+    const filterText = document.getElementById('weeklyFilterText');
+    
+    function applyFilters() {
+        const searchTerm = methodSearch.value.toLowerCase();
+        const selectedWeekday = weekdayFilter.value;
+        
+        const rows = document.querySelectorAll('#weeklyTrackingTable .method-row');
+        let visibleCount = 0;
+        
+        rows.forEach(row => {
+            const methodName = row.dataset.methodName;
+            const targetWeekday = row.dataset.targetWeekday;
+            
+            let show = true;
+            
+            // Method name filter
+            if (searchTerm && !methodName.includes(searchTerm)) {
+                show = false;
+            }
+            
+            // Weekday filter  
+            if (selectedWeekday && targetWeekday !== selectedWeekday) {
+                show = false;
+            }
+            
+            if (show) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        // Update counter
+        const totalCount = rows.length;
+        if (searchTerm || selectedWeekday) {
+            filterCounter.style.display = 'block';
+            filterText.textContent = `Hiển thị ${visibleCount}/${totalCount} methods`;
+        } else {
+            filterCounter.style.display = 'none';
+        }
+    }
+    
+    // Event listeners
+    methodSearch.addEventListener('input', applyFilters);
+    weekdayFilter.addEventListener('change', applyFilters);
+    
+    // ✅ Cell click highlighting
+    document.querySelectorAll('.prediction-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            // Remove previous highlights
+            document.querySelectorAll('.prediction-cell.highlighted').forEach(c => {
+                c.classList.remove('highlighted');
+            });
+            
+            // Add highlight to clicked cell
+            this.classList.add('highlighted');
+            
+            // Auto-remove highlight after 3 seconds
+            setTimeout(() => {
+                this.classList.remove('highlighted');
+            }, 3000);
+        });
+    });
+});
+</script>

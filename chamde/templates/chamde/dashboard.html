@@ -1,0 +1,452 @@
+<!-- chamde/dashboard.html -->
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+{% block page_title %}Tổng quan Phân tích Chạm{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Tổng quan</li>
+{% endblock %}
+
+{% block cham_content %}
+  <!-- Bộ lọc ngày -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-4">
+          <label for="days" class="form-label">Phạm vi phân tích:</label>
+          <select name="days" id="days" class="form-select">
+            <option value="7" {% if selected_days == 7 %}selected{% endif %}>7 ngày qua</option>
+            <option value="30" {% if selected_days == 30 %}selected{% endif %}>30 ngày qua</option>
+            <option value="90" {% if selected_days == 90 %}selected{% endif %}>90 ngày qua</option>
+            <option value="180" {% if selected_days == 180 %}selected{% endif %}>180 ngày qua</option>
+            <option value="365" {% if selected_days == 365 %}selected{% endif %}>365 ngày qua</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">&nbsp;</label>
+          <button type="submit" class="btn btn-primary d-block">
+            <i class="fas fa-filter"></i> Lọc
+          </button>
+        </div>
+        <div class="col-md-5 text-end">
+          <p class="mb-0 mt-3">
+            <span class="badge bg-info">Phân tích từ {{ start_date|date:"d/m/Y" }} đến {{ today|date:"d/m/Y" }}</span>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Số liệu tổng quan -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card h-100 border-primary">
+        <div class="card-body text-center">
+          <h5 class="card-title text-primary"><i class="fas fa-database"></i> Kết quả phân tích</h5>
+          <p class="display-4">{{ total_results|default:0|intcomma }}</p>
+          <p class="text-muted">ngày xổ số</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card h-100 border-success">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success"><i class="fas fa-chart-pie"></i> Tỷ lệ trúng Chạm đầu</h5>
+          {% with highest_dau=cham_dau_stats.items|dictsort:"1.hit_rate"|last %}
+          <p class="display-4">
+            {{ highest_dau.1.hit_rate|floatformat:1 }}%
+          </p>
+          <p class="text-muted">Chạm {{ highest_dau.0 }} ({{ highest_dau.1.hits }}/{{ highest_dau.1.total }})</p>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card h-100 border-warning">
+        <div class="card-body text-center">
+          <h5 class="card-title text-warning"><i class="fas fa-chart-pie"></i> Tỷ lệ trúng Chạm đuôi</h5>
+          {% with highest_duoi=cham_duoi_stats.items|dictsort:"1.hit_rate"|last %}
+          <p class="display-4">
+            {{ highest_duoi.1.hit_rate|floatformat:1 }}%
+          </p>
+          <p class="text-muted">Chạm {{ highest_duoi.0 }} ({{ highest_duoi.1.hits }}/{{ highest_duoi.1.total }})</p>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="card h-100 border-danger">
+        <div class="card-body text-center">
+          <h5 class="card-title text-danger"><i class="fas fa-fire"></i> Số nóng hàng đầu</h5>
+          {% if hot_numbers %}
+            <p class="display-4">{{ hot_numbers.0.number }}</p>
+            <p class="text-muted">xuất hiện {{ hot_numbers.0.total }} lần</p>
+          {% else %}
+            <p class="display-4">-</p>
+            <p class="text-muted">không có dữ liệu</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Biểu đồ tỷ lệ trúng -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Tỷ lệ trúng Chạm đầu</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="chamDauChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0"><i class="fas fa-chart-bar"></i> Tỷ lệ trúng Chạm đuôi</h5>
+        </div>
+        <div class="card-body">
+          <canvas id="chamDuoiChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Dự đoán và số nóng/lạnh -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="card-title mb-0"><i class="fas fa-magic"></i> Dự đoán cho ngày {{ tomorrow|date:"d/m/Y" }}</h5>
+        </div>
+        <div class="card-body">
+          {% if predictions %}
+            <div class="mb-3">
+              <h6 class="text-muted">Tổng hợp từ các phương pháp:</h6>
+              <div class="d-flex flex-wrap mb-2">
+                {% for prediction in predictions %}
+                  <span class="badge bg-info me-2 mb-2">{{ prediction.get_phuong_phap_display }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            
+            <div class="row">
+              {% for prediction in predictions %}
+                <div class="col-md-6 mb-3">
+                  <div class="card prediction-card h-100">
+                    <div class="card-header bg-light">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ prediction.get_phuong_phap_display }}</h6>
+                        <span class="badge bg-primary">{{ prediction.ty_le_tin_cay }}%</span>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div class="d-flex flex-wrap">
+                        {% for num in prediction.get_ket_qua_du_doan %}
+                          <span class="number-badge bg-primary me-1 mb-1">{{ num }}</span>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            <div class="text-center mt-3">
+              <a href="{% url 'chamde:cham_prediction' %}" class="btn btn-warning">
+                <i class="fas fa-eye"></i> Xem phân tích chi tiết
+              </a>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Chưa có dự đoán cho ngày {{ tomorrow|date:"d/m/Y" }}
+            </div>
+            
+            <div class="text-center">
+              <a href="{% url 'chamde:cham_prediction' %}" class="btn btn-primary">
+                <i class="fas fa-plus-circle"></i> Tạo dự đoán mới
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="row g-3">
+        <!-- Số nóng -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-danger text-white">
+              <h5 class="card-title mb-0"><i class="fas fa-fire"></i> Top 10 số nóng</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap">
+                {% for item in hot_numbers %}
+                  <div class="me-3 mb-2 text-center">
+                    <span class="number-badge bg-danger">{{ item.number }}</span>
+                    <small class="d-block mt-1">{{ item.total }} lần</small>
+                  </div>
+                {% empty %}
+                  <p class="text-muted">Không có dữ liệu</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Số lạnh -->
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header bg-info text-white">
+              <h5 class="card-title mb-0"><i class="fas fa-snowflake"></i> Top 10 số lạnh (sắp về)</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap">
+                {% for item in cold_numbers %}
+                  <div class="me-3 mb-2 text-center">
+                    <span class="number-badge bg-info">{{ item.number }}</span>
+                    <small class="d-block mt-1">{{ item.current_absent_days }} ngày</small>
+                  </div>
+                {% empty %}
+                  <p class="text-muted">Không có dữ liệu</p>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Mẫu quả trám và kết quả gần đây -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title mb-0"><i class="fas fa-shapes"></i> Mẫu quả trám gần đây</h5>
+        </div>
+        <div class="card-body">
+          {% if recent_qua_trams %}
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Ngày</th>
+                    <th>Mẫu</th>
+                    <th>Dự đoán</th>
+                    <th>Kết quả</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for pattern in recent_qua_trams %}
+                    <tr>
+                      <td>{{ pattern.ngay|date:"d/m/Y" }}</td>
+                      <td>{{ pattern.digit_top }}-{{ pattern.digit_mid_left }}{{ pattern.digit_mid_right }}-{{ pattern.digit_bottom }}</td>
+                      <td>
+                        <span class="number-badge bg-primary">{{ pattern.predicted_number }}</span>
+                      </td>
+                      <td>
+                        {% if pattern.has_hit %}
+                          <span class="badge bg-success">Trúng</span>
+                          <small>({{ pattern.days_to_hit }} ngày)</small>
+                        {% elif pattern.hit_date %}
+                          <span class="badge bg-warning text-dark">Chờ kết quả</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Chưa trúng</span>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="text-center mt-3">
+              <a href="{% url 'chamde:qua_tram_pattern' %}" class="btn btn-primary">
+                <i class="fas fa-eye"></i> Xem tất cả mẫu
+              </a>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Không có mẫu quả trám nào được ghi nhận gần đây
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">
+          <h5 class="card-title mb-0"><i class="fas fa-history"></i> Kết quả xổ số gần đây</h5>
+        </div>
+        <div class="card-body">
+          {% if recent_results %}
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>Ngày</th>
+                    <th>Giải ĐB</th>
+                    <th>Chạm đầu</th>
+                    <th>Chạm đuôi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for result in recent_results %}
+                    <tr>
+                      <td>{{ result.ngay|date:"d/m/Y" }}</td>
+                      <td><strong>{{ result.giai_db }}</strong></td>
+                      <td>
+                        <span class="number-badge cham-dau">{{ result.giai_db|slice:"-2:"|slice:":1" }}</span>
+                      </td>
+                      <td>
+                        <span class="number-badge cham-duoi">{{ result.giai_db|slice:"-1:" }}</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> Không có kết quả xổ số nào được ghi nhận gần đây
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block cham_scripts %}
+  <script>
+  // Chuyển dữ liệu thống kê chạm đầu sang object JS
+  var chamDauStats = {
+    {% for i in '0123456789' %}
+      "{{ i }}": {
+        "hit_rate": {{ cham_dau_stats|get_item:i|get_item:'hit_rate'|floatformat:1 }},
+        "hits": {{ cham_dau_stats|get_item:i|get_item:'hits' }},
+        "total": {{ cham_dau_stats|get_item:i|get_item:'total' }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  // Chuyển dữ liệu thống kê chạm đuôi sang object JS
+  var chamDuoiStats = {
+    {% for i in '0123456789' %}
+      "{{ i }}": {
+        "hit_rate": {{ cham_duoi_stats|get_item:i|get_item:'hit_rate'|floatformat:1 }},
+        "hits": {{ cham_duoi_stats|get_item:i|get_item:'hits' }},
+        "total": {{ cham_duoi_stats|get_item:i|get_item:'total' }}
+      }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  };
+
+  // Biểu đồ tỷ lệ trúng Chạm đầu
+  var chamDauCtx = document.getElementById('chamDauChart').getContext('2d');
+  var chamDauChart = new Chart(chamDauCtx, {
+    type: 'bar',
+    data: {
+      labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: [
+          {% for i in '0123456789' %}
+            {{ cham_dau_stats|get_item:i|get_item:'hit_rate'|floatformat:1 }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        backgroundColor: 'rgba(0, 123, 255, 0.6)',
+        borderColor: 'rgba(0, 123, 255, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Giá trị chạm'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var chamValue = context.label;
+              var stat = chamDauStats[chamValue];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Biểu đồ tỷ lệ trúng Chạm đuôi
+  var chamDuoiCtx = document.getElementById('chamDuoiChart').getContext('2d');
+  var chamDuoiChart = new Chart(chamDuoiCtx, {
+    type: 'bar',
+    data: {
+      labels: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+      datasets: [{
+        label: 'Tỷ lệ trúng (%)',
+        data: [
+          {% for i in '0123456789' %}
+            {{ cham_duoi_stats|get_item:i|get_item:'hit_rate'|floatformat:1 }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ],
+        backgroundColor: 'rgba(40, 167, 69, 0.6)',
+        borderColor: 'rgba(40, 167, 69, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Tỷ lệ trúng (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Giá trị chạm'
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterLabel: function(context) {
+              var chamValue = context.label;
+              var stat = chamDuoiStats[chamValue];
+              return 'Trúng: ' + stat.hits + '/' + stat.total;
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

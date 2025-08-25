@@ -1,0 +1,117 @@
+{% extends 'soicaubacnho/base.html' %}
+{% load soicaubacnho_xs_tags %}
+{% load static %}
+
+
+{% block title %}Phân tích mới - Phiên bản {{ version }}{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Phân tích mới <small class="text-muted">(Phiên bản {{ version }})</small></h1>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Thông tin phân tích</h5>
+            </div>
+            <div class="card-body">
+                <form id="analyzeForm" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="version" class="form-label">Phiên bản</label>
+                        <select class="form-select" id="version" name="version">
+                            {% for version_code, version_name in available_versions %}
+                            <option value="{{ version_code }}" {% if version == version_code %}selected{% endif %}>
+                                {{ version_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="target_date" class="form-label">Ngày dự đoán</label>
+                        <input type="date" class="form-control" id="target_date" name="target_date" 
+                               value="{{ target_date|date:'Y-m-d' }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Phương pháp dự đoán</label>
+                        <div class="form-text mb-2">Mặc định sẽ sử dụng tất cả các phương pháp.</div>
+                        
+                        <div class="row">
+                            {% for method_code, method_name in methods %}
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="methods" 
+                                           value="{{ method_code }}" id="method_{{ method_code }}" checked>
+                                    <label class="form-check-label" for="method_{{ method_code }}">
+                                        {{ method_name }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-chart-line"></i> Bắt đầu phân tích
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('analyzeForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang phân tích...';
+            submitBtn.disabled = true;
+            
+            const version = document.getElementById('version').value;
+            const targetDate = document.getElementById('target_date').value;
+            console.log('Version:', version);
+            console.log('Target date:', targetDate);
+            // Gọi API để chạy phân tích
+            fetch('/soicau/api/run-analyzer/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    version: version,
+                    target_date: targetDate
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.combined_id) {
+                    // Chuyển hướng đến trang kết quả
+                    window.location.href = '/soicau/prediction-results/' + data.combined_id + '/';
+                } else {
+                    alert('Không thể hoàn thành phân tích.');
+                    console.error('Error details:', data.details);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                submitBtn.innerHTML = '<i class="fas fa-chart-line"></i> Bắt đầu phân tích';
+                submitBtn.disabled = false;
+            });
+        });
+    });
+</script>
+{% endblock %}

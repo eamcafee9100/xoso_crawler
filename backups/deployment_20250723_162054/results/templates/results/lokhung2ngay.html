@@ -1,0 +1,217 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center my-4">Lô Khung 2 Ngày</h2>
+    
+    <div class="mb-3">
+        <div class="alert alert-info">
+            <strong>Tỷ lệ trúng: {{ win_rate }}%</strong> ({{ winning_count }}/{{ total_count }})
+            <span class="float-end">Từ {{ start_date|date:"d/m/Y" }} đến {{ end_date|date:"d/m/Y" }}</span>
+        </div>
+    </div>
+    
+    {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Ngày phân tích</th>
+                        {% for config in calculation_configs %}
+                            <th>{{ config.name }}</th>
+                        {% endfor %}
+                        <th>Cặp lô dự đoán</th>
+                        <th>Kết quả kiểm tra</th>
+                        <th>Trúng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in page_obj %}
+                    <tr class="{% if item.trung %}table-success{% endif %}">
+                        <td>{{ item.analysis_date|date:"d/m/Y" }}</td>
+                        
+                        {% for config in calculation_configs %}
+                        <td>
+                            {% with calc=item.calculation_config|get_item_dict:config.name %}
+                                {% if calc and calc.value|length >= 2 %}
+                                    {% if config.method == 'sum_first_last' %}
+                                        {{ calc.value|slice:":1" }}
+                                        <span class="text-primary fw-bold">{{ calc.value|slice:"1:2" }}</span>
+                                        {{ calc.value|slice:"2:-1" }}
+                                        <span class="text-primary fw-bold">{{ calc.value|slice:"-1:" }}</span>
+                                    {% elif config.method == 'sum_first_two' %}
+                                        <span class="text-primary fw-bold">{{ calc.value|slice:":2" }}</span>{{ calc.value|slice:"2:" }}
+                                    {% elif config.method == 'last_two_digits' %}
+                                        {{ calc.value|slice:":-2" }}<span class="text-primary fw-bold">{{ calc.value|slice:"-2:" }}</span>
+                                    {% else %}
+                                        {{ calc.value|default:"-" }}
+                                    {% endif %}
+                                    (Kết quả: {{ calc.result|default:"-" }})
+                                {% else %}
+                                    {{ calc.value|default:"-" }}
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                        {% endfor %}
+                        
+                        <td>
+                            {% if item.predicted_pairs %}
+                                {% for num in item.predicted_pairs %}
+                                    {% if item.so_trung and num in item.so_trung|map:'so' %}
+                                        <span class="badge bg-danger text-white">{{ num }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ num }}</span>
+                                    {% endif %}
+                                    {% if not forloop.last %}-{% endif %}
+                                {% endfor %}
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            <div class="mb-2">
+                                <strong class="d-block text-primary">{{ item.next_day_1|date:"d/m/Y"|default:"-" }} (Ngày 1):</strong>
+                                {% if item.ket_qua_ngay_1 %}
+                                    {% for num in item.ket_qua_ngay_1 %}
+                                        <span class="{% if item.so_trung and num in item.so_trung|map:'so' %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                            {{ num }}
+                                        </span>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Không có dữ liệu</span>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <strong class="d-block text-primary">{{ item.next_day_2|date:"d/m/Y"|default:"-" }} (Ngày 2):</strong>
+                                {% if item.ket_qua_ngay_2 %}
+                                    {% for num in item.ket_qua_ngay_2 %}
+                                        <span class="{% if item.so_trung and num in item.so_trung|map:'so' %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                            {{ num }}
+                                        </span>
+                                        {% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">Không có dữ liệu</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        
+                        <td>
+                            {% if item.trung %}
+                                <span class="badge bg-success rounded-pill">
+                                    <i class="fas fa-check-circle"></i> TRÚNG
+                                </span>
+                                {% if item.so_trung %}
+                                    <div class="mt-1">
+                                        {% for num in item.so_trung %}
+                                            <span class="badge bg-danger">{{ num.so }} ({{ num.ngay|date:"d/m/Y" }})</span>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge bg-secondary rounded-pill">
+                                    <i class="fas fa-times-circle"></i> KHÔNG
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="{{ calculation_configs|length|add:3 }}" class="text-center">Không có dữ liệu</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Phân trang -->
+        <div class="pagination-info">
+            Trang {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+            - Tổng {{ page_obj.paginator.count }} bản ghi
+        </div>
+        <div class="pagination justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">««</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">«</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active"><a class="page-link" href="#">{{ num }}</a></li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">»</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">»»</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% else %}
+        <div class="alert alert-warning text-center">
+            Không có dữ liệu để hiển thị.
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    /* Style cho phân trang */
+    .pagination {
+        margin-top: 20px;
+    }
+    .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .page-link {
+        color: #007bff;
+    }
+    .page-link:hover {
+        color: #0056b3;
+    }
+    
+    /* Style cho bảng */
+    .table td strong.d-block {
+        margin-bottom: 3px;
+    }
+    .table td div.mb-2 {
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px dashed #eee;
+    }
+    
+    /* Hiệu ứng cho hàng */
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 123, 255, 0.05);
+    }
+    .table-success {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+</style>
+{% endblock %}

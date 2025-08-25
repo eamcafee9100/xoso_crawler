@@ -1,0 +1,874 @@
+{% extends 'lokhung/base.html' %}
+
+{% block title %}Phân tích số liệu{% endblock %}
+
+{% block page_title %}Phân tích số liệu{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button class="btn btn-primary" onclick="createAutoAnalysis()">
+        <i class="fas fa-magic me-2"></i>Phân tích tự động
+    </button>
+    <button class="btn btn-outline-info" onclick="showAnalysisTools()">
+        <i class="fas fa-tools me-2"></i>Công cụ phân tích
+    </button>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Quick Analysis Cards -->
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card card-custom border-primary">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x text-primary mb-3"></i>
+                <h5 class="card-title">Số nóng nhất</h5>
+                <div id="hottest-number" class="badge prediction-correct number-highlight fs-4">--</div>
+                <p class="card-text mt-2">
+                    <small class="text-muted">30 ngày qua</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card card-custom border-info">
+            <div class="card-body text-center">
+                <i class="fas fa-snowflake fa-2x text-info mb-3"></i>
+                <h5 class="card-title">Số lạnh nhất</h5>
+                <div id="coldest-number" class="badge bg-info fs-4">--</div>
+                <p class="card-text mt-2">
+                    <small class="text-muted">30 ngày qua</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card card-custom border-warning">
+            <div class="card-body text-center">
+                <i class="fas fa-fire fa-2x text-warning mb-3"></i>
+                <h5 class="card-title">Chu kỳ trung bình</h5>
+                <div id="average-cycle" class="badge bg-warning fs-4">-- ngày</div>
+                <p class="card-text mt-2">
+                    <small class="text-muted">Tất cả số 2D</small>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card card-custom border-success">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-pie fa-2x text-success mb-3"></i>
+                <h5 class="card-title">Độ phân tán</h5>
+                <div id="distribution-score" class="badge bg-success fs-4">--</div>
+                <p class="card-text mt-2">
+                    <small class="text-muted">Chỉ số phân bố</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Tools -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="fas fa-microscope text-primary me-2"></i>
+                    Công cụ phân tích nhanh
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-primary w-100" onclick="analyzeFrequency()">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Phân tích tần suất
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-success w-100" onclick="analyzeCycles()">
+                            <i class="fas fa-sync me-2"></i>
+                            Phân tích chu kỳ
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-info w-100" onclick="analyzePatterns()">
+                            <i class="fas fa-search me-2"></i>
+                            Tìm mẫu số
+                        </button>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button class="btn btn-outline-warning w-100" onclick="analyzeTrends()">
+                            <i class="fas fa-trending-up me-2"></i>
+                            Xu hướng số
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card card-custom mb-4">
+    <div class="card-header">
+        <h6 class="mb-0">
+            <i class="fas fa-filter me-2"></i>Bộ lọc
+        </h6>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="ngay_tu" class="form-label">Từ ngày</label>
+                <input type="date" class="form-control" id="ngay_tu" name="ngay_tu" 
+                       value="{{ current_filters.ngay_tu }}">
+            </div>
+            <div class="col-md-3">
+                <label for="ngay_den" class="form-label">Đến ngày</label>
+                <input type="date" class="form-control" id="ngay_den" name="ngay_den" 
+                       value="{{ current_filters.ngay_den }}">
+            </div>
+            <div class="col-md-3">
+                <label for="loai_phan_tich" class="form-label">Loại phân tích</label>
+                <select class="form-select" id="loai_phan_tich" name="loai_phan_tich">
+                    <option value="">Tất cả</option>
+                    <option value="frequency">Tần suất</option>
+                    <option value="cycle">Chu kỳ</option>
+                    <option value="pattern">Mẫu số</option>
+                    <option value="trend">Xu hướng</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i>Lọc
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Analysis Results -->
+<div class="row">
+    {% for phan_tich in page_obj %}
+    <div class="col-lg-6 mb-4">
+        <div class="card card-custom h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    <i class="fas fa-calendar-alt text-primary me-2"></i>
+                    Phân tích {{ phan_tich.ngay_phan_tich|date:"d/m/Y" }}
+                </h6>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lokhung:phan_tich_detail' phan_tich.pk %}">
+                            <i class="fas fa-eye me-2"></i>Xem chi tiết
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="exportAnalysis({{ phan_tich.pk }})">
+                            <i class="fas fa-download me-2"></i>Xuất báo cáo
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="compareAnalysis({{ phan_tich.pk }})">
+                            <i class="fas fa-balance-scale me-2"></i>So sánh
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Numbers Found -->
+                <div class="mb-3">
+                    <small class="text-muted">Số 2D xuất hiện ({{ phan_tich.so_2d_xuat_hien|length }} số):</small>
+                    <div class="numbers-container mt-2">
+                        {% for so in phan_tich.so_2d_xuat_hien|slice:":10" %}
+                            <span class="badge bg-primary me-1 mb-1">{{ so }}</span>
+                        {% endfor %}
+                        {% if phan_tich.so_2d_xuat_hien|length > 10 %}
+                            <span class="badge bg-secondary">+{{ phan_tich.so_2d_xuat_hien|length|add:"-10" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Head/Tail Stats -->
+                {% if phan_tich.thong_ke_dau %}
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Đầu số nổi bật:</small>
+                        <div class="mt-1">
+                            {% for dau, count in phan_tich.thong_ke_dau.items|slice:":3" %}
+                                <span class="badge bg-info me-1">{{ dau }}: {{ count }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Đuôi số nổi bật:</small>
+                        <div class="mt-1">
+                            {% for duoi, count in phan_tich.thong_ke_duoi.items|slice:":3" %}
+                                <span class="badge bg-warning me-1">{{ duoi }}: {{ count }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Predictions for 3 days -->
+                {% if phan_tich.du_doan_3_ngay %}
+                <div class="mb-3">
+                    <small class="text-muted">Dự đoán 3 ngày tiếp theo:</small>
+                    <div class="mt-2">
+                        {% for ngay, so_dict in phan_tich.du_doan_3_ngay.items|slice:":3" %}
+                            <div class="prediction-day mb-2">
+                                <small class="text-muted">{{ ngay }}:</small>
+                                <div>
+                                    {% for so, info in so_dict.items|slice:":5" %}
+                                        <span class="badge 
+                                            {% if info.xac_suat >= 0.7 %}bg-success
+                                            {% elif info.xac_suat >= 0.4 %}bg-warning
+                                            {% else %}bg-secondary{% endif %} me-1" 
+                                              title="Xác suất: {{ info.xac_suat }}">
+                                            {{ so }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Analysis Summary -->
+                <div class="analysis-summary">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <small class="d-block text-muted">Tổng số</small>
+                                <strong>{{ phan_tich.thong_ke_tong|length }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <small class="d-block text-muted">Chạm</small>
+                                <strong>{{ phan_tich.thong_ke_cham|length }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <small class="d-block text-muted">Chu kỳ</small>
+                            <strong>{{ phan_tich.phan_tich_chu_ky|length }}</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="{% url 'lokhung:phan_tich_detail' phan_tich.pk %}" 
+                           class="btn btn-sm btn-outline-primary w-100">
+                            <i class="fas fa-eye me-1"></i>Chi tiết
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-sm btn-outline-success w-100" 
+                                onclick="createPredictionFromAnalysis({{ phan_tich.pk }})">
+                            <i class="fas fa-magic me-1"></i>Tạo dự đoán
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Empty State -->
+{% if not page_obj %}
+<div class="text-center py-5">
+    <i class="fas fa-chart-line fa-4x text-muted mb-3"></i>
+    <h4 class="text-muted">Chưa có phân tích nào</h4>
+    <p class="text-muted">Hãy tạo phân tích đầu tiên để bắt đầu.</p>
+    <button class="btn btn-primary" onclick="createAutoAnalysis()">
+        <i class="fas fa-magic me-2"></i>Tạo phân tích tự động
+    </button>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in page_obj.paginator.page_range %}
+            {% if page_num == page_obj.number %}
+            <li class="page-item active">
+                <span class="page-link">{{ page_num }}</span>
+            </li>
+            {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Analysis Modal -->
+<div class="modal fade" id="analysisModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="analysisModalTitle">Phân tích chi tiết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="analysisModalBody">
+                <!-- Analysis content will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    loadQuickStats();
+});
+
+function loadQuickStats() {
+    // Load hottest/coldest numbers and other stats
+    $.get('/results/api/frequency-stats/')
+        .done(function(data) {
+            if (data.hottest) {
+                $('#hottest-number').text(data.hottest.number);
+            }
+            if (data.coldest) {
+                $('#coldest-number').text(data.coldest.number);
+            }
+            if (data.average_cycle) {
+                $('#average-cycle').text(data.average_cycle + ' ngày');
+            }
+            if (data.distribution_score) {
+                $('#distribution-score').text(data.distribution_score);
+            }
+        })
+        .fail(function() {
+            console.log('Failed to load frequency stats');
+        });
+}
+
+function createAutoAnalysis() {
+    const today = new Date().toISOString().split('T')[0];
+    
+    if (confirm(`Tạo phân tích tự động cho ngày ${today}?`)) {
+        $.post('{% url "lokhung:phan_tich_create_auto" %}', {
+            ngay_phan_tich: today,
+            csrfmiddlewaretoken: '{{ csrf_token }}'
+        })
+        .done(function() {
+            location.reload();
+        })
+        .fail(function() {
+            alert('Có lỗi xảy ra. Kiểm tra lại dữ liệu kết quả xổ số.');
+        });
+    }
+}
+
+function showAnalysisTools() {
+    $('#analysisModalTitle').text('Công cụ phân tích nâng cao');
+    $('#analysisModalBody').html(`
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Phân tích theo khoảng thời gian</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="timeRangeAnalysisForm">
+                            <div class="mb-3">
+                                <label class="form-label">Từ ngày</label>
+                                <input type="date" class="form-control" id="analysis-from-date">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Đến ngày</label>
+                                <input type="date" class="form-control" id="analysis-to-date">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Loại phân tích</label>
+                                <select class="form-select" id="analysis-type">
+                                    <option value="frequency">Tần suất xuất hiện</option>
+                                    <option value="cycle">Chu kỳ xuất hiện</option>
+                                    <option value="pattern">Mẫu số đặc biệt</option>
+                                    <option value="distribution">Phân bố số</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" onclick="runCustomAnalysis()">
+                                <i class="fas fa-play me-2"></i>Chạy phân tích
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h6>Phân tích số cụ thể</h6>
+                    </div>
+                    <div class="card-body">
+                        <form id="specificNumberAnalysisForm">
+                            <div class="mb-3">
+                                <label class="form-label">Số cần phân tích</label>
+                                <input type="text" class="form-control" id="specific-number" 
+                                       placeholder="VD: 12, 34, 56" maxlength="50">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Số ngày phân tích</label>
+                                <select class="form-select" id="analysis-days">
+                                    <option value="30">30 ngày</option>
+                                    <option value="60">60 ngày</option>
+                                    <option value="90">90 ngày</option>
+                                    <option value="365">1 năm</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn btn-success w-100" onclick="analyzeSpecificNumbers()">
+                                <i class="fas fa-search me-2"></i>Phân tích chi tiết
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4" id="analysis-results" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h6>Kết quả phân tích</h6>
+                </div>
+                <div class="card-body" id="analysis-content">
+                    <!-- Results will be shown here -->
+                </div>
+            </div>
+        </div>
+    `);
+    
+    // Set default dates
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+    $('#analysis-from-date').val(lastMonth.toISOString().split('T')[0]);
+    $('#analysis-to-date').val(today.toISOString().split('T')[0]);
+    
+    $('#analysisModal').modal('show');
+}
+
+function analyzeFrequency() {
+    $('#analysisModalTitle').text('Phân tích tần suất xuất hiện');
+    $('#analysisModalBody').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích...</p></div>');
+    $('#analysisModal').modal('show');
+    
+    // Simulate API call
+    setTimeout(() => {
+        const mockData = generateMockFrequencyData();
+        showFrequencyAnalysis(mockData);
+    }, 2000);
+}
+
+function analyzeCycles() {
+    $('#analysisModalTitle').text('Phân tích chu kỳ xuất hiện');
+    $('#analysisModalBody').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích chu kỳ...</p></div>');
+    $('#analysisModal').modal('show');
+    
+    setTimeout(() => {
+        const mockData = generateMockCycleData();
+        showCycleAnalysis(mockData);
+    }, 2000);
+}
+
+function analyzePatterns() {
+    $('#analysisModalTitle').text('Tìm mẫu số đặc biệt');
+    $('#analysisModalBody').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang tìm mẫu...</p></div>');
+    $('#analysisModal').modal('show');
+    
+    setTimeout(() => {
+        const mockData = generateMockPatternData();
+        showPatternAnalysis(mockData);
+    }, 2000);
+}
+
+function analyzeTrends() {
+    $('#analysisModalTitle').text('Phân tích xu hướng số');
+    $('#analysisModalBody').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích xu hướng...</p></div>');
+    $('#analysisModal').modal('show');
+    
+    setTimeout(() => {
+        const mockData = generateMockTrendData();
+        showTrendAnalysis(mockData);
+    }, 2000);
+}
+
+function generateMockFrequencyData() {
+    const numbers = [];
+    for (let i = 0; i < 100; i++) {
+        const num = String(i).padStart(2, '0');
+        numbers.push({
+            number: num,
+            frequency: Math.floor(Math.random() * 20) + 1,
+            percentage: (Math.random() * 20).toFixed(1),
+            lastAppeared: Math.floor(Math.random() * 30) + 1
+        });
+    }
+    return numbers.sort((a, b) => b.frequency - a.frequency);
+}
+
+function showFrequencyAnalysis(data) {
+    let html = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Top 10 số xuất hiện nhiều nhất</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Số</th>
+                                <th>Tần suất</th>
+                                <th>%</th>
+                                <th>Lần cuối</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+    `;
+    
+    data.slice(0, 10).forEach(item => {
+        html += `
+            <tr>
+                <td><span class="badge bg-primary">${item.number}</span></td>
+                <td>${item.frequency}</td>
+                <td>${item.percentage}%</td>
+                <td>${item.lastAppeared} ngày</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Biểu đồ tần suất</h6>
+                <canvas id="frequencyChart" height="300"></canvas>
+            </div>
+        </div>
+    `;
+    
+    $('#analysisModalBody').html(html);
+    
+    // Create chart
+    const ctx = document.getElementById('frequencyChart');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.slice(0, 10).map(item => item.number),
+            datasets: [{
+                label: 'Tần suất',
+                data: data.slice(0, 10).map(item => item.frequency),
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function generateMockCycleData() {
+    const cycles = [];
+    for (let i = 0; i < 20; i++) {
+        const num = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+        cycles.push({
+            number: num,
+            avgCycle: Math.floor(Math.random() * 30) + 5,
+            minCycle: Math.floor(Math.random() * 10) + 1,
+            maxCycle: Math.floor(Math.random() * 50) + 20,
+            currentGap: Math.floor(Math.random() * 40),
+            prediction: Math.random() > 0.5 ? 'Sắp về' : 'Chưa đến lúc'
+        });
+    }
+    return cycles;
+}
+
+function showCycleAnalysis(data) {
+    let html = `
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Số</th>
+                        <th>Chu kỳ TB</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                        <th>Khoảng cách hiện tại</th>
+                        <th>Dự đoán</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    data.forEach(item => {
+        const statusClass = item.prediction === 'Sắp về' ? 'bg-warning' : 'bg-info';
+        html += `
+            <tr>
+                <td><span class="badge bg-primary">${item.number}</span></td>
+                <td>${item.avgCycle} ngày</td>
+                <td>${item.minCycle}</td>
+                <td>${item.maxCycle}</td>
+                <td>${item.currentGap} ngày</td>
+                <td><span class="badge ${statusClass}">${item.prediction}</span></td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    $('#analysisModalBody').html(html);
+}
+
+function generateMockPatternData() {
+    return {
+        consecutiveNumbers: ['12', '23', '34', '45'],
+        sameDigits: ['11', '22', '33', '44'],
+        sumPatterns: {
+            'Tổng 5': ['14', '23', '32', '41'],
+            'Tổng 10': ['19', '28', '37', '46']
+        },
+        headTailPatterns: {
+            'Đầu 1': ['10', '11', '12', '13'],
+            'Đuôi 5': ['05', '15', '25', '35']
+        }
+    };
+}
+
+function showPatternAnalysis(data) {
+    let html = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6>Số liên tiếp</h6>
+                <div class="mb-3">
+                    ${data.consecutiveNumbers.map(n => `<span class="badge bg-success me-1">${n}</span>`).join('')}
+                </div>
+                
+                <h6>Số kép</h6>
+                <div class="mb-3">
+                    ${data.sameDigits.map(n => `<span class="badge bg-warning me-1">${n}</span>`).join('')}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h6>Mẫu theo tổng</h6>
+    `;
+    
+    Object.entries(data.sumPatterns).forEach(([pattern, numbers]) => {
+        html += `
+            <div class="mb-2">
+                <small class="text-muted">${pattern}:</small><br>
+                ${numbers.map(n => `<span class="badge bg-info me-1">${n}</span>`).join('')}
+            </div>
+        `;
+    });
+    
+    html += `
+                <h6>Mẫu đầu đuôi</h6>
+    `;
+    
+    Object.entries(data.headTailPatterns).forEach(([pattern, numbers]) => {
+        html += `
+            <div class="mb-2">
+                <small class="text-muted">${pattern}:</small><br>
+                ${numbers.map(n => `<span class="badge bg-secondary me-1">${n}</span>`).join('')}
+            </div>
+        `;
+    });
+    
+    html += '</div></div>';
+    $('#analysisModalBody').html(html);
+}
+
+function generateMockTrendData() {
+    return {
+        trending_up: ['12', '34', '56'],
+        trending_down: ['78', '90', '01'],
+        stable: ['23', '45', '67'],
+        volatile: ['89', '10', '32']
+    };
+}
+
+function showTrendAnalysis(data) {
+    let html = `
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card border-success">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Xu hướng tăng</h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.trending_up.map(n => `<span class="badge bg-success me-1 mb-1">${n}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-danger">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Xu hướng giảm</h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.trending_down.map(n => `<span class="badge bg-danger me-1 mb-1">${n}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0"><i class="fas fa-minus me-2"></i>Ổn định</h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.stable.map(n => `<span class="badge bg-info me-1 mb-1">${n}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-white">
+                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Biến động</h6>
+                    </div>
+                    <div class="card-body">
+                        ${data.volatile.map(n => `<span class="badge bg-warning me-1 mb-1">${n}</span>`).join('')}
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#analysisModalBody').html(html);
+}
+
+function runCustomAnalysis() {
+    const fromDate = $('#analysis-from-date').val();
+    const toDate = $('#analysis-to-date').val();
+    const analysisType = $('#analysis-type').val();
+    
+    if (!fromDate || !toDate) {
+        alert('Vui lòng chọn khoảng thời gian.');
+        return;
+    }
+    
+    $('#analysis-results').show();
+    $('#analysis-content').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích...</p></div>');
+    
+    // Simulate analysis
+    setTimeout(() => {
+        $('#analysis-content').html(`
+            <div class="alert alert-success">
+                <h6>Kết quả phân tích ${analysisType} từ ${fromDate} đến ${toDate}</h6>
+                <p>Phân tích đã hoàn thành. Đây là kết quả mô phỏng cho giai đoạn được chọn.</p>
+                <div class="mt-3">
+                    <span class="badge bg-primary me-1">12</span>
+                    <span class="badge bg-primary me-1">34</span>
+                    <span class="badge bg-primary me-1">56</span>
+                    <span class="badge bg-primary me-1">78</span>
+                </div>
+            </div>
+        `);
+    }, 2000);
+}
+
+function analyzeSpecificNumbers() {
+    const numbers = $('#specific-number').val().trim();
+    const days = $('#analysis-days').val();
+    
+    if (!numbers) {
+        alert('Vui lòng nhập số cần phân tích.');
+        return;
+    }
+    
+    $('#analysis-results').show();
+    $('#analysis-content').html('<div class="text-center"><div class="spinner-border"></div><p class="mt-2">Đang phân tích số cụ thể...</p></div>');
+    
+    setTimeout(() => {
+        const numberList = numbers.split(',').map(n => n.trim()).filter(n => n);
+        let resultHtml = `<div class="alert alert-info"><h6>Kết quả phân tích cho ${numberList.join(', ')} trong ${days} ngày qua</h6></div>`;
+        
+        numberList.forEach(num => {
+            resultHtml += `
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h6>Số ${num}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <small class="text-muted">Tần suất:</small><br>
+                                <strong>${Math.floor(Math.random() * 10) + 1} lần</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Chu kỳ TB:</small><br>
+                                <strong>${Math.floor(Math.random() * 20) + 5} ngày</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Lần cuối:</small><br>
+                                <strong>${Math.floor(Math.random() * 15)} ngày trước</strong>
+                            </div>
+                            <div class="col-md-3">
+                                <small class="text-muted">Dự đoán:</small><br>
+                                <span class="badge ${Math.random() > 0.5 ? 'bg-success' : 'bg-warning'}">
+                                    ${Math.random() > 0.5 ? 'Có khả năng' : 'Chưa đến lúc'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        $('#analysis-content').html(resultHtml);
+    }, 2000);
+}
+
+function exportAnalysis(analysisId) {
+    if (confirm('Xuất báo cáo phân tích này?')) {
+        // This would be an actual API call
+        alert('Tính năng xuất báo cáo đang được phát triển.');
+    }
+}
+
+function compareAnalysis(analysisId) {
+    alert('Tính năng so sánh phân tích đang được phát triển.');
+}
+
+function createPredictionFromAnalysis(analysisId) {
+    if (confirm('Tạo dự đoán dựa trên phân tích này?')) {
+        window.location.href = '{% url "lokhung:du_doan_create" %}?analysis=' + analysisId;
+    }
+}
+</script>
+{% endblock %}

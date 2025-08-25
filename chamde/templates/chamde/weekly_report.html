@@ -1,0 +1,403 @@
+<!-- chamde/weekly_report.html -->
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block page_title %}weekly report{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active">Gợi ý</li>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+<style>
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .digit-badge {
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 50px;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .pattern-item {
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+        }
+        .tram-pattern {
+            display: inline-block;
+            font-family: monospace;
+            font-size: 1.1rem;
+            background: #e9ecef;
+            padding: 5px 10px;
+            border-radius: 5px;
+            margin: 2px;
+        }
+        .week-nav {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .analysis-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .progress-custom {
+            height: 8px;
+            border-radius: 4px;
+        }
+    </style>
+{% endblock %}
+
+{% block cham_content %}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="week-nav text-center">
+                    <h2 class="mb-3">
+                        <i class="fas fa-calendar-week me-2"></i>
+                        Báo cáo Tuần {{ week }} - Năm {{ year }}
+                    </h2>
+                    <div class="d-flex justify-content-center align-items-center">
+                        <a href="?year={{ year }}&week={{ week|add:-1 }}" class="btn btn-light btn-sm me-2">
+                            <i class="fas fa-chevron-left"></i> Tuần trước
+                        </a>
+                        <span class="mx-3">
+                            {% if weekly_stats %}
+                                {{ weekly_stats.week_start|date:"d/m/Y" }} - {{ weekly_stats.week_end|date:"d/m/Y" }}
+                            {% endif %}
+                        </span>
+                        <a href="?year={{ year }}&week={{ week|add:1 }}" class="btn btn-light btn-sm ms-2">
+                            Tuần sau <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if weekly_stats %}
+        <!-- Thống kê tổng quan -->
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-play fa-2x mb-3"></i>
+                        <h5>Chữ số đầu phổ biến</h5>
+                        <div class="digit-badge bg-warning text-dark">{{ weekly_stats.most_common_first_digit }}</div>
+                        <p class="mt-2 mb-0">{{ weekly_stats.first_digit_frequency }} lần</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-stop fa-2x mb-3"></i>
+                        <h5>Chữ số cuối phổ biến</h5>
+                        <div class="digit-badge bg-success">{{ weekly_stats.most_common_last_digit }}</div>
+                        <p class="mt-2 mb-0">{{ weekly_stats.last_digit_frequency }} lần</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-target fa-2x mb-3"></i>
+                        <h5>Chạm đầu về nhiều</h5>
+                        <div class="digit-badge bg-danger">{{ weekly_stats.most_hit_cham_dau }}</div>
+                        <p class="mt-2 mb-0">{{ weekly_stats.cham_dau_hit_count }} lần</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bullseye fa-2x mb-3"></i>
+                        <h5>Chạm đuôi về nhiều</h5>
+                        <div class="digit-badge bg-info">{{ weekly_stats.most_hit_cham_duoi }}</div>
+                        <p class="mt-2 mb-0">{{ weekly_stats.cham_duoi_hit_count }} lần</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Số xuất hiện nhiều nhất -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h4 class="text-center mb-3">
+                        <i class="fas fa-star text-warning"></i>
+                        Số xuất hiện nhiều nhất trong tuần
+                    </h4>
+                    <div class="text-center">
+                        <span class="badge bg-primary fs-1 p-3">{{ weekly_stats.most_common_number }}</span>
+                        <p class="mt-3 text-muted">Xuất hiện {{ weekly_stats.most_common_number_count }} lần</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ thống kê -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3"><i class="fas fa-chart-bar text-primary"></i> Thống kê chữ số đầu</h5>
+                    <div class="row">
+                        {% for digit, count in weekly_stats.first_digit_data.items %}
+                        <div class="col-6 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Số {{ digit }}:</span>
+                                <span class="badge bg-primary">{{ count }}</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar" style="width: {% widthratio count 7 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3"><i class="fas fa-chart-bar text-success"></i> Thống kê chữ số cuối</h5>
+                    <div class="row">
+                        {% for digit, count in weekly_stats.last_digit_data.items %}
+                        <div class="col-6 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Số {{ digit }}:</span>
+                                <span class="badge bg-success">{{ count }}</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-success" style="width: {% widthratio count 7 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê chạm -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3"><i class="fas fa-crosshairs text-danger"></i> Thống kê chạm đầu</h5>
+                    <div class="row">
+                        {% for digit, count in weekly_stats.cham_dau_data.items %}
+                        <div class="col-6 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Chạm {{ digit }}:</span>
+                                <span class="badge bg-danger">{{ count }}</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-danger" style="width: {% widthratio count 7 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="mb-3"><i class="fas fa-crosshairs text-info"></i> Thống kê chạm đuôi</h5>
+                    <div class="row">
+                        {% for digit, count in weekly_stats.cham_duoi_data.items %}
+                        <div class="col-6 mb-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Chạm {{ digit }}:</span>
+                                <span class="badge bg-info">{{ count }}</span>
+                            </div>
+                            <div class="progress progress-custom">
+                                <div class="progress-bar bg-info" style="width: {% widthratio count 7 100 %}%"></div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Tóm tắt tuần -->
+        {% if week_summary %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h4 class="mb-3"><i class="fas fa-clipboard-list text-secondary"></i> Tóm tắt tuần</h4>
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="stat-item">
+                                <h5 class="text-primary">{{ week_summary.total_days }}</h5>
+                                <p class="text-muted">Tổng số ngày</p>
+                            </div>
+                        </div>
+                        {% if week_summary.most_common_cham_dau %}
+                        <div class="col-md-3 text-center">
+                            <div class="stat-item">
+                                <h5 class="text-danger">{{ week_summary.most_common_cham_dau.0 }}</h5>
+                                <p class="text-muted">Chạm đầu phổ biến ({{ week_summary.most_common_cham_dau.1 }} lần)</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if week_summary.most_common_cham_duoi %}
+                        <div class="col-md-3 text-center">
+                            <div class="stat-item">
+                                <h5 class="text-info">{{ week_summary.most_common_cham_duoi.0 }}</h5>
+                                <p class="text-muted">Chạm đuôi phổ biến ({{ week_summary.most_common_cham_duoi.1 }} lần)</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="col-md-3 text-center">
+                            <div class="stat-item">
+                                <h5 class="text-success">{{ week_summary.avg_db_total|floatformat:1 }}</h5>
+                                <p class="text-muted">Trung bình tổng ĐB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Chi tiết phân tích từng ngày -->
+        {% if week_analyses %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h4 class="mb-3"><i class="fas fa-calendar-day text-primary"></i> Phân tích từng ngày trong tuần</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover analysis-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ngày</th>
+                                    <th>Thứ</th>
+                                    <th>Giải ĐB</th>
+                                    <th>Chạm đầu</th>
+                                    <th>Chạm đuôi</th>
+                                    <th>2 số cuối</th>
+                                    <th>Tổng ĐB</th>
+                                    <th>Tổng 2 cuối</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in week_analyses %}
+                                <tr>
+                                    <td>{{ analysis.ngay|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if analysis.is_sunday %}
+                                            <span class="badge bg-warning">Chủ nhật</span>
+                                        {% else %}
+                                            Thứ {{ analysis.day_of_week|add:1 }}
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ analysis.db_full }}</strong></td>
+                                    <td><span class="badge bg-danger">{{ analysis.db_cham_dau }}</span></td>
+                                    <td><span class="badge bg-info">{{ analysis.db_cham_duoi }}</span></td>
+                                    <td><span class="badge bg-success">{{ analysis.db_last2 }}</span></td>
+                                    <td><span class="badge bg-primary">{{ analysis.db_total }}</span></td>
+                                    <td><span class="badge bg-secondary">{{ analysis.db_last2_total }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Mẫu quả trám trong tuần -->
+        {% if week_patterns %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="chart-container">
+                    <h4 class="mb-3"><i class="fas fa-puzzle-piece text-warning"></i> Mẫu quả trám trong tuần</h4>
+                    {% for pattern in week_patterns %}
+                    <div class="pattern-item">
+                        <div class="row align-items-center">
+                            <div class="col-md-3">
+                                <strong>{{ pattern.ngay|date:"d/m/Y" }}</strong>
+                                <br><small class="text-muted">{{ pattern.giai_thuong }}</small>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="tram-pattern">
+                                    {{ pattern.digit_top }}<br>
+                                    {{ pattern.digit_mid_left }}{{ pattern.digit_mid_right }}<br>
+                                    {{ pattern.digit_bottom }}
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <span class="badge bg-primary fs-6">{{ pattern.predicted_number }}</span>
+                                <br><small class="text-muted">Dự đoán</small>
+                            </div>
+                            <div class="col-md-3">
+                                {% if pattern.has_hit %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check"></i> Đã về ({{ pattern.days_to_hit }} ngày)
+                                    </span>
+                                    <br><small class="text-muted">{{ pattern.hit_date|date:"d/m/Y" }}</small>
+                                {% else %}
+                                    <span class="badge bg-warning">
+                                        <i class="fas fa-clock"></i> Chưa về
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Thông báo nếu không có dữ liệu -->
+        {% if not weekly_stats %}
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-info text-center" role="alert">
+                    <i class="fas fa-info-circle fa-2x mb-3"></i>
+                    <h4>Chưa có dữ liệu cho tuần này</h4>
+                    <p>Dữ liệu thống kê cho tuần {{ week }}/{{ year }} chưa được tạo hoặc chưa có kết quả xổ số.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tự động làm mới trang mỗi 5 phút
+        setTimeout(function() {
+            location.reload();
+        }, 300000);
+        
+        // Hiệu ứng loading cho các liên kết điều hướng
+        document.querySelectorAll('a[href*="week"]').forEach(link => {
+            link.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tải...';
+            });
+        });
+    </script>
+{% endblock %}

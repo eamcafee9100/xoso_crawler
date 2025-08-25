@@ -1,0 +1,82 @@
+{% extends 'predictions_tracker/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Tạo phiên mới
+                </h5>
+            </div>
+            <div class="card-body">
+                <!-- Cycle Info -->
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle me-2"></i>Thông tin chu kỳ</h6>
+                    <p class="mb-1"><strong>Tên:</strong> {{ cycle.cycle_name }}</p>
+                    <p class="mb-1"><strong>Thời gian:</strong> {{ cycle.start_date }} - {{ cycle.end_date }}</p>
+                    <p class="mb-0"><strong>Số ngày theo dõi:</strong> {{ cycle.tracking_days }} ngày</p>
+                </div>
+                
+                <form method="post" id="sessionForm">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ngày dự đoán <span class="text-danger">*</span></label>
+                        <input type="date" name="prediction_date" class="form-control" required>
+                        <div class="form-text">Chọn ngày muốn thực hiện dự đoán</div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Lưu ý</label>
+                        <div class="alert alert-warning">
+                            <ul class="mb-0">
+                                <li>Phiên sẽ được tạo với trạng thái "Đã tạo"</li>
+                                <li>Hệ thống sẽ tự động chạy các phương pháp dự đoán</li>
+                                <li>Bạn có thể chạy đánh giá sau khi có kết quả thực tế</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'predictions_tracker:cycle_detail' cycle.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-custom">
+                            <i class="bi bi-check-circle me-2"></i>Tạo phiên
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set default date to today
+    const dateInput = document.querySelector('input[name="prediction_date"]');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    
+    // Set min date to cycle start date
+    dateInput.min = '{{ cycle.start_date }}';
+    dateInput.max = '{{ cycle.end_date }}';
+    
+    // Form validation
+    const form = document.getElementById('sessionForm');
+    form.addEventListener('submit', function(e) {
+        const selectedDate = new Date(dateInput.value);
+        const startDate = new Date('{{ cycle.start_date }}');
+        const endDate = new Date('{{ cycle.end_date }}');
+        
+        if (selectedDate < startDate || selectedDate > endDate) {
+            e.preventDefault();
+            alert('Ngày dự đoán phải nằm trong khoảng thời gian của chu kỳ');
+        }
+    });
+});
+</script>
+{% endblock %}

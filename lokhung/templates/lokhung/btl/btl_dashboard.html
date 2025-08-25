@@ -1,0 +1,374 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load humanize %}
+
+{% block title %}Dashboard - Hệ thống dự đoán xổ số{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stats-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .stats-card .card-body {
+        padding: 2rem;
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #495057;
+    }
+    
+    .stats-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .stats-icon {
+        font-size: 3rem;
+        opacity: 0.1;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+    }
+    
+    .chart-container {
+        position: relative;
+        height: 400px;
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .method-ranking {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .method-item {
+        padding: 1rem;
+        border-bottom: 1px solid #f8f9fa;
+        transition: background-color 0.3s ease;
+    }
+    
+    .method-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .method-item:last-child {
+        border-bottom: none;
+    }
+    
+    .rank-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #ffd700, #ffed4e); color: #856404; }
+    .rank-2 { background: linear-gradient(135deg, #c0c0c0, #e2e2e2); color: #495057; }
+    .rank-3 { background: linear-gradient(135deg, #cd7f32, #deb887); color: #495057; }
+    .rank-other { background: linear-gradient(135deg, #6c757d, #adb5bd); }
+    
+    .performance-indicator {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+    
+    .performance-excellent { background: #d4edda; color: #155724; }
+    .performance-good { background: #d1ecf1; color: #0c5460; }
+    .performance-average { background: #fff3cd; color: #856404; }
+    .performance-poor { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block page_actions %}
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-outline-primary" onclick="refreshDashboard()">
+        <i class="fas fa-sync-alt"></i> Làm mới
+    </button>
+    <a href="{% url 'lokhung:bao_cao_list' %}" class="btn btn-primary">
+        <i class="fas fa-chart-bar"></i> Xem báo cáo
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card border-start border-primary border-4">
+            <div class="card-body position-relative">
+                <div class="stats-icon text-primary">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="stats-number text-primary">{{ overview_stats.total_methods }}</div>
+                <div class="stats-label">Phương pháp hoạt động</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card border-start border-success border-4">
+            <div class="card-body position-relative">
+                <div class="stats-icon text-success">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <div class="stats-number text-success">{{ overview_stats.total_predictions_today }}</div>
+                <div class="stats-label">Dự đoán hôm nay</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card border-start border-info border-4">
+            <div class="card-body position-relative">
+                <div class="stats-icon text-info">
+                    <i class="fas fa-calendar-week"></i>
+                </div>
+                <div class="stats-number text-info">{{ overview_stats.total_predictions_7days }}</div>
+                <div class="stats-label">Dự đoán 7 ngày</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stats-card border-start border-warning border-4">
+            <div class="card-body position-relative">
+                <div class="stats-icon text-warning">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stats-number text-warning">{{ overview_stats.total_predictions_30days }}</div>
+                <div class="stats-label">Dự đoán 30 ngày</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Top Methods -->
+<div class="row">
+    <div class="col-xl-8 mb-4">
+        <div class="chart-container">
+            <h5 class="mb-3">
+                <i class="fas fa-chart-line text-primary me-2"></i>
+                Xu hướng hiệu suất 30 ngày gần nhất
+            </h5>
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 mb-4">
+        <div class="method-ranking">
+            <div class="card-header bg-transparent border-0 pb-0">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy text-warning me-2"></i>
+                    Top phương pháp hiệu quả
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                {% for method in top_methods %}
+                <div class="method-item d-flex align-items-center">
+                    <div class="rank-badge rank-{{ forloop.counter|yesno:'1,2,3,other' }} me-3">
+                        {{ forloop.counter }}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">{{ method.name }}</div>
+                        <small class="text-muted">{{ method.get_category_display }}</small>
+                    </div>
+                    <div class="text-end">
+                        <div class="fw-bold text-success">{{ method.success_rate|floatformat:1 }}%</div>
+                        <small class="text-muted">{{ method.total_predictions }} dự đoán</small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-inbox fa-2x mb-2"></i>
+                    <p>Chưa có dữ liệu</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Performance Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header bg-transparent border-0">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-check text-info me-2"></i>
+                    Hiệu suất hàng ngày (7 ngày gần nhất)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Số phương pháp</th>
+                                <th>Tổng dự đoán</th>
+                                <th>Tổng trúng</th>
+                                <th>Tỷ lệ trúng TB</th>
+                                <th>Số trúng cao nhất</th>
+                                <th>Đánh giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day in daily_performance %}
+                            <tr>
+                                <td>
+                                    <strong>{{ day.analysis_date|date:"d/m/Y" }}</strong>
+                                    <br><small class="text-muted">{{ day.analysis_date|date:"D" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ day.total_methods }}</span>
+                                </td>
+                                <td>{{ day.total_predictions|default:0 }}</td>
+                                <td>
+                                    <strong class="text-success">{{ day.total_hits|default:0 }}</strong>
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ day.avg_hit_rate|default:0 }}%">
+                                            {{ day.avg_hit_rate|default:0|floatformat:1 }}%
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning">{{ day.best_hit_count|default:0 }}</span>
+                                </td>
+                                <td>
+                                    {% if day.avg_hit_rate >= 70 %}
+                                        <span class="performance-indicator performance-excellent">Xuất sắc</span>
+                                    {% elif day.avg_hit_rate >= 50 %}
+                                        <span class="performance-indicator performance-good">Tốt</span>
+                                    {% elif day.avg_hit_rate >= 30 %}
+                                        <span class="performance-indicator performance-average">Trung bình</span>
+                                    {% else %}
+                                        <span class="performance-indicator performance-poor">Cần cải thiện</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                                    <p>Không có dữ liệu trong 7 ngày gần nhất</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Performance Chart
+const ctx = document.getElementById('performanceChart').getContext('2d');
+const performanceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_data.labels|safe }},
+        datasets: [{
+            label: 'Tỷ lệ thành công (%)',
+            data: {{ chart_data.success_rate|safe }},
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Số trúng cao nhất',
+            data: {{ chart_data.hit_count|safe }},
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        scales: {
+            y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Tỷ lệ thành công (%)'
+                }
+            },
+            y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Số trúng'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: 'white',
+                bodyColor: 'white',
+                borderColor: 'rgba(255,255,255,0.2)',
+                borderWidth: 1
+            }
+        }
+    }
+});
+
+// Refresh Dashboard
+function refreshDashboard() {
+    window.location.reload();
+}
+
+// Auto refresh every 5 minutes
+setInterval(refreshDashboard, 300000);
+</script>
+{% endblock %}

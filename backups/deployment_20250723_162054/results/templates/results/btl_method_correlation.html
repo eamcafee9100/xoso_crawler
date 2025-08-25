@@ -1,0 +1,465 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+{% block title %}Báo Cáo Tương Quan Phương Pháp Bạch Thủ Lô{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .correlation-high {
+        color: #198754;
+        font-weight: bold;
+    }
+    .correlation-medium {
+        color: #fd7e14;
+        font-weight: bold;
+    }
+    .correlation-low {
+        color: #dc3545;
+        font-weight: bold;
+    }
+    .date-range-form {
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+    .stat-card {
+        transition: all 0.3s;
+    }
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+    .method-pair-card {
+        border-radius: 0.5rem;
+        transition: all 0.3s;
+    }
+    .method-pair-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+    .best-day-card {
+        border-left: 5px solid #198754;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Tiêu đề và bộ lọc -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-4">Báo Cáo Tương Quan Phương Pháp Bạch Thủ Lô</h1>
+            <div class="card date-range-form mb-4">
+                <div class="card-body">
+                    <form method="get" class="row g-3 align-items-end">
+                        <div class="col-md-4">
+                            <label for="start_date" class="form-label">Từ ngày</label>
+                            <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="end_date" class="form-label">Đến ngày</label>
+                            <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="days" class="form-label">Hoặc số ngày gần đây</label>
+                            <select class="form-select" id="days" name="days">
+                                <option value="7" {% if days == 7 %}selected{% endif %}>7 ngày</option>
+                                <option value="14" {% if days == 14 %}selected{% endif %}>14 ngày</option>
+                                <option value="30" {% if days == 30 %}selected{% endif %}>30 ngày</option>
+                                <option value="60" {% if days == 60 %}selected{% endif %}>60 ngày</option>
+                                <option value="90" {% if days == 90 %}selected{% endif %}>90 ngày</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Áp dụng
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <ul class="nav nav-tabs mb-4" id="correlationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="method-pairs-tab" data-bs-toggle="tab" data-bs-target="#method-pairs-content" type="button" role="tab" aria-controls="method-pairs-content" aria-selected="true">
+                <i class="bi bi-people"></i> Cặp Phương Pháp
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="best-days-tab" data-bs-toggle="tab" data-bs-target="#best-days-content" type="button" role="tab" aria-controls="best-days-content" aria-selected="false">
+                <i class="bi bi-calendar-check"></i> Ngày Tốt Nhất
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="day-patterns-tab" data-bs-toggle="tab" data-bs-target="#day-patterns-content" type="button" role="tab" aria-controls="day-patterns-content" aria-selected="false">
+                <i class="bi bi-graph-up"></i> Mẫu Thời Gian
+            </button>
+        </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="correlationTabsContent">
+        <!-- Tab Cặp Phương Pháp -->
+        <div class="tab-pane fade show active" id="method-pairs-content" role="tabpanel" aria-labelledby="method-pairs-tab">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Top Cặp Phương Pháp Có Xu Hướng Trúng Cùng Nhau</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="myTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Phương Pháp 1</th>
+                                    <th>Phương Pháp 2</th>
+                                    <th class="text-center">Số Ngày Cùng Trúng</th>
+                                    <th class="text-center">Tổng Số Ngày</th>
+                                    <th class="text-center">Tỷ Lệ Tương Quan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pair in top_pairs %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ pair.method1_name }}</td>
+                                    <td>{{ pair.method2_name }}</td>
+                                    <td class="text-center">{{ pair.both_hit }}</td>
+                                    <td class="text-center">{{ pair.total_days }}</td>
+                                    <td class="text-center {% if pair.correlation >= 70 %}correlation-high{% elif pair.correlation >= 40 %}correlation-medium{% else %}correlation-low{% endif %}">
+                                        {{ pair.correlation|floatformat:1 }}%
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center">Không có dữ liệu tương quan trong khoảng thời gian này</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Biểu đồ tương quan -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Biểu Đồ Tương Quan Giữa Các Phương Pháp</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="correlationHeatmapChart" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Ngày Tốt Nhất -->
+        <div class="tab-pane fade" id="best-days-content" role="tabpanel" aria-labelledby="best-days-tab">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Top Ngày Có Nhiều Phương Pháp Trúng Nhất</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Ngày</th>
+                                    <th>Thứ</th>
+                                    <th class="text-center">Số Phương Pháp Trúng</th>
+                                    <th class="text-center">Tổng Số Phương Pháp</th>
+                                    <th class="text-center">Tỷ Lệ Trúng</th>
+                                    <th>Phương Pháp Trúng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day in best_days %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>{{ day.date }}</td>
+                                    <td>{{ day.day_of_week }}</td>
+                                    <td class="text-center">{{ day.hit_methods }}</td>
+                                    <td class="text-center">{{ day.total_methods }}</td>
+                                    <td class="text-center {% if day.hit_rate >= 70 %}correlation-high{% elif day.hit_rate >= 40 %}correlation-medium{% else %}correlation-low{% endif %}">
+                                        {{ day.hit_rate|floatformat:1 }}%
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#methods-{{ forloop.counter }}" aria-expanded="false">
+                                            Xem {{ day.methods|length }} phương pháp
+                                        </button>
+                                        <div class="collapse mt-2" id="methods-{{ forloop.counter }}">
+                                            <div class="card card-body">
+                                                <ul class="list-group">
+                                                    {% for method in day.methods %}
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        {{ method.name }}
+                                                        <span class="badge bg-success rounded-pill">{{ method.hit_rate|floatformat:1 }}%</span>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center">Không có dữ liệu ngày trúng trong khoảng thời gian này</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tab Mẫu Thời Gian -->
+        <div class="tab-pane fade" id="day-patterns-content" role="tabpanel" aria-labelledby="day-patterns-tab">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Tỷ Lệ Trúng Theo Ngày Trong Tuần</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="weekdayChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">Tỷ Lệ Trúng Theo Ngày Trong Tháng</h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="dayOfMonthChart" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Top Ngày Trong Tháng Có Tỷ Lệ Trúng Cao Nhất</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Ngày Trong Tháng</th>
+                                    <th class="text-center">Tỷ Lệ Trúng Trung Bình</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for day in day_of_month_stats %}
+                                <tr>
+                                    <td>{{ forloop.counter }}</td>
+                                    <td>Ngày {{ day.day }}</td>
+                                    <td class="text-center {% if day.avg_hit_rate >= 70 %}correlation-high{% elif day.avg_hit_rate >= 40 %}correlation-medium{% else %}correlation-low{% endif %}">
+                                        {{ day.avg_hit_rate|floatformat:1 }}%
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center">Không có dữ liệu ngày trúng trong khoảng thời gian này</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+$(document).ready(function() {
+    $('#myTable').DataTable({
+        // Tùy chỉnh các tùy chọn
+        "paging": true, // Bật phân trang
+        "searching": true, // Bật tìm kiếm
+        "ordering": true, // Bật sắp xếp
+        "language": {
+            "search": "Tìm kiếm:", // Tùy chỉnh ngôn ngữ
+            "lengthMenu": "Hiển thị _MENU_ bản ghi",
+            "info": "Hiển thị _START_ đến _END_ của _TOTAL_ bản ghi",
+            "paginate": {
+                "first": "Đầu",
+                "last": "Cuối",
+                "next": "Tiếp",
+                "previous": "Trước"
+            }
+        }
+    });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo date picker
+    flatpickr(".datepicker", {
+        dateFormat: "Y-m-d",
+        maxDate: "today"
+    });
+    
+    // Dữ liệu cho biểu đồ ngày trong tuần
+    const weekdayData = {{ weekday_stats|safe }};
+    const weekdayChart = new Chart(
+        document.getElementById('weekdayChart'),
+        {
+            type: 'bar',
+            data: {
+                labels: weekdayData.map(d => d.name),
+                datasets: [{
+                    label: 'Tỷ lệ trúng trung bình (%)',
+                    data: weekdayData.map(d => d.avg_hit_rate),
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Tỷ lệ trúng: ${context.raw.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ trúng (%)'
+                        }
+                    }
+                }
+            }
+        }
+    );
+    
+    // Dữ liệu cho biểu đồ ngày trong tháng
+    const dayOfMonthData = {{ day_of_month_stats|safe }};
+    const dayOfMonthChart = new Chart(
+        document.getElementById('dayOfMonthChart'),
+        {
+            type: 'bar',
+            data: {
+                labels: dayOfMonthData.map(d => `Ngày ${d.day}`),
+                datasets: [{
+                    label: 'Tỷ lệ trúng trung bình (%)',
+                    data: dayOfMonthData.map(d => d.avg_hit_rate),
+                    backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Tỷ lệ trúng: ${context.raw.toFixed(1)}%`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ trúng (%)'
+                        }
+                    }
+                }
+            }
+        }
+    );
+    
+    // Dữ liệu cho biểu đồ tương quan
+    const topPairs = {{ top_pairs|safe }};
+    // Chỉ lấy top 10 cặp để hiển thị trong biểu đồ
+    const heatmapPairs = topPairs.slice(0, 10);
+    
+    // Tạo nhãn và dữ liệu cho biểu đồ tương quan
+    const correlationLabels = heatmapPairs.map(p => `${p.method1_name} & ${p.method2_name}`);
+    const correlationData = heatmapPairs.map(p => p.correlation);
+    
+    // Tạo biểu đồ tương quan
+    const correlationHeatmapChart = new Chart(
+        document.getElementById('correlationHeatmapChart'),
+        {
+            type: 'bar',
+            data: {
+                labels: correlationLabels,
+                datasets: [{
+                    label: 'Tỷ lệ tương quan (%)',
+                    data: correlationData,
+                    backgroundColor: correlationData.map(value => {
+                        if (value >= 70) return 'rgba(40, 167, 69, 0.7)';
+                        if (value >= 40) return 'rgba(255, 193, 7, 0.7)';
+                        return 'rgba(220, 53, 69, 0.7)';
+                    }),
+                    borderColor: correlationData.map(value => {
+                        if (value >= 70) return 'rgba(40, 167, 69, 1)';
+                        if (value >= 40) return 'rgba(255, 193, 7, 1)';
+                        return 'rgba(220, 53, 69, 1)';
+                    }),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const pair = heatmapPairs[context.dataIndex];
+                                return [
+                                    `Tương quan: ${context.raw.toFixed(1)}%`,
+                                    `Số ngày cùng trúng: ${pair.both_hit}/${pair.total_days}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Tỷ lệ tương quan (%)'
+                        }
+                    }
+                }
+            }
+        }
+    );
+});
+</script>
+{% endblock %}

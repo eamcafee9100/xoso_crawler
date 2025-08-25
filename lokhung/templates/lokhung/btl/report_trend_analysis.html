@@ -1,0 +1,409 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load static %}
+
+{% block title %}Phân tích xu hướng - BTL System{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-line text-warning me-2"></i>
+                    Phân tích xu hướng hiệu suất
+                </h1>
+                <div class="btn-group">
+                    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#helpModal">
+                        <i class="fas fa-question-circle me-1"></i>Hướng dẫn
+                    </button>
+                </div>
+            </div>
+
+            <!-- Configuration Panel -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-sliders-h me-2"></i>Cấu hình phân tích
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="method_id" class="form-label">Phương pháp</label>
+                            <select class="form-select" id="method_id" name="method_id">
+                                <option value="">Tất cả (Top 5)</option>
+                                {% for method in available_methods %}
+                                <option value="{{ method.id }}" 
+                                        {% if method.id|stringformat:"s" == selected_method_id %}selected{% endif %}>
+                                    {{ method.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="period" class="form-label">Khoảng thời gian</label>
+                            <select class="form-select" id="period" name="period">
+                                {% for value, label in period_options %}
+                                <option value="{{ value }}" {% if value == selected_period %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="analysis_type" class="form-label">Loại phân tích</label>
+                            <select class="form-select" id="analysis_type" name="analysis_type">
+                                {% for value, label in analysis_type_options %}
+                                <option value="{{ value }}" {% if value == selected_analysis_type %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-chart-area me-1"></i>Phân tích
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Trend Analysis Summary -->
+            {% if trend_analysis %}
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-cogs fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Phương pháp phân tích</div>
+                                    <div class="h4 mb-0">{{ trend_analysis.total_methods }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-arrow-up fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Xu hướng tăng</div>
+                                    <div class="h4 mb-0">{{ trend_analysis.trend_distribution.increasing }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-arrows-alt-h fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Xu hướng ổn định</div>
+                                    <div class="h4 mb-0">{{ trend_analysis.trend_distribution.stable }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-arrow-down fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Xu hướng giảm</div>
+                                    <div class="h4 mb-0">{{ trend_analysis.trend_distribution.decreasing }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Trend Chart -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-line me-2"></i>Biểu đồ xu hướng {{ selected_analysis_type|default:"hiệu suất" }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Method Analysis Cards -->
+            <div class="row mb-4">
+                {% for method_id, data in trend_data.items %}
+                <div class="col-lg-6 col-xl-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h6 class="card-title mb-0">{{ data.method.name }}</h6>
+                                {% if data.summary.trend == 'increasing' %}
+                                    <i class="fas fa-arrow-up text-success"></i>
+                                {% elif data.summary.trend == 'decreasing' %}
+                                    <i class="fas fa-arrow-down text-danger"></i>
+                                {% else %}
+                                    <i class="fas fa-minus text-warning"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <div class="h5 mb-0">{{ data.summary.change_rate|floatformat:1 }}%</div>
+                                        <small class="text-muted">Thay đổi</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-center">
+                                        <div class="h5 mb-0">{{ data.summary.volatility|floatformat:1 }}</div>
+                                        <small class="text-muted">Biến động</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <div class="small text-muted">TB</div>
+                                        <div class="fw-bold">{{ data.summary.avg_value|floatformat:1 }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <div class="small text-muted">Max</div>
+                                        <div class="fw-bold">{{ data.summary.max_value|floatformat:1 }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-center">
+                                        <div class="small text-muted">Min</div>
+                                        <div class="fw-bold">{{ data.summary.min_value|floatformat:1 }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="{% url 'lokhung:method_detail' data.method.id %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i>Chi tiết
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Forecasts -->
+            {% if trend_forecasts %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-crystal-ball me-2"></i>Dự báo xu hướng (7 ngày tới)
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Phương pháp</th>
+                                    <th>Giá trị hiện tại</th>
+                                    <th>Dự báo</th>
+                                    <th>Thay đổi</th>
+                                    <th>Độ tin cậy</th>
+                                    <th>Khuyến nghị</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method_id, forecast in trend_forecasts.items %}
+                                <tr>
+                                    <td>{{ forecast.method.name }}</td>
+                                    <td>{{ forecast.current_value|floatformat:2 }}</td>
+                                    <td>{{ forecast.forecasted_value|floatformat:2 }}</td>
+                                    <td>
+                                        {% with change=forecast.forecasted_value|floatformat:2|add:0 %}
+                                        {% with current=forecast.current_value|floatformat:2|add:0 %}
+                                        {% if change > current %}
+                                            <span class="text-success">
+                                                <i class="fas fa-arrow-up me-1"></i>
+                                                +{{ change|floatformat:2 }}
+                                            </span>
+                                        {% elif change < current %}
+                                            <span class="text-danger">
+                                                <i class="fas fa-arrow-down me-1"></i>
+                                                {{ change|floatformat:2 }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">
+                                                <i class="fas fa-minus me-1"></i>
+                                                Không đổi
+                                            </span>
+                                        {% endif %}
+                                        {% endwith %}
+                                        {% endwith %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="progress me-2" style="width: 60px; height: 8px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: {{ forecast.confidence }}%"></div>
+                                            </div>
+                                            <span class="small">{{ forecast.confidence }}%</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {% if "SỬ DỤNG" in forecast.recommendation %}
+                                            <span class="badge bg-success">{{ forecast.recommendation }}</span>
+                                        {% elif "TRÁNH" in forecast.recommendation %}
+                                            <span class="badge bg-danger">{{ forecast.recommendation }}</span>
+                                        {% elif "THẬN TRỌNG" in forecast.recommendation %}
+                                            <span class="badge bg-warning">{{ forecast.recommendation }}</span>
+                                        {% else %}
+                                            <span class="badge bg-info">{{ forecast.recommendation }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Top Performers -->
+            {% if trend_analysis %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-trophy me-2"></i>Phương pháp nổi bật
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-crown text-warning fa-2x mb-2"></i>
+                                <h6>Hiệu suất tốt nhất</h6>
+                                <div class="fw-bold">{{ trend_analysis.best_performer.method.name }}</div>
+                                <div class="text-muted small">
+                                    +{{ trend_analysis.best_performer.change_rate|floatformat:1 }}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-shield-alt text-success fa-2x mb-2"></i>
+                                <h6>Ổn định nhất</h6>
+                                <div class="fw-bold">{{ trend_analysis.most_stable.method.name }}</div>
+                                <div class="text-muted small">
+                                    Biến động: {{ trend_analysis.most_stable.volatility|floatformat:1 }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center p-3 border rounded">
+                                <i class="fas fa-exclamation-triangle text-danger fa-2x mb-2"></i>
+                                <h6>Cần cải thiện</h6>
+                                <div class="fw-bold">{{ trend_analysis.worst_performer.method.name }}</div>
+                                <div class="text-muted small">
+                                    {{ trend_analysis.worst_performer.change_rate|floatformat:1 }}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Help Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hướng dẫn phân tích xu hướng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h6>Các loại phân tích:</h6>
+                <ul>
+                    <li><strong>Tỷ lệ thành công:</strong> Phần trăm dự đoán chính xác</li>
+                    <li><strong>Số lần trúng:</strong> Trung bình số lần trúng mỗi ngày</li>
+                    <li><strong>Tính ổn định:</strong> Độ nhất quán trong kết quả</li>
+                    <li><strong>Độ tin cậy:</strong> Mức độ tin cậy của dự đoán</li>
+                </ul>
+                <h6>Xu hướng:</h6>
+                <ul>
+                    <li><span class="text-success">Tăng:</span> Hiệu suất cải thiện theo thời gian</li>
+                    <li><span class="text-warning">Ổn định:</span> Hiệu suất không thay đổi nhiều</li>
+                    <li><span class="text-danger">Giảm:</span> Hiệu suất suy giảm theo thời gian</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    {% if chart_data %}
+    // Trend Chart
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    const chartData = {{ chart_data|safe }};
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: chartData,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Xu hướng {{ selected_analysis_type|default:"hiệu suất" }} theo thời gian'
+                },
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: '{{ selected_analysis_type|default:"Giá trị" }}'
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

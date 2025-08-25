@@ -1,0 +1,203 @@
+{% extends 'predictions_tracker/base.html' %}
+
+{% block content %}
+<!-- Stats Summary -->
+<div class="row mb-4">
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ evaluations.paginator.count }}</h3>
+                        <p class="mb-0">Tổng đánh giá</p>
+                    </div>
+                    <i class="bi bi-clipboard-check fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ avg_hit_rate }}%</h3>
+                        <p class="mb-0">Hit Rate TB</p>
+                    </div>
+                    <i class="bi bi-bullseye fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4 col-md-6 mb-3">
+        <div class="card stats-card">
+            <div class="card-body text-center">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="mb-0">{{ avg_wilson }}</h3>
+                        <p class="mb-0">Wilson Score TB</p>
+                    </div>
+                    <i class="bi bi-graph-up fs-1 opacity-50"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Phương pháp</label>
+                <input type="text" name="method" class="form-control" 
+                       placeholder="Tìm theo tên phương pháp..." 
+                       value="{{ method_filter }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Ngày đánh giá</label>
+                <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-funnel me-2"></i>Lọc
+                </button>
+                <a href="{% url 'predictions_tracker:evaluation_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Đặt lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Evaluations Table -->
+<div class="card table-custom">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-list-ul me-2"></i>Danh sách đánh giá
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if evaluations %}
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Phương pháp</th>
+                            <th>Session</th>
+                            <th>Chu kỳ</th>
+                            <th>Ngày đánh giá</th>
+                            <th>Hit Rate</th>
+                            <th>Wilson Score</th>
+                            <th>Kết quả</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evaluation in evaluations %}
+                            <tr>
+                                <td>
+                                    <strong>{{ evaluation.method_result.method.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ evaluation.method_result.method.description|truncatechars:40 }}</small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'predictions_tracker:session_detail' evaluation.session.id %}">
+                                        <code>{{ evaluation.session.session_id }}</code>
+                                    </a>
+                                    <br>
+                                    <small class="text-muted">{{ evaluation.session.prediction_date }}</small>
+                                </td>
+                                <td>
+                                    <a href="{% url 'predictions_tracker:cycle_detail' evaluation.session.cycle.id %}">
+                                        {{ evaluation.session.cycle.cycle_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <i class="bi bi-calendar me-1"></i>{{ evaluation.evaluation_date }}
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-success me-2">{{ evaluation.hit_rate }}%</span>
+                                        <div class="progress progress-custom" style="width: 60px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {{ evaluation.hit_rate }}%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ evaluation.wilson_score|floatformat:4 }}</span>
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <span class="text-success fw-bold">{{ evaluation.hits_count }}</span>
+                                        <span class="text-muted">/</span>
+                                        <span class="text-muted">{{ evaluation.total_predictions }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'predictions_tracker:session_detail' evaluation.session.id %}" 
+                                           class="btn btn-sm btn-outline-primary" title="Xem session">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="{% url 'predictions_tracker:cycle_detail' evaluation.session.cycle.id %}" 
+                                           class="btn btn-sm btn-outline-info" title="Xem chu kỳ">
+                                            <i class="bi bi-arrow-repeat"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-clipboard-x display-1 text-muted"></i>
+                <h5 class="text-muted mt-3">Không tìm thấy đánh giá nào</h5>
+                <p class="text-muted">Thử thay đổi bộ lọc hoặc tạo đánh giá mới</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if evaluations.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if evaluations.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ evaluations.previous_page_number }}{% if method_filter %}&method={{ method_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% for num in evaluations.paginator.page_range %}
+                {% if evaluations.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if method_filter %}&method={{ method_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if evaluations.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ evaluations.next_page_number }}{% if method_filter %}&method={{ method_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+{% endblock %}

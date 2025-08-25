@@ -1,0 +1,88 @@
+{% extends 'chamde/base.html' %}
+{% load humanize %}
+{% load chamde_xs_tags %}
+
+{% block title %}Cầu chạm kiểu 1 - Dựa vào giải nhất Chủ nhật{% endblock %}
+
+{% block page_title %}Cầu chạm kiểu 1 - Dựa vào giải nhất Chủ nhật{% endblock %}
+
+{% block breadcrumbs %}
+<li class="breadcrumb-item active" aria-current="page">Cầu chạm kiểu 1</li>
+{% endblock %}
+
+{% block content %}
+<h2>Cầu chạm kiểu 1 - Dựa vào giải nhất Chủ nhật</h2>
+
+<form method="get" class="mb-3">
+    <label>Chọn số ngày thống kê:
+        <select name="days" onchange="this.form.submit()">
+            <option value="7" {% if selected_days == 7 %}selected{% endif %}>7 ngày</option>
+            <option value="30" {% if selected_days == 30 %}selected{% endif %}>30 ngày</option>
+            <option value="90" {% if selected_days == 90 %}selected{% endif %}>90 ngày</option>
+        </select>
+    </label>
+</form>
+
+<h4>Thống kê hiệu suất</h4>
+<ul>
+    <li>Tổng số dự đoán: {{ stats.total_predictions }}</li>
+    <li>Số lần trúng: {{ stats.successful_predictions }}</li>
+    <li>Tỷ lệ trúng: {{ stats.success_rate }}%</li>
+</ul>
+
+{% if latest_sunday %}
+    <h4>Chủ nhật gần nhất: {{ latest_sunday.ngay|date:"d/m/Y" }}</h4>
+{% endif %}
+
+{% if next_prediction %}
+    <div class="alert alert-info">
+        <b>Dự đoán mới nhất ({{ next_prediction.source_date|date:"d/m/Y" }}):</b><br>
+        Chạm: <b>{{ next_prediction.cham_value }}</b><br>
+        Bộ số dự đoán: {{ next_prediction.predicted_numbers|join:", " }}<br>
+        Độ tin cậy: {{ next_prediction.confidence }}%
+    </div>
+{% endif %}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Ngày dự đoán</th>
+            <th>Bộ số dự đoán</th>
+            <th>Kết quả</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in predictions %}
+        <tr>
+            <td>{{ p.ngay_du_doan|date:"d/m/Y" }}</td>
+            <td>{{ p.so_du_doan }}</td>
+            <td>
+                {% if p.ket_qua_trung is not None %}
+                    {% if p.ket_qua_trung %}<span style="color:green">Trúng</span>
+                    {% else %}<span style="color:red">Trượt</span>
+                    {% endif %}
+                {% else %}
+                    <span>Chưa có kết quả</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Không có dữ liệu</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if is_paginated %}
+<nav>
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li><a href="?page={{ page_obj.previous_page_number }}&days={{ selected_days }}">Trước</a></li>
+        {% endif %}
+        <li class="active"><span>{{ page_obj.number }}</span></li>
+        {% if page_obj.has_next %}
+        <li><a href="?page={{ page_obj.next_page_number }}&days={{ selected_days }}">Sau</a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

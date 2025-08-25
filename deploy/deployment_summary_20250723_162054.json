@@ -1,0 +1,12 @@
+{
+  "deployment_timestamp": "20250723_162054",
+  "deployment_status": "SUCCESS",
+  "python_version": "3.12.10",
+  "project_root": "C:\\Users\\n2t\\Documents\\xoso_crawler",
+  "backup_location": "C:\\Users\\n2t\\Documents\\xoso_crawler\\backups\\deployment_20250723_162054",
+  "environment_variables": {
+    "DJANGO_SETTINGS_MODULE": "xoso_crawler.settings",
+    "DEBUG": "False",
+    "DJANGO_ENV": "Not set"
+  }
+}

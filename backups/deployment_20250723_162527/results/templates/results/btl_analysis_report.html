@@ -1,0 +1,28 @@
+{% extends 'results/base.html' %}
+{% load xs_tags %}
+{% load static %}
+
+{% block content %}
+<div class="analysis-report">
+    <h2>Prediction Analysis Report</h2>
+    
+    <div class="summary-table">
+        <h3>Summary Results</h3>
+        <pre>{{ summary_table }}</pre>
+    </div>
+    
+    <div class="visualization">
+        <h3>Accuracy Analysis</h3>
+        <img src="{{ chart_path }}" alt="Accuracy Analysis">
+    </div>
+    
+    <div class="recommendations">
+        <h3>Recommendations</h3>
+        <ul>
+        {% for rec in recommendations %}
+            <li>{{ rec }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends 'lokhung/btl/base.html' %}
+{% load static %}
+
+{% block title %}Danh sách phân tích - BTL System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-chart-area text-info me-2"></i>
+                    Danh sách phân tích BTL
+                </h1>
+                <div class="btn-group">
+                    <a href="{% url 'lokhung:btl_dashboard' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Về Dashboard
+                    </a>
+                    <a href="{% url 'lokhung:report_list' %}" class="btn btn-primary">
+                        <i class="fas fa-chart-line me-1"></i>Báo cáo
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="row mb-4">
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-chart-area fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Tổng phân tích</div>
+                                    <div class="h4 mb-0">{{ stats.total_analysis }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-calendar-month fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">Tháng này</div>
+                                    <div class="h4 mb-0">{{ stats.this_month_analysis }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-calculator fa-2x"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="small">TB phương pháp/ngày</div>
+                                    <div class="h4 mb-0">{{ stats.avg_methods_per_day|floatformat:1 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Analysis -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-list me-2"></i>Phân tích gần đây
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ngày phân tích</th>
+                                    <th>Số phương pháp</th>
+                                    <th>Tổng dự đoán</th>
+                                    <th>Tỷ lệ trúng TB</th>
+                                    <th>Phương pháp tốt nhất</th>
+                                    <th>Số trúng cao nhất</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for analysis in recent_analysis %}
+                                <tr>
+                                    <td>{{ analysis.analysis_date|date:"d/m/Y" }}</td>
+                                    <td>{{ analysis.total_methods_used }}</td>
+                                    <td>{{ analysis.total_predictions_made }}</td>
+                                    <td>{{ analysis.avg_hit_rate|floatformat:1 }}%</td>
+                                    <td>{{ analysis.best_method_name|default:"N/A" }}</td>
+                                    <td>
+                                        <span class="badge bg-success">
+                                            {{ analysis.best_method_hit_count }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-info-circle text-muted me-2"></i>
+                                        Chưa có phân tích nào
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

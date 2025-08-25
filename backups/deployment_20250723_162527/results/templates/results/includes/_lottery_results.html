@@ -1,0 +1,215 @@
+{% load static %}
+{% load xs_tags %}
+<div class="lottery-results-container">
+    <!-- Sử dụng biến 'ngay' được truyền từ view -->
+    <h2 class="text-center mb-4">KẾT QUẢ XỔ SỐ NGÀY {{ ngay|date:"d/m/Y" }}</h2>
+    
+    <div class="lottery-results-table col-md-8">
+        <!-- Giải đặc biệt -->
+        <div class="result-row special-row">
+            <div class="prize-name">ĐB</div>
+            <div class="prize-numbers">
+                <span class="number special-number">{{ giai_db }}</span>
+            </div>
+        </div>
+        
+        <!-- Giải nhất -->
+        <div class="result-row">
+            <div class="prize-name">G.1</div>
+            <div class="prize-numbers">
+                <span class="number">{{ giai_1 }}</span>
+            </div>
+        </div>
+        
+        <!-- Giải nhì (1 dãy số liền mạch, mỗi số 5 chữ số cách đều nhau) -->
+        <div class="result-row">
+            <div class="prize-name">G.2</div>
+            <div class="prize-numbers">
+                {% if giai_2_split %}
+                    <span class="number">{{ giai_2_split|join:"&nbsp;&nbsp;&nbsp;"|safe }}</span>
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        
+        <!-- Giải ba (2 dòng, mỗi dòng 3 số) -->
+        <div class="result-row">
+            <div class="prize-name">G.3</div>
+            <div class="prize-numbers">
+                {% if giai_3_split %}
+                    {% for row in giai_3_split %}
+                        <div class="number-row">
+                            {% for num in row %}
+                                <span class="number">{{ num }}</span>{% if not forloop.last %}&nbsp;&nbsp;&nbsp;{% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Giải tư (2 hàng, mỗi hàng 2 số) -->
+        <div class="result-row">
+            <div class="prize-name">G.4</div>
+            <div class="prize-numbers">
+                {% if giai_4_split %}
+                    {% for row in giai_4_split %}
+                        <div class="number-row">
+                            {% for num in row %}
+                                <span class="number">{{ num }}</span>{% if not forloop.last %}&nbsp;&nbsp;&nbsp;{% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Giải năm (mỗi dòng là 1 dãy số liền mạch) -->
+        <div class="result-row">
+            <div class="prize-name">G.5</div>
+            <div class="prize-numbers">
+                {% if giai_5_split %}
+                    {% for row in giai_5_split %}
+                        <div class="number-row">
+                            {% for num in row %}
+                                <span class="number">{{ num }}</span>{% if not forloop.last %}&nbsp;&nbsp;&nbsp;{% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Giải Sáu (nối các số liền mạch) -->
+        <div class="result-row">
+            <div class="prize-name">G.6</div>
+            <div class="prize-numbers">
+                {% if giai_6_split %}
+                    <span class="number">{{ giai_6_split|join:"&nbsp;&nbsp;&nbsp;"|safe }}</span>
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Giải Bảy (nối các số liền mạch) -->
+        <div class="result-row">
+            <div class="prize-name">G.7</div>
+            <div class="prize-numbers">
+                {% if giai_7_split %}
+                    <span class="number">{{ giai_7_split|join:"&nbsp;&nbsp;&nbsp;"|safe }}</span>
+                {% else %}
+                    <span class="text-muted">-</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Kết thúc phần kết quả xổ số -->
+<!-- Phần bảng thống kê (4 col)  -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="lottery-statistics-container">
+            <h3 class="text-center mb-3">THỐNG KÊ XỔ SỐ</h3>
+            <table class="table table-bordered statistics-table">
+                <thead class="table-info">
+                    <tr>
+                        <th class="text-center">Giải</th>
+                        <th class="text-center">Số lượng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prize, count in statistics.items %}
+                    <tr>
+                        <td class="text-center font-weight-bold">{{ prize }}</td>
+                        <td class="text-center">{{ count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>    <div class="col-md-4">
+        <div class="prediction-table-container">
+            <h3 class="text-center mb-3">THỐNG KÊ DỰ ĐOÁN</h3>
+            
+            <!-- Tab navigation -->
+            <ul class="nav nav-tabs mb-3">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#lotoTab">Lô tô thực tế</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#predictionTab">Số dự đoán</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#commonTab">Số trùng</a>
+                </li>
+            </ul>
+            
+            <!-- Tab content -->
+            <div class="tab-content">
+                <!-- Tab 1: Lô tô thực tế -->
+                <div class="tab-pane fade show active" id="lotoTab">
+                    <table class="table table-bordered prediction-table">
+                        <!-- Bảng lô tô thực tế như trước -->
+                    </table>
+                </div>
+                
+                <!-- Tab 2: Số dự đoán -->
+                <div class="tab-pane fade" id="predictionTab">
+                    <table class="table table-bordered prediction-table">
+                        <thead class="table-info">
+                            <tr>
+                                <th class="text-center">Đầu</th>
+                                <th class="text-center">Số dự đoán ({{ total_predictions }})</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for digit, numbers in prediction_stats.items %}
+                            <tr>
+                                <td class="text-center font-weight-bold">{{ digit }}</td>
+                                <td>
+                                    {% for num in numbers %}
+                                        <span class="badge 
+                                            {% if num in common_numbers %}bg-warning text-dark
+                                            {% else %}bg-info text-white{% endif %} 
+                                            me-1 mb-1">{{ num }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">-</span>
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Tab 3: Số trùng -->
+                <div class="tab-pane fade" id="commonTab">
+                    {% if common_numbers %}
+                    <div class="common-numbers-grid">
+                        {% for num in common_numbers %}
+                        <div class="common-number-item bg-warning text-dark">
+                            {{ num }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="alert alert-success mt-2">
+                        <i class="fas fa-check-circle"></i> Có {{ common_numbers|length }} số xuất hiện trong cả 3 kỳ dự đoán
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle"></i> Không có số nào trùng nhau giữa các kỳ dự đoán
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
