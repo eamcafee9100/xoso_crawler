@@ -4,6 +4,7 @@ Provides comprehensive statistical analysis for lottery numbers
 """
 import json
 import logging
+import os
 from collections import defaultdict, Counter
 from datetime import datetime, timedelta, date
 from typing import Dict, List, Tuple, Optional, Any
@@ -42,6 +43,10 @@ class FrequencyAnalysisService:
     
     def __init__(self):
         self.cache_validity_days = 1  # Cache validity period
+        try:
+            self.baseline_probability = float(os.getenv('PREDICTION_BASELINE', '1.0'))
+        except ValueError:
+            self.baseline_probability = 1.0
     
     def get_comprehensive_analysis(self, number: str, analysis_date: date = None) -> Dict[str, Any]:
         """
@@ -339,19 +344,20 @@ class FrequencyAnalysisService:
         
         gan_analysis = analysis_data['gan_analysis']
         cycle_analysis = analysis_data['cycle_analysis']
-        
+        baseline = self.baseline_probability
+
         # Probability based on average cycle
         if cycle_analysis['avg_cycle'] > 0:
             cycle_probability = max(0, 100 - (gan_analysis['current_gan_days'] / cycle_analysis['avg_cycle'] * 100))
         else:
-            cycle_probability = 50
-        
+            cycle_probability = baseline
+
         # Probability when approaching max gan
         if gan_analysis['max_gan_days'] > 0:
             max_gan_ratio = gan_analysis['current_gan_days'] / gan_analysis['max_gan_days']
             max_gan_probability = min(100, max_gan_ratio * 100)
         else:
-            max_gan_probability = 50
+            max_gan_probability = baseline
         
         # Combined probability (weighted average)
         combined_probability = (cycle_probability * 0.6 + max_gan_probability * 0.4)
