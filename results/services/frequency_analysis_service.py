@@ -340,9 +340,9 @@ class FrequencyAnalysisService:
         gan_analysis = analysis_data['gan_analysis']
         cycle_analysis = analysis_data['cycle_analysis']
         
-        # Probability based on average cycle
+        # Probability based on average cycle (direct proportional formula)
         if cycle_analysis['avg_cycle'] > 0:
-            cycle_probability = max(0, 100 - (gan_analysis['current_gan_days'] / cycle_analysis['avg_cycle'] * 100))
+            cycle_probability = min(100, (gan_analysis['current_gan_days'] / cycle_analysis['avg_cycle']) * 100)
         else:
             cycle_probability = 50
         
@@ -355,6 +355,10 @@ class FrequencyAnalysisService:
         
         # Combined probability (weighted average)
         combined_probability = (cycle_probability * 0.6 + max_gan_probability * 0.4)
+
+        # Reduce probability if number has never appeared on consecutive days
+        if analysis_data.get('consecutive_analysis', {}).get('max_consecutive_days') == 0:
+            combined_probability *= 0.7
         
         return {
             'cycle_based': round(cycle_probability, 2),
