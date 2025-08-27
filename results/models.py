@@ -2502,7 +2502,7 @@ class NumberFrequencyStats(models.Model):
     """Lưu trữ tần suất xuất hiện của các số theo ngày"""
 
     number = models.CharField(max_length=2, help_text="Số 2 chữ số (00-99)")
-    date = models.DateField(help_text="Ngày xuất hiện")
+    date = models.DateField(help_text="Ngày xuất hiện", db_index=True)
 
     # Vị trí xuất hiện (để phân tích theo giải)
     appeared_in_special = models.BooleanField(
@@ -2526,7 +2526,6 @@ class NumberFrequencyStats(models.Model):
         unique_together = ("number", "date")
         indexes = [
             models.Index(fields=["number"]),
-            models.Index(fields=["date"]),
             models.Index(fields=["day_of_month"]),
             models.Index(fields=["month"]),
             models.Index(fields=["year"]),

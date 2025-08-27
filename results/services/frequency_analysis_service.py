@@ -227,34 +227,36 @@ class FrequencyAnalysisService:
         """Calculate numbers that frequently appear together with the given number"""
         
         # Get dates when this number appeared
-        appearance_dates = NumberFrequencyStats.objects.filter(
-            number=number,
-            date__lte=analysis_date
-        ).values_list('date', flat=True)
-        
-        # Find other numbers that appeared on the same dates
-        companion_counts = defaultdict(int)
-        
-        for appearance_date in appearance_dates:
-            other_numbers = NumberFrequencyStats.objects.filter(
-                date=appearance_date
-            ).exclude(number=number).values_list('number', flat=True)
-            
-            for other_number in other_numbers:
-                companion_counts[other_number] += 1
-        
-        # Sort by frequency and get top 10
-        companions = []
-        for comp_number, count in sorted(companion_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-            total_appearances = len(appearance_dates)
-            percentage = (count / total_appearances * 100) if total_appearances > 0 else 0
-            
-            companions.append({
-                'number': comp_number,
-                'co_occurrences': count,
-                'percentage': round(percentage, 2)
-            })
-        
+        appearance_dates = list(
+            NumberFrequencyStats.objects.filter(
+                number=number,
+                date__lte=analysis_date
+            ).values_list('date', flat=True)
+        )
+
+        if not appearance_dates:
+            return []
+
+        total_appearances = len(appearance_dates)
+
+        # Query once for all companion numbers and aggregate
+        companion_qs = (
+            NumberFrequencyStats.objects.filter(date__in=appearance_dates)
+            .exclude(number=number)
+            .values('number')
+            .annotate(co_occurrences=Count('id'))
+            .order_by('-co_occurrences')[:10]
+        )
+
+        companions = [
+            {
+                'number': item['number'],
+                'co_occurrences': item['co_occurrences'],
+                'percentage': round(item['co_occurrences'] / total_appearances * 100, 2)
+            }
+            for item in companion_qs
+        ]
+
         return companions
     
     def _calculate_consecutive_analysis(self, frequency_data) -> Dict[str, Any]:
@@ -302,36 +304,35 @@ class FrequencyAnalysisService:
         """Calculate numbers that frequently appear before this number"""
         
         # Get dates when this number appeared
-        appearance_dates = list(NumberFrequencyStats.objects.filter(
-            number=number,
-            date__lte=analysis_date
-        ).values_list('date', flat=True))
-        
-        predecessor_counts = defaultdict(int)
-        
-        for appearance_date in appearance_dates:
-            # Look for numbers that appeared 1 day before
-            previous_date = appearance_date - timedelta(days=1)
-            previous_numbers = NumberFrequencyStats.objects.filter(
-                date=previous_date
-            ).values_list('number', flat=True)
-            
-            for prev_number in previous_numbers:
-                predecessor_counts[prev_number] += 1
-        
-        # Sort by frequency and get top 10
-        predecessors = []
+        appearance_dates = list(
+            NumberFrequencyStats.objects.filter(
+                number=number,
+                date__lte=analysis_date
+            ).values_list('date', flat=True)
+        )
+
+        if not appearance_dates:
+            return []
+
+        previous_dates = [d - timedelta(days=1) for d in appearance_dates]
         total_opportunities = len(appearance_dates)
-        
-        for pred_number, count in sorted(predecessor_counts.items(), key=lambda x: x[1], reverse=True)[:10]:
-            percentage = (count / total_opportunities * 100) if total_opportunities > 0 else 0
-            
-            predecessors.append({
-                'number': pred_number,
-                'occurrences': count,
-                'percentage': round(percentage, 2)
-            })
-        
+
+        predecessor_qs = (
+            NumberFrequencyStats.objects.filter(date__in=previous_dates)
+            .values('number')
+            .annotate(occurrences=Count('id'))
+            .order_by('-occurrences')[:10]
+        )
+
+        predecessors = [
+            {
+                'number': item['number'],
+                'occurrences': item['occurrences'],
+                'percentage': round(item['occurrences'] / total_opportunities * 100, 2)
+            }
+            for item in predecessor_qs
+        ]
+
         return predecessors
     
     def _calculate_prediction_probabilities(self, analysis_data: Dict, frequency_data) -> Dict[str, float]:
